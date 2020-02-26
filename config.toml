@@ -1,0 +1,30 @@
+# The URL the site will be built for
+base_url = "https://novakov-alexey.github.io"
+
+# Whether to automatically compile all Sass files in the sass directory
+compile_sass = true
+
+# Whether to do syntax highlighting
+# Theme can be customised by setting the `highlight_theme` variable to a theme supported by Zola
+highlight_code = true
+highlight_theme = "base16-ocean-dark"
+
+# Whether to build a search index to be used later on by a JavaScript library
+build_search_index = false
+title = "Software Engineering Notes"
+# Description. This is needed for SEO/site metadata purposes
+description = "Alexey Novakov"
+theme = "ergo"
+
+[extra]
+profile = 'alexey_white2.jpg'
+
+# website, should not be preceded with `http://`
+# website = "novakov-alexey.github.io"
+
+# github
+github = "novakov-alexey" # case does not matter
+# twitter
+twitter = "alexey_novakov"
+# linkedin
+linkedin = "alexey-novakov-26468624"
