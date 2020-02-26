@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+      
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" >
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+        <!-- SEO -->
+        
+        <title> Scala FS2 - handle broken CSV lines | Software Engineering Notes </title>
+        
+
+        <!-- Enable responsiveness on mobile devices-->
+        <meta name="viewport"  content="width=device-width, initial-scale=1.0, maximum-scale=1" >
+
+        <!--  css -->
+        <link rel="stylesheet"  href="http:&#x2F;&#x2F;127.0.0.1:1111/ergo.css" >
+
+        <!-- fonts -->
+        <!-- preload  -->
+        <link rel="preload" href="https://fonts.googleapis.com/css?family=Montserrat:200,300,300i,400,500,500i,600,700,800,900|Raleway" as="style">
+        <link rel="preload"  href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous" as="style" >
+        <!-- load -->
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:200,300,300i,400,500,500i,600,700,800,900|Raleway">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css"  integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+      
+    </head>
+
+    <body>
+      
+        
+<input type="checkbox" id="openSidebarMenu" class="openSidebarMenu">
+<label class="menu cross menu--1" for="openSidebarMenu">
+    <svg viewBox="0 0 75 75" xmlns="https://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="30" />
+        <path class="line--1" d="M0 40h62c13 0 6 28-4 18L35 35" />
+        <path class="line--2" d="M0 50h70" />
+        <path class="line--3" d="M0 60h62c13 0 6-28-4-18L35 65" />
+    </svg>
+</label>
+
+<div id="sidebarMenu">
+    <div class="menu_wrapper">
+        <ul class="sidebarMenuInner" >     
+            <li>
+                <a href="http:&#x2F;&#x2F;127.0.0.1:1111" >Software Engineering Notes</a>
+                <div class="menu_div" ></div>
+            </li>                   
+            <li><a href="http:&#x2F;&#x2F;127.0.0.1:1111/cv/">CV</a></li>
+            <li><a href="http:&#x2F;&#x2F;127.0.0.1:1111/presentations">Presentations</a></li>
+            <li><a href="http:&#x2F;&#x2F;127.0.0.1:1111/categories">Categories</a></li>
+            <li><a href="http:&#x2F;&#x2F;127.0.0.1:1111/tags">Tags</a></li>
+        </ul>
+<!--         
+        <ul class="sidebarMenuInner">
+            <li>
+                <a href="http:&#x2F;&#x2F;127.0.0.1:1111" >Software Engineering Notes</a>
+                <div class="menu_div" ></div>
+            </li>
+            
+            
+            <li><a href="https://github.com/novakov-alexey" target="_blank" >novakov-alexey</a><i class="fab fa-github" ></i></li>
+            
+            
+            <li><a href="https://twitter.com/alexey_novakov" target="_blank">@alexey_novakov</a><i class="fab fa-twitter" ></i></li>
+            
+            
+            
+            
+            <li><a href="https://www.linkedin.com/in/alexey-novakov-26468624" target="_blank">alexey-novakov-26468624</a><i class="fab fa-linkedin" ></i></li>
+            
+            
+            
+            
+            
+        </ul> -->
+    </div>
+</div>
+
+      
+
+      
+<nav id="overlord" class="overlord" >
+  
+<figure class="mini_logo ">
+    <a href="http:&#x2F;&#x2F;127.0.0.1:1111" style="background-image: url(http:&#x2F;&#x2F;127.0.0.1:1111/img/alexey_white2.jpg)"></a>
+</figure>
+<h5>
+    <a href="http:&#x2F;&#x2F;127.0.0.1:1111">Software Engineering Notes</a>
+</h5>
+
+</nav>
+
+<section class="post_container">
+  <article>
+    
+      <h1 class="article_title"><a href="http:&#x2F;&#x2F;127.0.0.1:1111&#x2F;scala-fs2&#x2F;" id="article_link">Scala FS2 - handle broken CSV lines</a></h1>
+      
+<ul class="frontmatter frontmatter_page" id="frontmatter">
+    <li>
+        <time class="article_time"  datetime="2020-02-27">February 27, 2020</time>
+    </li>
+    <span class="dotDivider"></span>
+    <li> 1097 words </li>
+    <span class="dotDivider" ></span>
+    <li> 6 min </li>
+</ul>
+
+      <p>Recently, I ran into a familiar situation by doing data processing, where I needed to deal with a fragmented data stream. Having fragments, I had to detect manually where exactly new line/message starts and where current line/message ends in the stream. As turned out, one can aggregate intermediate state of the fragmented stream using scan function.</p>
+<p>Let us dig down into how scan function is working.</p>
+<img class="filldiv" src="/scala-fs2/stream-fs2.jpeg"/>
+<h2 id="scan-function">Scan function</h2>
+<p>FS2 Stream Scan combinator works similar to scan function in Scala collection library. Official Scala doc for scan:</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">scan</span><span style="color:#c0c5ce;">[</span><span style="color:#ebcb8b;">B </span><span style="color:#c0c5ce;">&gt;: </span><span style="color:#ebcb8b;">A</span><span style="color:#c0c5ce;">, </span><span style="color:#ebcb8b;">That</span><span style="color:#c0c5ce;">](</span><span style="color:#bf616a;">z</span><span style="color:#c0c5ce;">: </span><span style="color:#ebcb8b;">B</span><span style="color:#c0c5ce;">)(</span><span style="color:#bf616a;">op</span><span style="color:#c0c5ce;">: (</span><span style="color:#ebcb8b;">B</span><span style="color:#c0c5ce;">, </span><span style="color:#ebcb8b;">B</span><span style="color:#c0c5ce;">) ⇒ </span><span style="color:#ebcb8b;">B</span><span style="color:#c0c5ce;">)(
+    </span><span style="color:#b48ead;">implicit </span><span style="color:#bf616a;">cbf</span><span style="color:#c0c5ce;">: </span><span style="color:#ebcb8b;">CanBuildFrom</span><span style="color:#c0c5ce;">[</span><span style="color:#ebcb8b;">List</span><span style="color:#c0c5ce;">[</span><span style="color:#ebcb8b;">A</span><span style="color:#c0c5ce;">], </span><span style="color:#ebcb8b;">B</span><span style="color:#c0c5ce;">, </span><span style="color:#ebcb8b;">That</span><span style="color:#c0c5ce;">]
+): </span><span style="color:#ebcb8b;">That
+</span></pre>
+<p>says:</p>
+<blockquote>
+  Computes a prefix scan of the elements of the collection.<br />
+  -- Scala doc
+</blockquote>
+<p>Hm, what this would mean? It is much easier to try it and see how it works.</p>
+<p>Here is <a href="https://superruzafa.github.io/visual-scala-reference/scanLeft">visual diagram</a> for scan:
+<img src="/img/blog/scanLeft.svg"></p>
+<p>Let’s try with simple List using Scala REPL.</p>
+<ol>
+<li>If we just aggregate and return acc every time in op function:</li>
+</ol>
+<pre style="background-color:#2b303b;">
+<span style="color:#c0c5ce;">&gt; </span><span style="color:#b48ead;">val </span><span style="color:#c0c5ce;">l = List(&quot;</span><span style="color:#a3be8c;">I</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;">am</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;">broken</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;">sentence</span><span style="color:#c0c5ce;">&quot;)
+l: </span><span style="color:#ebcb8b;">List</span><span style="color:#c0c5ce;">[</span><span style="color:#ebcb8b;">String</span><span style="color:#c0c5ce;">] = List(&quot;</span><span style="color:#a3be8c;">I</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;">am</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;">broken</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;">sentence</span><span style="color:#c0c5ce;">&quot;
+
+&gt; l.scan(&quot;&quot;){</span><span style="color:#b48ead;">case</span><span style="color:#c0c5ce;"> (</span><span style="color:#bf616a;">acc</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">e</span><span style="color:#c0c5ce;">) =&gt; acc + &quot; &quot; +  e}
+res5: </span><span style="color:#ebcb8b;">List</span><span style="color:#c0c5ce;">[</span><span style="color:#ebcb8b;">String</span><span style="color:#c0c5ce;">] = 
+List(&quot;&quot;, &quot;</span><span style="color:#a3be8c;"> I</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;"> I am</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;"> I am broken</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;"> I am broken sentence</span><span style="color:#c0c5ce;">&quot;)
+</span></pre>
+<ol start="2">
+<li>If we apply some if condition based on the element content, then we can control, which element is going to be added into output collection:</li>
+</ol>
+<pre style="background-color:#2b303b;">
+<span style="color:#c0c5ce;">&gt; l.scan(&quot;&quot;){
+  </span><span style="color:#b48ead;">case</span><span style="color:#c0c5ce;"> (</span><span style="color:#bf616a;">acc</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">e</span><span style="color:#c0c5ce;">) =&gt; </span><span style="color:#b48ead;">if </span><span style="color:#c0c5ce;">(e == &quot;</span><span style="color:#a3be8c;">broken</span><span style="color:#c0c5ce;">&quot;) e </span><span style="color:#b48ead;">else</span><span style="color:#c0c5ce;">  acc + &quot; &quot; +  e
+}
+
+res6: </span><span style="color:#ebcb8b;">List</span><span style="color:#c0c5ce;">[</span><span style="color:#ebcb8b;">String</span><span style="color:#c0c5ce;">] = 
+List(&quot;&quot;, &quot;</span><span style="color:#a3be8c;"> I</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;"> I am</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;">broken</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;">broken sentence</span><span style="color:#c0c5ce;">&quot;)
+</span></pre>
+<p>As we can see, once boolean condition in the if is true, we return only the current element e and start new accumulation, i.e. produce next element without all the stuff we accumulated before. Hopefully, these two examples help to grasp an idea of the scan function.</p>
+<h2 id="csv-file-processing-using-fs2">CSV file processing using FS2</h2>
+<p>Let’s first create a Scala IOApp using cats-effect library, which is coming as FS2 dependency, and define FS2 blocking execution context to work with files.</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#b48ead;">import </span><span style="color:#bf616a;">java.nio.file.Paths
+</span><span style="color:#b48ead;">import </span><span style="color:#bf616a;">java.util.concurrent.Executors
+</span><span style="color:#b48ead;">import </span><span style="color:#bf616a;">cats.effect.</span><span style="color:#c0c5ce;">{</span><span style="color:#bf616a;">ExitCode</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">IO</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">IOApp</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">Resource</span><span style="color:#c0c5ce;">}
+</span><span style="color:#b48ead;">import </span><span style="color:#bf616a;">cats.instances.int._
+</span><span style="color:#b48ead;">import </span><span style="color:#bf616a;">cats.syntax.all._
+</span><span style="color:#b48ead;">import </span><span style="color:#bf616a;">fs2._
+
+</span><span style="color:#b48ead;">object </span><span style="color:#ebcb8b;">Main </span><span style="color:#b48ead;">extends </span><span style="color:#a3be8c;">IOApp </span><span style="color:#eff1f5;">{
+  </span><span style="color:#b48ead;">val </span><span style="color:#eff1f5;">Separator </span><span style="color:#c0c5ce;">= &quot;</span><span style="color:#a3be8c;">;</span><span style="color:#c0c5ce;">&quot;
+  </span><span style="color:#b48ead;">val </span><span style="color:#eff1f5;">isNextId: </span><span style="color:#ebcb8b;">Regex </span><span style="color:#c0c5ce;">= </span><span style="color:#96b5b4;">s</span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">^(</span><span style="color:#96b5b4;">\\</span><span style="color:#a3be8c;">s*</span><span style="color:#96b5b4;">\\</span><span style="color:#a3be8c;">d+.*)</span><span style="color:#c0c5ce;">$</span><span style="color:#bf616a;">Separator</span><span style="color:#c0c5ce;">&quot;</span><span style="color:#eff1f5;">.r
+  </span><span style="color:#b48ead;">val </span><span style="color:#eff1f5;">LastRowPaddingId </span><span style="color:#c0c5ce;">= </span><span style="color:#96b5b4;">s</span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">1</span><span style="color:#c0c5ce;">$</span><span style="color:#bf616a;">Separator</span><span style="color:#c0c5ce;">&quot;
+  </span><span style="color:#b48ead;">val </span><span style="color:#eff1f5;">ColumnsInFile </span><span style="color:#c0c5ce;">= </span><span style="color:#d08770;">10
+  </span><span style="color:#b48ead;">val </span><span style="color:#eff1f5;">HeaderLines </span><span style="color:#c0c5ce;">= </span><span style="color:#d08770;">1  
+  
+  </span><span style="color:#b48ead;">override def </span><span style="color:#8fa1b3;">run</span><span style="color:#eff1f5;">(</span><span style="color:#bf616a;">args</span><span style="color:#eff1f5;">: </span><span style="color:#ebcb8b;">List</span><span style="color:#eff1f5;">[</span><span style="color:#ebcb8b;">String</span><span style="color:#eff1f5;">]): </span><span style="color:#ebcb8b;">IO</span><span style="color:#eff1f5;">[</span><span style="color:#ebcb8b;">ExitCode</span><span style="color:#eff1f5;">] </span><span style="color:#c0c5ce;">=</span><span style="color:#eff1f5;">
+    processFile(</span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">./input.csv</span><span style="color:#c0c5ce;">&quot;</span><span style="color:#eff1f5;">).compile.drain.as(ExitCode.Success)  
+    
+  </span><span style="color:#b48ead;">private val </span><span style="color:#eff1f5;">blockingExecutionContext </span><span style="color:#c0c5ce;">=
+    </span><span style="color:#eff1f5;">Resource.make(IO(
+        ExecutionContext
+          .fromExecutorService(Executors.newFixedThreadPool(</span><span style="color:#d08770;">2</span><span style="color:#eff1f5;">))
+        ))(</span><span style="color:#bf616a;">ec </span><span style="color:#b48ead;">=&gt; </span><span style="color:#eff1f5;">IO(ec.shutdown()))  
+        
+  </span><span style="color:#b48ead;">private def </span><span style="color:#8fa1b3;">processFile</span><span style="color:#eff1f5;">(</span><span style="color:#bf616a;">filePath</span><span style="color:#eff1f5;">: </span><span style="color:#ebcb8b;">String</span><span style="color:#eff1f5;">): </span><span style="color:#ebcb8b;">Stream</span><span style="color:#eff1f5;">[</span><span style="color:#ebcb8b;">IO</span><span style="color:#eff1f5;">, </span><span style="color:#b48ead;">Unit</span><span style="color:#eff1f5;">] </span><span style="color:#c0c5ce;">= </span><span style="color:#b48ead;">???
+</span><span style="color:#eff1f5;">}
+</span></pre>
+<p>Above <strong>processFile</strong> function will be returning a stream taking a file path to be processed as CSV file.</p>
+<p><strong>processFile</strong> implementation:</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#c0c5ce;">Stream.resource(blockingExecutionContext).flatMap { </span><span style="color:#bf616a;">blockingEC </span><span style="color:#b48ead;">=&gt;</span><span style="color:#c0c5ce;">
+  io.file
+    .readAll[</span><span style="color:#ebcb8b;">IO</span><span style="color:#c0c5ce;">](Paths.get(filePath), blockingEC, </span><span style="color:#d08770;">4</span><span style="color:#c0c5ce;"> * </span><span style="color:#d08770;">4096</span><span style="color:#c0c5ce;">)
+    .through(text.utf8Decode)
+    .append(Stream.eval(IO.pure(&quot;</span><span style="color:#96b5b4;">\n</span><span style="color:#c0c5ce;">&quot; + LastRowPaddingId)))
+    .through(text.lines)
+    .drop(HeaderLines)
+    .scan((&quot;&quot;, &quot;&quot;)) {
+      </span><span style="color:#b48ead;">case</span><span style="color:#c0c5ce;"> ((</span><span style="color:#bf616a;">acc</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">_</span><span style="color:#c0c5ce;">), </span><span style="color:#bf616a;">line</span><span style="color:#c0c5ce;">) =&gt; concatBrokenLines(acc, line)
+    }
+    .filter { </span><span style="color:#b48ead;">case</span><span style="color:#c0c5ce;"> (</span><span style="color:#bf616a;">_</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">line</span><span style="color:#c0c5ce;">) =&gt; line.trim.nonEmpty }
+    .map { </span><span style="color:#b48ead;">case</span><span style="color:#c0c5ce;"> (</span><span style="color:#bf616a;">_</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">line</span><span style="color:#c0c5ce;">) =&gt; line.split(Separator, ColumnsInFile) }
+    .map(processRow)
+    .foldMap(</span><span style="color:#bf616a;">_ </span><span style="color:#b48ead;">=&gt; </span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">)
+    .map(</span><span style="color:#bf616a;">n </span><span style="color:#b48ead;">=&gt;</span><span style="color:#c0c5ce;"> println(</span><span style="color:#96b5b4;">s</span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">Processed </span><span style="color:#c0c5ce;">$</span><span style="color:#bf616a;">n</span><span style="color:#a3be8c;"> record(s)</span><span style="color:#c0c5ce;">&quot;))
+}
+</span></pre>
+<p>The main code of finding the complete CSV line (a line, which can have multiple parts of one logical CSV line separated by line brakes like \n) starts at line:</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#c0c5ce;">.scan((&quot;&quot;, &quot;&quot;)) {
+  </span><span style="color:#b48ead;">case</span><span style="color:#c0c5ce;"> ((</span><span style="color:#bf616a;">acc</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">_</span><span style="color:#c0c5ce;">), </span><span style="color:#bf616a;">line</span><span style="color:#c0c5ce;">) =&gt; concatBrokenLines(acc, line)
+}
+.filter { </span><span style="color:#b48ead;">case</span><span style="color:#c0c5ce;"> (</span><span style="color:#bf616a;">_</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">line</span><span style="color:#c0c5ce;">) =&gt; line.trim.nonEmpty }
+</span></pre>
+<p>Inside the scan function, we delegate ‘op’ part to concatBrokenLine function:</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">concatBrokenLines</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">acc</span><span style="color:#c0c5ce;">: </span><span style="color:#ebcb8b;">String</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">line</span><span style="color:#c0c5ce;">: </span><span style="color:#ebcb8b;">String</span><span style="color:#c0c5ce;">) = {  
+  </span><span style="color:#65737e;">// next line detected, i.e. we flush `acc` downstream,
+  // since it already contains a complete line to be processed
+ 
+  </span><span style="color:#b48ead;">if </span><span style="color:#c0c5ce;">(isNextId.findFirstIn(acc).isDefined 
+      &amp;&amp; isNextId.findFirstIn(line).isDefined) (line, acc)
+  
+  </span><span style="color:#65737e;">// next line is not yet detected, i.e. we flush an empty string 
+  // and append current line to the current `acc` state  
+  // else (acc + &quot; &quot; + line, &quot;&quot;)
+</span><span style="color:#c0c5ce;">}
+</span></pre>
+<p>using regular expression <strong>isNextId</strong> we identify, whether new line marker is found. In the regular expression we want to find a number following by semicolon (according to current file business logic).</p>
+<p>Read the inline comments in the <em>concatBrokenLines</em> function on how using if/else logic, we control what needs to be put into next element of the downstream. As you can see, we use second half of the accumulator to push the complete line further (in the if branch).</p>
+<p><strong>Now looking at scan and its concatBrokenLines function together</strong>, we can summarise:</p>
+<p>we process CSV lines by folding them via scan function using empty element as a tuple of two empty strings (“”, “”). In the head of the scanning lambda we use only first part of the zero element, we call it acc, i.e. accumulator. We also have <strong>line</strong> variable, which is given by the Stream.scan function itself. Then, we delegate the decision on what needs to be returned to the downstream using <em>filter</em> function. Basically, we use <em>filter</em> as a guard to control what actually needs to be passed further for the main processing logic as CVS line.</p>
+<p>Also, we append fake line to be able to process the very last line. This last line needs one more marker to be properly detected as complete line:</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#c0c5ce;">.append(Stream.eval(IO.pure(&quot;</span><span style="color:#96b5b4;">\n</span><span style="color:#c0c5ce;">&quot; + LastRowPaddingId)))
+</span></pre><h2 id="test-of-the-fs2-code">Test of the FS2 code</h2>
+<p>Using file input.csv:</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#c0c5ce;">index;City;population
+1;Berlin is the
+capital and largest city of
+Germany by
+both area and population.;3,748,148
+1;Madrid is the capital of Spain and the largest
+municipality in both the Community of Madrid and Spain as
+a whole.;3,223,334
+1;Donetsk former names: Aleksandrovka,
+Hughesovka, Yuzovka, Stalino is an industrial city in Ukraine on the Kalmius
+River.;929,063
+</span></pre>
+<p>we print the resulted lines of the stream in the <em>processRow</em> function. In real life this function supposed to do something useful:</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#b48ead;">private def </span><span style="color:#8fa1b3;">processRow</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">columns</span><span style="color:#c0c5ce;">: </span><span style="color:#ebcb8b;">Array</span><span style="color:#c0c5ce;">[</span><span style="color:#ebcb8b;">String</span><span style="color:#c0c5ce;">]): </span><span style="color:#b48ead;">Unit </span><span style="color:#c0c5ce;">= 
+  println(</span><span style="color:#96b5b4;">s</span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">processed: ${</span><span style="color:#c0c5ce;">columns.mkString(&quot;</span><span style="color:#a3be8c;"> :: </span><span style="color:#c0c5ce;">&quot;).trim</span><span style="color:#a3be8c;">}</span><span style="color:#c0c5ce;">&quot;)
+</span></pre>
+<p>Output:</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#c0c5ce;">processed: 1 :: Berlin is the capital and largest city of Germany by both area and population. :: 3,748,148
+processed: 1 :: Madrid is the capital of Spain and the largest municipality in both the Community of Madrid and Spain as a whole. :: 3,223,334
+processed: 1 :: Donetsk former names: Aleksandrovka, Hughesovka, Yuzovka, Stalino is an industrial city in Ukraine on the Kalmius River. :: 929,063
+Processed 3 record(s)
+</span></pre><h2 id="summary">Summary</h2>
+<p>Applying knowledge of functional combinators, we have gotten concise and clean code, without using any global mutable state outside of the stream definition. We have also solved the problem within the single data stream using scan to aggregate intermediate state and filter function as a guard to discard incomplete CSV lines.</p>
+<p>FS2 library is very nice and especially having Cats and Cats-effect as direct dependency. 
+See more examples for functional streaming in <a href="https://fs2.io/guide.htm">FS2 guide</a></p>
+<p>Source code: <a href="https://github.com/novakov-alexey/fs2-csv-scan">https://github.com/novakov-alexey/fs2-csv-scan</a></p>
+
+      
+  </article>
+</section>
+
+       
+
+      <footer>
+        
+          
+<figure class="mini_logo ">
+    <a href="http:&#x2F;&#x2F;127.0.0.1:1111" style="background-image: url(http:&#x2F;&#x2F;127.0.0.1:1111/img/alexey_white2.jpg)"></a>
+</figure>
+<h5>
+    <a href="http:&#x2F;&#x2F;127.0.0.1:1111">Software Engineering Notes</a>
+</h5>
+
+          
+<ul class="social_list foot_list" >
+    
+    
+    <li class="button extra_small font_faint"><a href="https://github.com/novakov-alexey" target="_blank" >novakov-alexey</a><i class="fab fa-github" ></i></li>
+    
+    
+    <li class="button extra_small font_faint"><a href="https://twitter.com/alexey_novakov" target="_blank">@alexey_novakov</a><i class="fab fa-twitter" ></i></li>
+    
+    
+    
+    
+    <li class="button extra_small font_faint"><a href="https://www.linkedin.com/in/alexey-novakov-26468624" target="_blank">alexey-novakov-26468624</a><i class="fab fa-linkedin" ></i></li>
+    
+    
+    
+    
+    
+</ul>
+
+        
+      </footer>
+    <script src="/livereload.js?port=1024&amp;mindelay=10"></script></body>
+</html>
