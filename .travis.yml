@@ -4,7 +4,7 @@ before_script:
   # Download and unzip the zola executable
   # Replace the version numbers in the URL by the version you want to use
   - curl -O -L https://github.com/getzola/zola/releases/download/v0.10.0/zola-v0.10.0-x86_64-apple-darwin.tar.gz
-  - ls- lah
+  - ls -lah
   - tar xvzf zola-v0.10.0-x86_64-apple-darwin.tar.gz -C /usr/local/bin
 
 script:
