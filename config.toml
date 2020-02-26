@@ -14,7 +14,7 @@ build_search_index = false
 title = "Software Engineering Notes"
 # Description. This is needed for SEO/site metadata purposes
 description = "Alexey Novakov"
-theme = "ergo"
+theme = "Ergo"
 
 [extra]
 profile = 'alexey_white2.jpg'
