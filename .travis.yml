@@ -15,7 +15,7 @@ script:
 after_success: |
   [ $TRAVIS_BRANCH = code ] &&
   [ $TRAVIS_PULL_REQUEST = false ] &&
-  sudo /usr/local/bin/zola build &&
+  sudo zola build &&
   sudo pip install ghp-import &&
   ghp-import -n public -b master &&
   git push -fq https://${GH_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git master
