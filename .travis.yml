@@ -9,7 +9,7 @@ before_script:
   - ls -lah
 
 script:
-  - ./zola build
+  - exec zola build
 
 # If you are using a different folder than `public` for the output directory, you will
 # need to change the `zola` command and the `ghp-import` path
