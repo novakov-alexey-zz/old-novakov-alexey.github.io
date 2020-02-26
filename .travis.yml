@@ -6,6 +6,7 @@ before_script:
   - curl -O -L https://github.com/getzola/zola/releases/download/v0.10.0/zola-v0.10.0-x86_64-apple-darwin.tar.gz
   - ls -lah
   - sudo tar xvzf zola-v0.10.0-x86_64-apple-darwin.tar.gz
+  - ls -lah
 
 script:
   - sudo zola build
