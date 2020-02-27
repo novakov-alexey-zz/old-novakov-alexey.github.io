@@ -101,20 +101,20 @@
         <time class="article_time"  datetime="2020-02-27">February 27, 2020</time>
     </li>
     <span class="dotDivider"></span>
-    <li> 1097 words </li>
+    <li> 1101 words </li>
     <span class="dotDivider" ></span>
     <li> 6 min </li>
 </ul>
 
       <p>Recently, I ran into a familiar situation by doing data processing, where I needed to deal with a fragmented data stream. Having fragments, I had to detect manually where exactly new line/message starts and where current line/message ends in the stream. As turned out, one can aggregate intermediate state of the fragmented stream using scan function.</p>
 <p>Let us dig down into how scan function is working.</p>
-<img class="filldiv" src="/scala-fs2/stream-fs2.jpeg"/>
+<img src="http:&#x2F;&#x2F;127.0.0.1:1111&#x2F;processed_images&#x2F;7445a2d5c821903f00.jpg" />
 <h2 id="scan-function">Scan function</h2>
 <p>FS2 Stream Scan combinator works similar to scan function in Scala collection library. Official Scala doc for scan:</p>
-<pre style="background-color:#2b303b;">
-<span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">scan</span><span style="color:#c0c5ce;">[</span><span style="color:#ebcb8b;">B </span><span style="color:#c0c5ce;">&gt;: </span><span style="color:#ebcb8b;">A</span><span style="color:#c0c5ce;">, </span><span style="color:#ebcb8b;">That</span><span style="color:#c0c5ce;">](</span><span style="color:#bf616a;">z</span><span style="color:#c0c5ce;">: </span><span style="color:#ebcb8b;">B</span><span style="color:#c0c5ce;">)(</span><span style="color:#bf616a;">op</span><span style="color:#c0c5ce;">: (</span><span style="color:#ebcb8b;">B</span><span style="color:#c0c5ce;">, </span><span style="color:#ebcb8b;">B</span><span style="color:#c0c5ce;">) ⇒ </span><span style="color:#ebcb8b;">B</span><span style="color:#c0c5ce;">)(
-    </span><span style="color:#b48ead;">implicit </span><span style="color:#bf616a;">cbf</span><span style="color:#c0c5ce;">: </span><span style="color:#ebcb8b;">CanBuildFrom</span><span style="color:#c0c5ce;">[</span><span style="color:#ebcb8b;">List</span><span style="color:#c0c5ce;">[</span><span style="color:#ebcb8b;">A</span><span style="color:#c0c5ce;">], </span><span style="color:#ebcb8b;">B</span><span style="color:#c0c5ce;">, </span><span style="color:#ebcb8b;">That</span><span style="color:#c0c5ce;">]
-): </span><span style="color:#ebcb8b;">That
+<pre style="background-color:#282a36;">
+<span style="font-style:italic;color:#8be9fd;">def </span><span style="color:#50fa7b;">scan</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">B </span><span style="color:#ff79c6;">&gt;: </span><span style="font-style:italic;color:#66d9ef;">A</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#66d9ef;">That</span><span style="color:#f8f8f2;">](</span><span style="font-style:italic;color:#ffb86c;">z</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">B</span><span style="color:#f8f8f2;">)(</span><span style="font-style:italic;color:#ffb86c;">op</span><span style="color:#f8f8f2;">: (</span><span style="font-style:italic;color:#66d9ef;">B</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#66d9ef;">B</span><span style="color:#f8f8f2;">) </span><span style="color:#ff79c6;">⇒ </span><span style="font-style:italic;color:#66d9ef;">B</span><span style="color:#f8f8f2;">)(
+    </span><span style="color:#ff79c6;">implicit </span><span style="font-style:italic;color:#ffb86c;">cbf</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">CanBuildFrom</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">List</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">A</span><span style="color:#f8f8f2;">], </span><span style="font-style:italic;color:#66d9ef;">B</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#66d9ef;">That</span><span style="color:#f8f8f2;">]
+): </span><span style="font-style:italic;color:#66d9ef;">That
 </span></pre>
 <p>says:</p>
 <blockquote>
@@ -128,107 +128,107 @@
 <ol>
 <li>If we just aggregate and return acc every time in op function:</li>
 </ol>
-<pre style="background-color:#2b303b;">
-<span style="color:#c0c5ce;">&gt; </span><span style="color:#b48ead;">val </span><span style="color:#c0c5ce;">l = List(&quot;</span><span style="color:#a3be8c;">I</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;">am</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;">broken</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;">sentence</span><span style="color:#c0c5ce;">&quot;)
-l: </span><span style="color:#ebcb8b;">List</span><span style="color:#c0c5ce;">[</span><span style="color:#ebcb8b;">String</span><span style="color:#c0c5ce;">] = List(&quot;</span><span style="color:#a3be8c;">I</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;">am</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;">broken</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;">sentence</span><span style="color:#c0c5ce;">&quot;
+<pre style="background-color:#282a36;">
+<span style="color:#f8f8f2;">&gt; </span><span style="font-style:italic;color:#8be9fd;">val </span><span style="color:#f8f8f2;">l </span><span style="color:#ff79c6;">= </span><span style="color:#6be5fd;">List</span><span style="color:#f8f8f2;">(</span><span style="color:#f1fa8c;">&quot;I&quot;</span><span style="color:#f8f8f2;">, </span><span style="color:#f1fa8c;">&quot;am&quot;</span><span style="color:#f8f8f2;">, </span><span style="color:#f1fa8c;">&quot;broken&quot;</span><span style="color:#f8f8f2;">, </span><span style="color:#f1fa8c;">&quot;sentence&quot;</span><span style="color:#f8f8f2;">)
+l: </span><span style="font-style:italic;color:#66d9ef;">List</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">] </span><span style="color:#ff79c6;">= </span><span style="color:#6be5fd;">List</span><span style="color:#f8f8f2;">(</span><span style="color:#f1fa8c;">&quot;I&quot;</span><span style="color:#f8f8f2;">, </span><span style="color:#f1fa8c;">&quot;am&quot;</span><span style="color:#f8f8f2;">, </span><span style="color:#f1fa8c;">&quot;broken&quot;</span><span style="color:#f8f8f2;">, </span><span style="color:#f1fa8c;">&quot;sentence&quot;</span><span style="color:#f8f8f2;">
 
-&gt; l.scan(&quot;&quot;){</span><span style="color:#b48ead;">case</span><span style="color:#c0c5ce;"> (</span><span style="color:#bf616a;">acc</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">e</span><span style="color:#c0c5ce;">) =&gt; acc + &quot; &quot; +  e}
-res5: </span><span style="color:#ebcb8b;">List</span><span style="color:#c0c5ce;">[</span><span style="color:#ebcb8b;">String</span><span style="color:#c0c5ce;">] = 
-List(&quot;&quot;, &quot;</span><span style="color:#a3be8c;"> I</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;"> I am</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;"> I am broken</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;"> I am broken sentence</span><span style="color:#c0c5ce;">&quot;)
+&gt; l</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">scan(</span><span style="color:#f1fa8c;">&quot;&quot;</span><span style="color:#f8f8f2;">)</span><span style="color:#ffffff;">{</span><span style="color:#ff79c6;">case</span><span style="color:#f8f8f2;"> (</span><span style="font-style:italic;color:#ffb86c;">acc</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#ffb86c;">e</span><span style="color:#f8f8f2;">) </span><span style="color:#ff79c6;">=&gt;</span><span style="color:#f8f8f2;"> acc + </span><span style="color:#f1fa8c;">&quot; &quot;</span><span style="color:#f8f8f2;"> +  e</span><span style="color:#ffffff;">}</span><span style="color:#f8f8f2;">
+res5: </span><span style="font-style:italic;color:#66d9ef;">List</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">] </span><span style="color:#ff79c6;">= 
+</span><span style="color:#6be5fd;">List</span><span style="color:#f8f8f2;">(</span><span style="color:#f1fa8c;">&quot;&quot;</span><span style="color:#f8f8f2;">, </span><span style="color:#f1fa8c;">&quot; I&quot;</span><span style="color:#f8f8f2;">, </span><span style="color:#f1fa8c;">&quot; I am&quot;</span><span style="color:#f8f8f2;">, </span><span style="color:#f1fa8c;">&quot; I am broken&quot;</span><span style="color:#f8f8f2;">, </span><span style="color:#f1fa8c;">&quot; I am broken sentence&quot;</span><span style="color:#f8f8f2;">)
 </span></pre>
 <ol start="2">
 <li>If we apply some if condition based on the element content, then we can control, which element is going to be added into output collection:</li>
 </ol>
-<pre style="background-color:#2b303b;">
-<span style="color:#c0c5ce;">&gt; l.scan(&quot;&quot;){
-  </span><span style="color:#b48ead;">case</span><span style="color:#c0c5ce;"> (</span><span style="color:#bf616a;">acc</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">e</span><span style="color:#c0c5ce;">) =&gt; </span><span style="color:#b48ead;">if </span><span style="color:#c0c5ce;">(e == &quot;</span><span style="color:#a3be8c;">broken</span><span style="color:#c0c5ce;">&quot;) e </span><span style="color:#b48ead;">else</span><span style="color:#c0c5ce;">  acc + &quot; &quot; +  e
-}
+<pre style="background-color:#282a36;">
+<span style="color:#f8f8f2;">&gt; l</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">scan(</span><span style="color:#f1fa8c;">&quot;&quot;</span><span style="color:#f8f8f2;">)</span><span style="color:#ffffff;">{
+  </span><span style="color:#ff79c6;">case</span><span style="color:#f8f8f2;"> (</span><span style="font-style:italic;color:#ffb86c;">acc</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#ffb86c;">e</span><span style="color:#f8f8f2;">) </span><span style="color:#ff79c6;">=&gt; if </span><span style="color:#f8f8f2;">(e == </span><span style="color:#f1fa8c;">&quot;broken&quot;</span><span style="color:#f8f8f2;">) e </span><span style="color:#ff79c6;">else</span><span style="color:#f8f8f2;">  acc + </span><span style="color:#f1fa8c;">&quot; &quot;</span><span style="color:#f8f8f2;"> +  e
+</span><span style="color:#ffffff;">}</span><span style="color:#f8f8f2;">
 
-res6: </span><span style="color:#ebcb8b;">List</span><span style="color:#c0c5ce;">[</span><span style="color:#ebcb8b;">String</span><span style="color:#c0c5ce;">] = 
-List(&quot;&quot;, &quot;</span><span style="color:#a3be8c;"> I</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;"> I am</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;">broken</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;">broken sentence</span><span style="color:#c0c5ce;">&quot;)
+res6: </span><span style="font-style:italic;color:#66d9ef;">List</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">] </span><span style="color:#ff79c6;">= 
+</span><span style="color:#6be5fd;">List</span><span style="color:#f8f8f2;">(</span><span style="color:#f1fa8c;">&quot;&quot;</span><span style="color:#f8f8f2;">, </span><span style="color:#f1fa8c;">&quot; I&quot;</span><span style="color:#f8f8f2;">, </span><span style="color:#f1fa8c;">&quot; I am&quot;</span><span style="color:#f8f8f2;">, </span><span style="color:#f1fa8c;">&quot;broken&quot;</span><span style="color:#f8f8f2;">, </span><span style="color:#f1fa8c;">&quot;broken sentence&quot;</span><span style="color:#f8f8f2;">)
 </span></pre>
 <p>As we can see, once boolean condition in the if is true, we return only the current element e and start new accumulation, i.e. produce next element without all the stuff we accumulated before. Hopefully, these two examples help to grasp an idea of the scan function.</p>
 <h2 id="csv-file-processing-using-fs2">CSV file processing using FS2</h2>
 <p>Let’s first create a Scala IOApp using cats-effect library, which is coming as FS2 dependency, and define FS2 blocking execution context to work with files.</p>
-<pre style="background-color:#2b303b;">
-<span style="color:#b48ead;">import </span><span style="color:#bf616a;">java.nio.file.Paths
-</span><span style="color:#b48ead;">import </span><span style="color:#bf616a;">java.util.concurrent.Executors
-</span><span style="color:#b48ead;">import </span><span style="color:#bf616a;">cats.effect.</span><span style="color:#c0c5ce;">{</span><span style="color:#bf616a;">ExitCode</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">IO</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">IOApp</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">Resource</span><span style="color:#c0c5ce;">}
-</span><span style="color:#b48ead;">import </span><span style="color:#bf616a;">cats.instances.int._
-</span><span style="color:#b48ead;">import </span><span style="color:#bf616a;">cats.syntax.all._
-</span><span style="color:#b48ead;">import </span><span style="color:#bf616a;">fs2._
+<pre style="background-color:#282a36;">
+<span style="color:#ff79c6;">import </span><span style="color:#f8f8f2;">java.nio.file.Paths
+</span><span style="color:#ff79c6;">import </span><span style="color:#f8f8f2;">java.util.concurrent.Executors
+</span><span style="color:#ff79c6;">import </span><span style="color:#f8f8f2;">cats.effect.{ExitCode, IO, IOApp, Resource}
+</span><span style="color:#ff79c6;">import </span><span style="color:#f8f8f2;">cats.instances.int.</span><span style="color:#bd93f9;">_
+</span><span style="color:#ff79c6;">import </span><span style="color:#f8f8f2;">cats.syntax.all.</span><span style="color:#bd93f9;">_
+</span><span style="color:#ff79c6;">import </span><span style="color:#f8f8f2;">fs2.</span><span style="color:#bd93f9;">_
 
-</span><span style="color:#b48ead;">object </span><span style="color:#ebcb8b;">Main </span><span style="color:#b48ead;">extends </span><span style="color:#a3be8c;">IOApp </span><span style="color:#eff1f5;">{
-  </span><span style="color:#b48ead;">val </span><span style="color:#eff1f5;">Separator </span><span style="color:#c0c5ce;">= &quot;</span><span style="color:#a3be8c;">;</span><span style="color:#c0c5ce;">&quot;
-  </span><span style="color:#b48ead;">val </span><span style="color:#eff1f5;">isNextId: </span><span style="color:#ebcb8b;">Regex </span><span style="color:#c0c5ce;">= </span><span style="color:#96b5b4;">s</span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">^(</span><span style="color:#96b5b4;">\\</span><span style="color:#a3be8c;">s*</span><span style="color:#96b5b4;">\\</span><span style="color:#a3be8c;">d+.*)</span><span style="color:#c0c5ce;">$</span><span style="color:#bf616a;">Separator</span><span style="color:#c0c5ce;">&quot;</span><span style="color:#eff1f5;">.r
-  </span><span style="color:#b48ead;">val </span><span style="color:#eff1f5;">LastRowPaddingId </span><span style="color:#c0c5ce;">= </span><span style="color:#96b5b4;">s</span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">1</span><span style="color:#c0c5ce;">$</span><span style="color:#bf616a;">Separator</span><span style="color:#c0c5ce;">&quot;
-  </span><span style="color:#b48ead;">val </span><span style="color:#eff1f5;">ColumnsInFile </span><span style="color:#c0c5ce;">= </span><span style="color:#d08770;">10
-  </span><span style="color:#b48ead;">val </span><span style="color:#eff1f5;">HeaderLines </span><span style="color:#c0c5ce;">= </span><span style="color:#d08770;">1  
+</span><span style="font-style:italic;color:#ff79c6;">object </span><span style="text-decoration:underline;color:#8be9fd;">Main </span><span style="color:#ff79c6;">extends </span><span style="text-decoration:underline;font-style:italic;color:#8be9fd;">IOApp </span><span style="color:#f8f8f2;">{
+  </span><span style="font-style:italic;color:#8be9fd;">val </span><span style="color:#f8f8f2;">Separator </span><span style="color:#ff79c6;">= </span><span style="color:#f1fa8c;">&quot;;&quot;
+  </span><span style="font-style:italic;color:#8be9fd;">val </span><span style="color:#f8f8f2;">isNextId: </span><span style="font-style:italic;color:#66d9ef;">Regex </span><span style="color:#ff79c6;">= </span><span style="color:#8be9fd;">s</span><span style="color:#f1fa8c;">&quot;^(</span><span style="color:#ff79c6;">\\</span><span style="color:#f1fa8c;">s*</span><span style="color:#ff79c6;">\\</span><span style="color:#f1fa8c;">d+.*)</span><span style="color:#ffffff;">$Separator</span><span style="color:#f1fa8c;">&quot;</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">r
+  </span><span style="font-style:italic;color:#8be9fd;">val </span><span style="color:#f8f8f2;">LastRowPaddingId </span><span style="color:#ff79c6;">= </span><span style="color:#8be9fd;">s</span><span style="color:#f1fa8c;">&quot;1</span><span style="color:#ffffff;">$Separator</span><span style="color:#f1fa8c;">&quot;
+  </span><span style="font-style:italic;color:#8be9fd;">val </span><span style="color:#f8f8f2;">ColumnsInFile </span><span style="color:#ff79c6;">= </span><span style="color:#bd93f9;">10
+  </span><span style="font-style:italic;color:#8be9fd;">val </span><span style="color:#f8f8f2;">HeaderLines </span><span style="color:#ff79c6;">= </span><span style="color:#bd93f9;">1  
   
-  </span><span style="color:#b48ead;">override def </span><span style="color:#8fa1b3;">run</span><span style="color:#eff1f5;">(</span><span style="color:#bf616a;">args</span><span style="color:#eff1f5;">: </span><span style="color:#ebcb8b;">List</span><span style="color:#eff1f5;">[</span><span style="color:#ebcb8b;">String</span><span style="color:#eff1f5;">]): </span><span style="color:#ebcb8b;">IO</span><span style="color:#eff1f5;">[</span><span style="color:#ebcb8b;">ExitCode</span><span style="color:#eff1f5;">] </span><span style="color:#c0c5ce;">=</span><span style="color:#eff1f5;">
-    processFile(</span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">./input.csv</span><span style="color:#c0c5ce;">&quot;</span><span style="color:#eff1f5;">).compile.drain.as(ExitCode.Success)  
+  </span><span style="color:#ff79c6;">override </span><span style="font-style:italic;color:#8be9fd;">def </span><span style="color:#50fa7b;">run</span><span style="color:#f8f8f2;">(</span><span style="font-style:italic;color:#ffb86c;">args</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">List</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">]): </span><span style="font-style:italic;color:#66d9ef;">IO</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">ExitCode</span><span style="color:#f8f8f2;">] </span><span style="color:#ff79c6;">=</span><span style="color:#f8f8f2;">
+    processFile(</span><span style="color:#f1fa8c;">&quot;./input.csv&quot;</span><span style="color:#f8f8f2;">)</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">compile</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">drain</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">as(</span><span style="color:#6be5fd;">ExitCode</span><span style="color:#ff79c6;">.</span><span style="color:#6be5fd;">Success</span><span style="color:#f8f8f2;">)  
     
-  </span><span style="color:#b48ead;">private val </span><span style="color:#eff1f5;">blockingExecutionContext </span><span style="color:#c0c5ce;">=
-    </span><span style="color:#eff1f5;">Resource.make(IO(
-        ExecutionContext
-          .fromExecutorService(Executors.newFixedThreadPool(</span><span style="color:#d08770;">2</span><span style="color:#eff1f5;">))
-        ))(</span><span style="color:#bf616a;">ec </span><span style="color:#b48ead;">=&gt; </span><span style="color:#eff1f5;">IO(ec.shutdown()))  
+  </span><span style="color:#ff79c6;">private </span><span style="font-style:italic;color:#8be9fd;">val </span><span style="color:#f8f8f2;">blockingExecutionContext </span><span style="color:#ff79c6;">=
+    </span><span style="color:#6be5fd;">Resource</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">make(</span><span style="color:#6be5fd;">IO</span><span style="color:#f8f8f2;">(
+        </span><span style="color:#6be5fd;">ExecutionContext
+          </span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">fromExecutorService(</span><span style="color:#6be5fd;">Executors</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">newFixedThreadPool(</span><span style="color:#bd93f9;">2</span><span style="color:#f8f8f2;">))
+        ))(</span><span style="font-style:italic;color:#ffb86c;">ec </span><span style="font-style:italic;color:#8be9fd;">=&gt; </span><span style="color:#6be5fd;">IO</span><span style="color:#f8f8f2;">(ec</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">shutdown()))  
         
-  </span><span style="color:#b48ead;">private def </span><span style="color:#8fa1b3;">processFile</span><span style="color:#eff1f5;">(</span><span style="color:#bf616a;">filePath</span><span style="color:#eff1f5;">: </span><span style="color:#ebcb8b;">String</span><span style="color:#eff1f5;">): </span><span style="color:#ebcb8b;">Stream</span><span style="color:#eff1f5;">[</span><span style="color:#ebcb8b;">IO</span><span style="color:#eff1f5;">, </span><span style="color:#b48ead;">Unit</span><span style="color:#eff1f5;">] </span><span style="color:#c0c5ce;">= </span><span style="color:#b48ead;">???
-</span><span style="color:#eff1f5;">}
+  </span><span style="color:#ff79c6;">private </span><span style="font-style:italic;color:#8be9fd;">def </span><span style="color:#50fa7b;">processFile</span><span style="color:#f8f8f2;">(</span><span style="font-style:italic;color:#ffb86c;">filePath</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">): </span><span style="font-style:italic;color:#66d9ef;">Stream</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">IO</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#8be9fd;">Unit</span><span style="color:#f8f8f2;">] </span><span style="color:#ff79c6;">= ???
+</span><span style="color:#f8f8f2;">}
 </span></pre>
 <p>Above <strong>processFile</strong> function will be returning a stream taking a file path to be processed as CSV file.</p>
 <p><strong>processFile</strong> implementation:</p>
-<pre style="background-color:#2b303b;">
-<span style="color:#c0c5ce;">Stream.resource(blockingExecutionContext).flatMap { </span><span style="color:#bf616a;">blockingEC </span><span style="color:#b48ead;">=&gt;</span><span style="color:#c0c5ce;">
-  io.file
-    .readAll[</span><span style="color:#ebcb8b;">IO</span><span style="color:#c0c5ce;">](Paths.get(filePath), blockingEC, </span><span style="color:#d08770;">4</span><span style="color:#c0c5ce;"> * </span><span style="color:#d08770;">4096</span><span style="color:#c0c5ce;">)
-    .through(text.utf8Decode)
-    .append(Stream.eval(IO.pure(&quot;</span><span style="color:#96b5b4;">\n</span><span style="color:#c0c5ce;">&quot; + LastRowPaddingId)))
-    .through(text.lines)
-    .drop(HeaderLines)
-    .scan((&quot;&quot;, &quot;&quot;)) {
-      </span><span style="color:#b48ead;">case</span><span style="color:#c0c5ce;"> ((</span><span style="color:#bf616a;">acc</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">_</span><span style="color:#c0c5ce;">), </span><span style="color:#bf616a;">line</span><span style="color:#c0c5ce;">) =&gt; concatBrokenLines(acc, line)
-    }
-    .filter { </span><span style="color:#b48ead;">case</span><span style="color:#c0c5ce;"> (</span><span style="color:#bf616a;">_</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">line</span><span style="color:#c0c5ce;">) =&gt; line.trim.nonEmpty }
-    .map { </span><span style="color:#b48ead;">case</span><span style="color:#c0c5ce;"> (</span><span style="color:#bf616a;">_</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">line</span><span style="color:#c0c5ce;">) =&gt; line.split(Separator, ColumnsInFile) }
-    .map(processRow)
-    .foldMap(</span><span style="color:#bf616a;">_ </span><span style="color:#b48ead;">=&gt; </span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">)
-    .map(</span><span style="color:#bf616a;">n </span><span style="color:#b48ead;">=&gt;</span><span style="color:#c0c5ce;"> println(</span><span style="color:#96b5b4;">s</span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">Processed </span><span style="color:#c0c5ce;">$</span><span style="color:#bf616a;">n</span><span style="color:#a3be8c;"> record(s)</span><span style="color:#c0c5ce;">&quot;))
-}
+<pre style="background-color:#282a36;">
+<span style="color:#6be5fd;">Stream</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">resource(blockingExecutionContext)</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">flatMap </span><span style="color:#ffffff;">{ </span><span style="font-style:italic;color:#ffb86c;">blockingEC </span><span style="font-style:italic;color:#8be9fd;">=&gt;</span><span style="color:#f8f8f2;">
+  io</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">file
+    </span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">readAll[</span><span style="font-style:italic;color:#66d9ef;">IO</span><span style="color:#f8f8f2;">](</span><span style="color:#6be5fd;">Paths</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">get(filePath), blockingEC, </span><span style="color:#bd93f9;">4</span><span style="color:#f8f8f2;"> * </span><span style="color:#bd93f9;">4096</span><span style="color:#f8f8f2;">)
+    </span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">through(text</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">utf8Decode)
+    </span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">append(</span><span style="color:#6be5fd;">Stream</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">eval(</span><span style="color:#6be5fd;">IO</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">pure(</span><span style="color:#f1fa8c;">&quot;</span><span style="color:#ff79c6;">\n</span><span style="color:#f1fa8c;">&quot;</span><span style="color:#f8f8f2;"> + </span><span style="color:#6be5fd;">LastRowPaddingId</span><span style="color:#f8f8f2;">)))
+    </span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">through(text</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">lines)
+    </span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">drop(</span><span style="color:#6be5fd;">HeaderLines</span><span style="color:#f8f8f2;">)
+    </span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">scan((</span><span style="color:#f1fa8c;">&quot;&quot;</span><span style="color:#f8f8f2;">, </span><span style="color:#f1fa8c;">&quot;&quot;</span><span style="color:#f8f8f2;">)) </span><span style="color:#ffffff;">{
+      </span><span style="color:#ff79c6;">case</span><span style="color:#f8f8f2;"> ((</span><span style="font-style:italic;color:#ffb86c;">acc</span><span style="color:#f8f8f2;">, </span><span style="color:#bd93f9;">_</span><span style="color:#f8f8f2;">), </span><span style="font-style:italic;color:#ffb86c;">line</span><span style="color:#f8f8f2;">) </span><span style="color:#ff79c6;">=&gt;</span><span style="color:#f8f8f2;"> concatBrokenLines(acc, line)
+    </span><span style="color:#ffffff;">}
+    </span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">filter </span><span style="color:#ffffff;">{ </span><span style="color:#ff79c6;">case</span><span style="color:#f8f8f2;"> (</span><span style="color:#bd93f9;">_</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#ffb86c;">line</span><span style="color:#f8f8f2;">) </span><span style="color:#ff79c6;">=&gt;</span><span style="color:#f8f8f2;"> line</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">trim</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">nonEmpty </span><span style="color:#ffffff;">}
+    </span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">map </span><span style="color:#ffffff;">{ </span><span style="color:#ff79c6;">case</span><span style="color:#f8f8f2;"> (</span><span style="color:#bd93f9;">_</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#ffb86c;">line</span><span style="color:#f8f8f2;">) </span><span style="color:#ff79c6;">=&gt;</span><span style="color:#f8f8f2;"> line</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">split(</span><span style="color:#6be5fd;">Separator</span><span style="color:#f8f8f2;">, </span><span style="color:#6be5fd;">ColumnsInFile</span><span style="color:#f8f8f2;">) </span><span style="color:#ffffff;">}
+    </span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">map(processRow)
+    </span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">foldMap(</span><span style="color:#bd93f9;">_ </span><span style="font-style:italic;color:#8be9fd;">=&gt; </span><span style="color:#bd93f9;">1</span><span style="color:#f8f8f2;">)
+    </span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">map(</span><span style="font-style:italic;color:#ffb86c;">n </span><span style="font-style:italic;color:#8be9fd;">=&gt;</span><span style="color:#f8f8f2;"> println(</span><span style="color:#8be9fd;">s</span><span style="color:#f1fa8c;">&quot;Processed </span><span style="color:#ffffff;">$n</span><span style="color:#f1fa8c;"> record(s)&quot;</span><span style="color:#f8f8f2;">))
+</span><span style="color:#ffffff;">}
 </span></pre>
 <p>The main code of finding the complete CSV line (a line, which can have multiple parts of one logical CSV line separated by line brakes like \n) starts at line:</p>
-<pre style="background-color:#2b303b;">
-<span style="color:#c0c5ce;">.scan((&quot;&quot;, &quot;&quot;)) {
-  </span><span style="color:#b48ead;">case</span><span style="color:#c0c5ce;"> ((</span><span style="color:#bf616a;">acc</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">_</span><span style="color:#c0c5ce;">), </span><span style="color:#bf616a;">line</span><span style="color:#c0c5ce;">) =&gt; concatBrokenLines(acc, line)
-}
-.filter { </span><span style="color:#b48ead;">case</span><span style="color:#c0c5ce;"> (</span><span style="color:#bf616a;">_</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">line</span><span style="color:#c0c5ce;">) =&gt; line.trim.nonEmpty }
+<pre style="background-color:#282a36;">
+<span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">scan((</span><span style="color:#f1fa8c;">&quot;&quot;</span><span style="color:#f8f8f2;">, </span><span style="color:#f1fa8c;">&quot;&quot;</span><span style="color:#f8f8f2;">)) </span><span style="color:#ffffff;">{
+  </span><span style="color:#ff79c6;">case</span><span style="color:#f8f8f2;"> ((</span><span style="font-style:italic;color:#ffb86c;">acc</span><span style="color:#f8f8f2;">, </span><span style="color:#bd93f9;">_</span><span style="color:#f8f8f2;">), </span><span style="font-style:italic;color:#ffb86c;">line</span><span style="color:#f8f8f2;">) </span><span style="color:#ff79c6;">=&gt;</span><span style="color:#f8f8f2;"> concatBrokenLines(acc, line)
+</span><span style="color:#ffffff;">}
+</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">filter </span><span style="color:#ffffff;">{ </span><span style="color:#ff79c6;">case</span><span style="color:#f8f8f2;"> (</span><span style="color:#bd93f9;">_</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#ffb86c;">line</span><span style="color:#f8f8f2;">) </span><span style="color:#ff79c6;">=&gt;</span><span style="color:#f8f8f2;"> line</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">trim</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">nonEmpty </span><span style="color:#ffffff;">}
 </span></pre>
 <p>Inside the scan function, we delegate ‘op’ part to concatBrokenLine function:</p>
-<pre style="background-color:#2b303b;">
-<span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">concatBrokenLines</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">acc</span><span style="color:#c0c5ce;">: </span><span style="color:#ebcb8b;">String</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">line</span><span style="color:#c0c5ce;">: </span><span style="color:#ebcb8b;">String</span><span style="color:#c0c5ce;">) = {  
-  </span><span style="color:#65737e;">// next line detected, i.e. we flush `acc` downstream,
+<pre style="background-color:#282a36;">
+<span style="font-style:italic;color:#8be9fd;">def </span><span style="color:#50fa7b;">concatBrokenLines</span><span style="color:#f8f8f2;">(</span><span style="font-style:italic;color:#ffb86c;">acc</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#ffb86c;">line</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">) </span><span style="color:#ff79c6;">= </span><span style="color:#ffffff;">{  
+  </span><span style="color:#6272a4;">// next line detected, i.e. we flush `acc` downstream,
   // since it already contains a complete line to be processed
  
-  </span><span style="color:#b48ead;">if </span><span style="color:#c0c5ce;">(isNextId.findFirstIn(acc).isDefined 
-      &amp;&amp; isNextId.findFirstIn(line).isDefined) (line, acc)
+  </span><span style="color:#ff79c6;">if </span><span style="color:#f8f8f2;">(isNextId</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">findFirstIn(acc)</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">isDefined 
+      &amp;&amp; isNextId</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">findFirstIn(line)</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">isDefined) (line, acc)
   
-  </span><span style="color:#65737e;">// next line is not yet detected, i.e. we flush an empty string 
+  </span><span style="color:#6272a4;">// next line is not yet detected, i.e. we flush an empty string 
   // and append current line to the current `acc` state  
   // else (acc + &quot; &quot; + line, &quot;&quot;)
-</span><span style="color:#c0c5ce;">}
+</span><span style="color:#ffffff;">}
 </span></pre>
 <p>using regular expression <strong>isNextId</strong> we identify, whether new line marker is found. In the regular expression we want to find a number following by semicolon (according to current file business logic).</p>
 <p>Read the inline comments in the <em>concatBrokenLines</em> function on how using if/else logic, we control what needs to be put into next element of the downstream. As you can see, we use second half of the accumulator to push the complete line further (in the if branch).</p>
 <p><strong>Now looking at scan and its concatBrokenLines function together</strong>, we can summarise:</p>
 <p>we process CSV lines by folding them via scan function using empty element as a tuple of two empty strings (“”, “”). In the head of the scanning lambda we use only first part of the zero element, we call it acc, i.e. accumulator. We also have <strong>line</strong> variable, which is given by the Stream.scan function itself. Then, we delegate the decision on what needs to be returned to the downstream using <em>filter</em> function. Basically, we use <em>filter</em> as a guard to control what actually needs to be passed further for the main processing logic as CVS line.</p>
 <p>Also, we append fake line to be able to process the very last line. This last line needs one more marker to be properly detected as complete line:</p>
-<pre style="background-color:#2b303b;">
-<span style="color:#c0c5ce;">.append(Stream.eval(IO.pure(&quot;</span><span style="color:#96b5b4;">\n</span><span style="color:#c0c5ce;">&quot; + LastRowPaddingId)))
+<pre style="background-color:#282a36;">
+<span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">append(</span><span style="color:#6be5fd;">Stream</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">eval(</span><span style="color:#6be5fd;">IO</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">pure(</span><span style="color:#f1fa8c;">&quot;</span><span style="color:#ff79c6;">\n</span><span style="color:#f1fa8c;">&quot;</span><span style="color:#f8f8f2;"> + </span><span style="color:#6be5fd;">LastRowPaddingId</span><span style="color:#f8f8f2;">)))
 </span></pre><h2 id="test-of-the-fs2-code">Test of the FS2 code</h2>
 <p>Using file input.csv:</p>
-<pre style="background-color:#2b303b;">
-<span style="color:#c0c5ce;">index;City;population
+<pre style="background-color:#282a36;">
+<span style="color:#f8f8f2;">index;City;population
 1;Berlin is the
 capital and largest city of
 Germany by
@@ -241,13 +241,13 @@ Hughesovka, Yuzovka, Stalino is an industrial city in Ukraine on the Kalmius
 River.;929,063
 </span></pre>
 <p>we print the resulted lines of the stream in the <em>processRow</em> function. In real life this function supposed to do something useful:</p>
-<pre style="background-color:#2b303b;">
-<span style="color:#b48ead;">private def </span><span style="color:#8fa1b3;">processRow</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">columns</span><span style="color:#c0c5ce;">: </span><span style="color:#ebcb8b;">Array</span><span style="color:#c0c5ce;">[</span><span style="color:#ebcb8b;">String</span><span style="color:#c0c5ce;">]): </span><span style="color:#b48ead;">Unit </span><span style="color:#c0c5ce;">= 
-  println(</span><span style="color:#96b5b4;">s</span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">processed: ${</span><span style="color:#c0c5ce;">columns.mkString(&quot;</span><span style="color:#a3be8c;"> :: </span><span style="color:#c0c5ce;">&quot;).trim</span><span style="color:#a3be8c;">}</span><span style="color:#c0c5ce;">&quot;)
+<pre style="background-color:#282a36;">
+<span style="color:#ff79c6;">private </span><span style="font-style:italic;color:#8be9fd;">def </span><span style="color:#50fa7b;">processRow</span><span style="color:#f8f8f2;">(</span><span style="font-style:italic;color:#ffb86c;">columns</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">Array</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">]): </span><span style="font-style:italic;color:#8be9fd;">Unit </span><span style="color:#ff79c6;">=</span><span style="color:#f8f8f2;"> 
+  println(</span><span style="color:#8be9fd;">s</span><span style="color:#f1fa8c;">&quot;processed: ${</span><span style="color:#f8f8f2;">columns</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">mkString(</span><span style="color:#f1fa8c;">&quot; :: &quot;</span><span style="color:#f8f8f2;">)</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">trim</span><span style="color:#f1fa8c;">}&quot;</span><span style="color:#f8f8f2;">)
 </span></pre>
 <p>Output:</p>
-<pre style="background-color:#2b303b;">
-<span style="color:#c0c5ce;">processed: 1 :: Berlin is the capital and largest city of Germany by both area and population. :: 3,748,148
+<pre style="background-color:#282a36;">
+<span style="color:#f8f8f2;">processed: 1 :: Berlin is the capital and largest city of Germany by both area and population. :: 3,748,148
 processed: 1 :: Madrid is the capital of Spain and the largest municipality in both the Community of Madrid and Spain as a whole. :: 3,223,334
 processed: 1 :: Donetsk former names: Aleksandrovka, Hughesovka, Yuzovka, Stalino is an industrial city in Ukraine on the Kalmius River. :: 929,063
 Processed 3 record(s)

@@ -9,7 +9,7 @@ Recently, I ran into a familiar situation by doing data processing, where I need
 
 Let us dig down into how scan function is working.
 
-<img class="filldiv" src="/scala-fs2/stream-fs2.jpeg"/>
+{{ resize_image(path="scala-fs2/stream-fs2.jpeg", width=620, height=620, op="fit_width") }}
 
 
 ## Scan function
