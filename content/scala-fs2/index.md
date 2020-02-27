@@ -4,6 +4,10 @@ date=2020-02-27
 
 [extra]
 category="blog"
+
+[taxonomies]
+tags = ["fp", "fs2"]
+categories = ["scala"]
 +++
 Recently, I ran into a familiar situation by doing data processing, where I needed to deal with a fragmented data stream. Having fragments, I had to detect manually where exactly new line/message starts and where current line/message ends in the stream. As turned out, one can aggregate intermediate state of the fragmented stream using scan function.
 

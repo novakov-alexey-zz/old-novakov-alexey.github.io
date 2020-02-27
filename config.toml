@@ -15,6 +15,10 @@ title = "Software Engineering Notes"
 # Description. This is needed for SEO/site metadata purposes
 description = "Alexey Novakov"
 theme = "Ergo"
+taxonomies = [
+    {name = "categories", rss = false},
+    {name = "tags", rss = false},
+]
 
 [extra]
 profile = 'alexey_white2.jpg'

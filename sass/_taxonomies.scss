@@ -1,0 +1,60 @@
+@import 'colors';
+
+.taxonomies {
+    margin: 2em 0 3em;
+    text-align: center;
+  
+    &__title {
+      display: inline-block;
+      font-size: 18px;
+      color: $main-colour;
+      border-bottom: 2px solid $main-colour;
+    }
+  
+    &__items {
+      margin: 10px 0;
+  
+      a {
+        margin: 5px 10px;
+        word-wrap: break-word;
+        position: relative;
+  
+        &:hover {
+          color: $main-colour;
+        }
+  
+        .count {
+          position: relative;
+          top: -8px;
+          right: -2px;
+          color: $main-colour;
+          font-size: 12px;
+        }
+      }
+    }
+}
+  
+.taxonomy {
+    margin: 2em 0;
+    text-align: center;
+  
+    &__item {
+      padding: 3px 20px;
+      border-left: 1px solid #cacaca;
+      transition: 0.2s ease-out;
+  
+      &:hover {
+        border-left: 3px solid $main-colour;
+        transform: translateX(4px);
+      }
+  
+      &__time {
+        margin-right: 10px;
+        color: #8a8a8a;
+      }
+  
+      &__title a {
+        color: $main-colour;
+      }
+    }
+}

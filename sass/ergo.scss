@@ -21,13 +21,15 @@
         \::/    /                \:|   |                  \::/____/                 ~~
          \/____/                  \|___|
 
+         custom
 */
-@import '../themes/Ergo/sass/colors';
+@import 'colors';
 @import 'menu';
 @import '../themes/Ergo/sass/vars';
 @import 'macros';
 @import '../themes/Ergo/sass/shortcodes';
 @import 'blog';
+@import 'taxonomies';
 
 html, body {
     background-color: $background;
@@ -460,3 +462,9 @@ nav.pagination {
 }
 
 table th:empty { padding: 0; }
+
+a {
+    color: $main-colour;
+    text-decoration: none;
+  }
+  

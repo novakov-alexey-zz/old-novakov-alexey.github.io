@@ -7,6 +7,16 @@
         </url>
     
         <url>
+            <loc>http://127.0.0.1:1111/categories/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>http://127.0.0.1:1111/categories/scala/</loc>
+            
+        </url>
+    
+        <url>
             <loc>http://127.0.0.1:1111/cv/</loc>
             
                 <lastmod>2020-02-25</lastmod>
@@ -36,6 +46,21 @@
             <loc>http://127.0.0.1:1111/scala-fs2/</loc>
             
                 <lastmod>2020-02-27</lastmod>
+            
+        </url>
+    
+        <url>
+            <loc>http://127.0.0.1:1111/tags/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>http://127.0.0.1:1111/tags/fp/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>http://127.0.0.1:1111/tags/fs2/</loc>
             
         </url>
     

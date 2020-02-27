@@ -13,7 +13,7 @@ category="menu_page"
 
 ## 2019
 - 27.09.2019 Hadoop & Spark Meetup. Spark on Kubernetes [Slides](https://speakerdeck.com/alexeyn/spark-on-kubernetes)
-- 21.09.2019 Scala Meetup. Scala Type Classes. What are they useful for? [Slides](https://speakerdeck.com/alexeyn/scala-type-classes-what-are-they-useful-for-1e5ed6bf-6440-40de-86a9-b34b5cfff3af), [Video](https://www.youtube.com/watch?v=BpDIbkG_lbU)
+- 21.09.2019 Conference Summer BOB. Scala Type Classes. What are they useful for? [Slides](https://speakerdeck.com/alexeyn/scala-type-classes-what-are-they-useful-for-1e5ed6bf-6440-40de-86a9-b34b5cfff3af), [Video](https://www.youtube.com/watch?v=BpDIbkG_lbU)
 - 04.07.2019 LXScala. Workshop. Building Scala micro-services [Slides](https://speakerdeck.com/alexeyn/workshop-building-scala-microservice)
 - 01.24.2019 Scala Meetup. Tech-stack to build a Scala micro-service [Slides](https://speakerdeck.com/alexeyn/tech-stack-overview-building-scala-microservices)
 
