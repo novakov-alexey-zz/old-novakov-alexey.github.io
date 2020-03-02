@@ -195,6 +195,6 @@ Processed 3 record(s)
 Applying knowledge of functional combinators, we have gotten concise and clean code, without using any global mutable state outside of the stream definition. We have also solved the problem within the single data stream using scan to aggregate intermediate state and filter function as a guard to discard incomplete CSV lines.
 
 FS2 library is very nice and especially having Cats and Cats-effect as direct dependency. 
-See more examples for functional streaming in [FS2 guide](https://fs2.io/guide.htm)
+See more examples for functional streaming in [FS2 guide](https://fs2.io/guide.html)
 
 Source code: [https://github.com/novakov-alexey/fs2-csv-scan](https://github.com/novakov-alexey/fs2-csv-scan)
