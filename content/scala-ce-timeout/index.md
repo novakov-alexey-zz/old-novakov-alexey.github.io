@@ -11,7 +11,7 @@ tags = ["fp", "cats-effect"]
 categories = ["scala"]
 +++
 
-{{ resize_image(path="scala-ce-timeout/maico-amorim.jpg", width=620, height=620, op="fit_width") }}
+{{ resize_image(path="scala-ce-timeout/maico-amorim.jpg", width=600, height=600, op="fit") }}
 <ul id="frontmatter" class="frontmatter frontmatter_page"><li>Photo by Maico Amorim on Unsplash</li></ul>
 
 Sometimes Scala developer needs to call external program, which is running outside of the JVM. 
