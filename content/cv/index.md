@@ -1,9 +1,11 @@
 +++
 title="CV"
 date=2020-02-25
+toc_disabled=true
 
 [extra]
 category="menu_page"
+toc_disabled=true
 +++
 
 **Alexey Novakov**

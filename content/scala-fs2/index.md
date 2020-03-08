@@ -1,6 +1,7 @@
 +++
 title="Scala FS2 - handle broken CSV lines"
 date=2020-02-27
+toc_enabled = false
 
 [extra]
 category="blog"
@@ -132,13 +133,12 @@ Inside the scan function, we delegate ‘op’ part to concatBrokenLine function
 def concatBrokenLines(acc: String, line: String) = {  
   // next line detected, i.e. we flush `acc` downstream,
   // since it already contains a complete line to be processed
- 
   if (isNextId.findFirstIn(acc).isDefined 
       && isNextId.findFirstIn(line).isDefined) (line, acc)
   
   // next line is not yet detected, i.e. we flush an empty string 
   // and append current line to the current `acc` state  
-  // else (acc + " " + line, "")
+  else (acc + " " + line, "")
 }
 ```
 

@@ -5,6 +5,7 @@ draft = false
 
 [extra]
 category="menu_page"
+toc_disabled=true
 +++
 
 ## 2020

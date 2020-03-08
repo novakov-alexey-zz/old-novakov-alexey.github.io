@@ -9,8 +9,6 @@ compile_sass = true
 highlight_code = true
 highlight_theme = "dracula"
 
-# Whether to build a search index to be used later on by a JavaScript library
-build_search_index = false
 title = "Software Engineering Notes"
 # Description. This is needed for SEO/site metadata purposes
 description = "Alexey Novakov"
@@ -24,11 +22,7 @@ taxonomies = [
 profile = 'alexey_white2.jpg'
 
 # website, should not be preceded with `http://`
-# website = "novakov-alexey.github.io"
-
-# github
+website = "novakov-alexey.github.io"
 github = "novakov-alexey" # case does not matter
-# twitter
 twitter = "alexey_novakov"
-# linkedin
 linkedin = "alexey-novakov-26468624"
