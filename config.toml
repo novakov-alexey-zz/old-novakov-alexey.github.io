@@ -22,7 +22,7 @@ taxonomies = [
 profile = 'alexey_white2.jpg'
 
 # website, should not be preceded with `http://`
-website = "novakov-alexey.github.io"
+# website = "novakov-alexey.github.io"
 github = "novakov-alexey" # case does not matter
 twitter = "alexey_novakov"
 linkedin = "alexey-novakov-26468624"
