@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    
+        <url>
+            <loc>http://127.0.0.1:1111/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>http://127.0.0.1:1111/categories/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>http://127.0.0.1:1111/categories/scala/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>http://127.0.0.1:1111/cv/</loc>
+            
+                <lastmod>2020-02-25</lastmod>
+            
+        </url>
+    
+        <url>
+            <loc>http://127.0.0.1:1111/first-post/</loc>
+            
+                <lastmod>2020-02-26</lastmod>
+            
+        </url>
+    
+        <url>
+            <loc>http://127.0.0.1:1111/page/1/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>http://127.0.0.1:1111/page/2/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>http://127.0.0.1:1111/presentations/</loc>
+            
+                <lastmod>2020-02-25</lastmod>
+            
+        </url>
+    
+        <url>
+            <loc>http://127.0.0.1:1111/scala-ce-timeout/</loc>
+            
+                <lastmod>2020-02-29</lastmod>
+            
+        </url>
+    
+        <url>
+            <loc>http://127.0.0.1:1111/scala-fs2/</loc>
+            
+                <lastmod>2020-02-27</lastmod>
+            
+        </url>
+    
+        <url>
+            <loc>http://127.0.0.1:1111/scala-monads/</loc>
+            
+                <lastmod>2020-03-28</lastmod>
+            
+        </url>
+    
+        <url>
+            <loc>http://127.0.0.1:1111/tags/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>http://127.0.0.1:1111/tags/cats-effect/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>http://127.0.0.1:1111/tags/fp/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>http://127.0.0.1:1111/tags/fs2/</loc>
+            
+        </url>
+    
+</urlset>
