@@ -2,7 +2,7 @@
 title="Monads in Scala"
 date=2020-03-28
 toc_enabled = false
-draft = true
+draft = false
 
 [extra]
 category="blog"
@@ -18,20 +18,21 @@ their usage and usefulness.
 
 ## What is Monad?
 
-You have probably already heared this quote:
+You have probably already heard this quote:
 
 {% quote(author="Saunders Mac Lane") %}A monad is just a monoid in the category of endofunctors{% end %}
 
 [More details on StackOverflow answer](https://stackoverflow.com/a/3870310/6176274)
 
-Well, that does not bring much help. Obviously, Monad is not just Scala pattern, but it is something what is coming from Category Theory. 
-However, we are not going to touch Category Theory in general, but let's say that Monad definition is coming from Abstract theory of Mathematics.
+Well, that does not bring much help. Obviously, Monad is not just Scala pattern, but it is something what is coming 
+from [Category Theory](https://en.wikipedia.org/wiki/Category_theory). 
+However, we are not going to touch Category Theory in general, but let's say that Monad definition is coming from abstract theory of Mathematics.
 
-I like another defininition of Monad, which is given in the  book "Functional Programming in Scala":
+I like another definition of Monad, which is given in the  book "Functional Programming in Scala":
 
 {% quote(author="Chiusano, Bjarnason") %}Monad is an abstract interface{% end %}
 
-It is more clear for programmers. Before we clarify in details what Monad is let's look at example of Mondas in Scala standard library.
+It is more clear for programmers. Before we clarify in details what Monad is, let us look at some examples of Mondas in Scala standard library.
 This might already click for you that Monad is not something from aliens:
 
 - Option
@@ -48,17 +49,17 @@ This might already click for you that Monad is not something from aliens:
 
 ## What makes thing a Monad?
 
-There are several minimum combinations of function which make some type a Monad. One of the popular minimum set is two functons:
+There are several minimum combinations of functions which make some type a Monad. One of the popular minimum set is two functions:
 
 - **flatMap** - also known as `bind`
 - **unit** - also known as `pure` in [Cats library](https://typelevel.org/cats/typeclasses/monad.html#monad-instances) or `apply` in pure Scala
 
-These two functions implemented for some type bring powerful abstraction to write complex programms easy.
+These two functions implemented for some type bring powerful abstraction to write complex programs easy.
 
 ## Make your Monad
 
-Monad sometimes reminds a container to work with its values using special interface. If we model Monad ourselves, then it may look like box with a thing
-inside, which we operate one using `flatMap` one more useful function `map`:
+Monad sometimes reminds a container to work with its values using special interface. If we model Monad ourselves, then it may look like a box with a thing
+inside, which we access using `flatMap` and one more useful function `map`:
 
 ```scala
 class Box[A](v: A) { 
@@ -69,7 +70,8 @@ class Box[A](v: A) {
 }
 ```
 
-**map** - is implemented in terms of `flatMap` + `unit` (i.e. Box class constructor). So we can implement `map` for any kinf of Monads, as we will that see later.
+**map** - is implemented in terms of `flatMap` + `unit` (i.e. Box class constructor). 
+So we can implement `map` for any kind of Monads, as we will see that later.
 
 Now let's use `Box ` Monad to show some usage example:
 
@@ -85,7 +87,7 @@ res5: Box[Int] = 3
 ```
 
 `Box` contains single integer value and allows us to manipulate it without leaving `Box` context, i.e. our result is always a `Box[T]`.
-We can also make varible `v` as public and read it when needed. `Box` behaves similarly to non-empty single element list.
+We can also make variable `v` as public and read it when needed. `Box` behaves similarly to non-empty single element list.
 It is hard to say when this particular `Box` Monad will be useful looking at above example. However, it should give you an idea how Monad implementation may look like.
 
 ## Scala Examples
@@ -129,8 +131,8 @@ Example above won't return value of `isOn` variable because the first `flatMap` 
 
 ## Generic Monad
 
-We have already seen example of at least 3 Monads above. In order to dettach definition of Monad from its concrete implementation like
-List or Option, let us define abstract Monad interface using Scala High-Order types feature:
+We have already seen example of at least 3 Monads above. In order to detach definition of Monad from its concrete implementation like
+List or Option, let us define abstract Monad interface using Scala high-order types feature:
 
 ```scala
   trait Monad[F[_]] extends Functor[F] {
@@ -147,14 +149,14 @@ List or Option, let us define abstract Monad interface using Scala High-Order ty
   }
 ```
 
-Functor is one more astraction which is more simpler than Monad. It requires only `map` implementation. We can say that every Monad also a Functor. 
-Functor is also coming from the Category Therory. I decided to mention it here, because you will freuently find it in the context of Monads,
-when learning functional programming in general. Abstract Monad interface can also implement map in terms of `flatMap` and unit functions, 
+Functor is one more abstraction which is more simpler than Monad. It requires only `map` implementation. We can say that every Monad also a Functor. 
+Functor is also coming from the Category Theory. I decided to mention it here, because you will frequently find it in the context of Monads,
+when learning functional programming in general. Abstract Monad interface can also implement map in terms of `flatMap` and `unit` functions, 
 so that `map` is implemented automatically for any concrete implementation of some Monad.
 
 ## Function application in flatMap
 
-You have probably noticed that `f` function application in `flatMap` and `map` depends on the concrete Monad instance. In one case the lambda
+An application of `f` function in `flatMap` and `map` depends on the concrete Monad instance. In one case the lambda
 function we pass to the `flatMap` is always executed, in another cases not. Examples:
 
 "f" applied when:
@@ -165,14 +167,14 @@ function we pass to the `flatMap` is always executed, in another cases not. Exam
 - Future[A]: is ready
 
 Even though `flatMap` behaves differently on concrete Monad instance, there is still great benefits to use them in any ordinary program.
-In order to classify some type as a Monad, one needs to comply with **Monad Laws** and that is closing the definition of Monads. Let's look 
-at Monad laws before we more further to practical examples.
+In order to classify some type as a Monad, it needs to comply with **Monad Laws** and that is closing the definition of Monads. Let's look 
+at Monad laws before we move further to practical examples.
 
 ## Monad Laws
 
 ### 1. Identity
 
-Resulf of a function which creates Monad instance using `unit` is equal to application of this function over already created Monad instance.
+Result of a function which creates Monad instance using `unit` is equal to application of this function over already created Monad instance.
 
 
 Example:
@@ -192,7 +194,7 @@ Abstract definition of Identity Law:
 #### 1.1 Left identity
 
 ```scala
-def f[A](x: A): Monad[A] = ???
+def f[A](x: A): Monad[A] = unit(x)
 
 flatMap(unit(x))(f) == f(x) 
 ```
@@ -205,7 +207,7 @@ f(x) == flatMap(unit(x))(f)
 
 ### 2. Associative
 
-Application of `f1` and `f2` functions one by one yields the same result as applying them within the first `flatMap`.
+Application of `f1` and `f2` functions one after another yields the same result as applying them within the first `flatMap`.
 
 Example:
 
@@ -260,7 +262,7 @@ map(map(Some(1))(f1))(f2) // Some(4)
 map(Some(1))(f2 compose f1) // Some(4)
 ```
 
-Standard Scala function `compose` return a funtion whicj applies f1 and then f2 on the result of the first function.
+Standard Scala function `compose` return a function which applies f1 and then f2 taking the result of the first f1 function.
 
 Abstract definition:
 
@@ -271,7 +273,7 @@ map(map(x)(f1))(f2) == map(x)(f2 compose f1)
 ## Application of Monads
 
 Using Monads we can do sequential composition. If we have several values in form of Option, we can sequence them into logic program,
-which evaluates next value based on the behaviour of `flatMap` of the previous value. 
+which evaluates next value based on the `flatMap` behaviour of the previous value. 
 
 ### Compose Option
 
@@ -306,7 +308,7 @@ def createCluster(ns: String, cluster: Cluster): Either[String, Cluster] =
   Right(Cluster(cluster.pods))
 ```
 
-We can compose them in same maner as we have done with **Option** example above:
+We can compose them in same manner as we have done with **Option** example above:
 
 ```scala
 val ns = "my-cluster"
@@ -319,9 +321,10 @@ for {
 ```
 
 From business logic perspective we want to create some hypothetical cluster if namespace is valid and cluster for the given namespace does not exist. 
-We modeled errors as `Either.Left` and normal result as `Either.Right`. It is popular approach not only in Scala to have some sort of result wrapper.
+We implemented errors as `Either.Left` and normal result as `Either.Right`. Interface like `Either` is a popular approach not only in Scala to have some sort of result wrapper
+for normal and error results.
 
-Result value is based on the function values we hardcoded in the given functions:
+Final result value is based on the return values we hardcoded in the given functions:
 
 ```scala
 scala> Either[String,Cluster] = Right(Cluster(4))
@@ -329,7 +332,7 @@ scala> Either[String,Cluster] = Right(Cluster(4))
 
 Benefits of using Monads is that we do not need to use `if/else` control flow, since we have Monads Laws working when we compose Monad instances.
 
-In case some of the given functions returns Either.Left:
+In case some of the given function returns `Either.Left`, for example:
 
 ```scala
 def validNamespace(ns: String): Either[String, Unit] = 
@@ -339,7 +342,7 @@ def validNamespace(ns: String): Either[String, Unit] =
    ) else Right(())
 ```   
 
-Then it turns the whole result of the composition into error state, i.e. Either.Left:
+Then it turns the whole result of the composition into error state, i.e. into `Either.Left`:
 
 ```scala
 scala> Either[String,Cluster] = Left(
@@ -358,6 +361,8 @@ flatMap1(… + flatMapN(.. + map(…)))
 ```
 
 **Desugared version**:
+
+Behind the scene, Scala compiler desugars the `for-comprehension` into the following code:
 
 ```scala
 validNamespace("my-cluster")
@@ -381,7 +386,168 @@ for {
           s"Cluster with ${c.pods} pods already exists")
   newCluster <- createCluster(ns, Cluster(4))
 } yield newCluster
-
 ```
 
- We can easilly compose only the Monad type, in order to compose different Monad types, we can use additional technique called Monad Transformers.
+For-comprehension of this program is much more readable and thus recommended to be used when composing monadic values in particular programs.
+
+## Caveat with Monads
+
+{{ resize_image(path="scala-monads/monads-caveat.png", width=620, height=620, op="fit_width") }}
+
+ We can easily compose Monads of the same types, like we have seen in examples, all values were options or eithers and so on. 
+ However, it is not straightforward to compose different Monad stacks, like Option and Either values in one sequence.
+ Let's look at the example of such problem below.
+
+### Problem
+
+Let's make one of the value in the `for-comprehension` to be different type, so that we will try to compose different Monads:
+
+```scala
+def validateNamespace(ns: String): 
+    Either[String, Unit]
+
+def clusterExists(ns: String): 
+    Option[Either[String, Cluster]] //Attention <-- two Monads layers
+
+def createCluster(ns: String, cluster: Cluster): 
+    Either[String, Cluster] 
+```
+
+If we try to compile below code:
+
+```scala
+for {
+  _ <- validateNamespace(ns)
+  cluster <- clusterExists(ns)
+  updated <- createCluster(ns, cluster)
+} yield  updated
+```
+
+This is going to end up in compiler errors:
+```scala
+updated <- createCluster(ns, cluster)
+                             ^
+<pastie>:4: error: type mismatch;
+ found   : Either[String,Cluster]
+ required: Cluster
+
+    cluster <- clusterExists(ns)
+            ^
+<pastie>:3: error: type mismatch;
+ found   : Option[Nothing]
+ required: scala.util.Either[?,?]
+Option[Nothing] <: scala.util.Either[?,?]?
+false
+```
+__First Monadic value rules them all__. 
+
+Once we put first value such as `validateNamespace`, which returns `Either[_, _]`, it starts
+to drive the return type of the `flatMap` function. Second nested value is not `Either` type, but `Option[_]`. Here it starts to brake
+the Monad interface and eventually won't let it compile the code. What we need is to align monadic values to common ground.
+
+## Monad Transformer
+
+ In order to compose different Monad types, we can use one more pattern called [Monad Transformer](https://en.wikipedia.org/wiki/Monad_transformer).
+
+ Monad Transformer is a custom-written Monad designed specifically for composition. Of course we could tackle above problem
+ by unboxing Option, then checking what is in the Either, return Either again to make `for-comprehension` to be compiled. However, 
+ this would be clumsy and not scalable solution in terms of code maintenance. Monad Transformers example:
+
+ - `OptionT` to compose `Option` + Any other Monad
+ - `EitherT` to compose `Either` + Any other Monad
+ - `ReaderT` to compose `Reader` + Any other Monad
+ - `WriterT` to compose `Writer` + Any other Monad
+ - ... others
+
+ If we want to compose Option Monad with other monadic values of type `Either`, then we need to use `EitherT` monad for `Option`.
+ `EitherT` instance knows how to unbox and box `Option` to operate on nested `Either` and thus guide the `flatMap` function.
+
+ Let us look at `EitherT` example implementation taken from Cats library:
+
+ ```scala
+// takes 3 type parameters: 
+// 1. high-order type for nested Monad 
+// 2. left type of Either
+// 3. right type of Either
+final case class EitherT[F[_], A, B](value: F[Either[A, B]]) {
+
+  def flatMap[AA >: A, D](f: B => EitherT[F, AA, D])(implicit F: Monad[F])
+    : EitherT[F, AA, D] =
+    // Attention: there is second flatMap to unwrap second nested Monad
+    EitherT(F.flatMap(value) { 
+      case l @ Left(_) => F.pure(l.rightCast)
+      case Right(b)    => f(b).value
+    })
+}
+```
+
+See inline comments above. One more important point is that we expect an implicit Monad instance for that nested Monad 
+`F[_]`. We use it to unwrap second nested Monad, by convention it is also named as variable `F`. 
+So Monad Transformer does not do any magic, but it is just a type constructor, which returns a Monad as result. 
+
+### Apply Monad Transformer
+
+Now let us use the same example and define return values:
+
+```scala
+case class Cluster(pods: Int, updated: Long)
+
+def validateNamespace(ns: String): Either[String, Unit] = 
+  Right(())
+
+def clusterExists(ns: String): Option[Either[String, Cluster]] =
+  Some(Right(Cluster(3, System.currentTimeMillis())))
+
+def updateCluster(ns: String, cluster: Cluster): 
+  Either[String, Cluster] =
+  Right(Cluster(cluster.pods, System.currentTimeMillis()))
+```
+
+We are going to use `EitherT` instance from [Cats](https://typelevel.org/cats/datatypes/eithert.html) library.
+
+```scala
+import cats.implicits._
+import cats.data.EitherT
+
+val cluster = for {
+    _ <- validateNamespace(ns).toEitherT[Option]
+    cluster<- EitherT(clusterExists(ns))
+    updated <- updateCluster(ns, cluster).toEitherT[Option]
+} yield  updated
+```
+
+Since we introduced Monad transformer into composition, we have to use it for all the monadic values in the same sequence of flatMaps.
+So, we have to wrap first value and third value into EitherT as well using extension method `to EitherT`.
+
+In the result we have two layers of Monads too. First `Option`, then `Either`:
+
+```scala
+scala> cluster.value
+Some(Right(Cluster(3,1583095558496)))
+```
+
+Alternative case, when some of the statement in composition yields an error value:
+
+```scala
+// we return Left value this time
+def clusterExists(ns: String): Option[Either[String, Cluster]] =
+    Left("Cluster is invalid").some
+
+scala> cluster.value
+res4: Option[Either[String,Cluster]] = Some(Left(Cluster is invalid))
+```
+
+In the result, our composition stopped on the second statement. `clusterExists` returns Some(Left(...)), so that 
+`EitherT` could detect that `Either.Left` is end of the journey and entire composition ended on `Left` even it is wrapped into `Some`.
+Basically, Monad transformer looks into two layers one by one, when chaining monadic values. This was our goal
+to get a concise program and handle nested monadic value on composition in the same time.
+
+## Summary
+
+Monad and Monad transformers are useful abstractions in every day life of functional programmer.
+Although it may seems like Monad is programming language on its own, it allows us to write programs based on the Laws!!!
+We can compose different monadic values without using much a control flow. 
+In the result, we get fewer logical errors in the code, better structured programs and 
+what is more important we get possibility to change programs in future much easier without breaking the entire world.
+
+Now go and flatMap all the things :-)
