@@ -407,7 +407,7 @@ def validateNamespace(ns: String):
     Either[String, Unit]
 
 def clusterExists(ns: String): 
-    Option[Either[String, Cluster]] //Attention <-- two Monads layers
+    Option[Either[String, Cluster]] //Attention <-- two Monad layers
 
 def createCluster(ns: String, cluster: Cluster): 
     Either[String, Cluster] 
@@ -466,14 +466,15 @@ the Monad interface and eventually won't let it compile the code. What we need i
 
  ```scala
 // takes 3 type parameters: 
-// 1. high-order type for nested Monad 
+// 1. high-order type of the outer Monad 
 // 2. left type of Either
 // 3. right type of Either
 final case class EitherT[F[_], A, B](value: F[Either[A, B]]) {
 
   def flatMap[AA >: A, D](f: B => EitherT[F, AA, D])(implicit F: Monad[F])
     : EitherT[F, AA, D] =
-    // Attention: there is second flatMap to unwrap second nested Monad
+    // Attention: there is one more "flatMap" to unwrap first Monad layer,
+    // which is F[_] 
     EitherT(F.flatMap(value) { 
       case l @ Left(_) => F.pure(l.rightCast)
       case Right(b)    => f(b).value
@@ -481,8 +482,8 @@ final case class EitherT[F[_], A, B](value: F[Either[A, B]]) {
 }
 ```
 
-See inline comments above. One more important point is that we expect an implicit Monad instance for that nested Monad 
-`F[_]`. We use it to unwrap second nested Monad, by convention it is also named as variable `F`. 
+See inline comments above. One more important point is that we expect an implicit Monad instance for that outer Monad 
+`F[_]`. We use it to unwrap first Monad, by convention this variable is also named `F`. 
 So Monad Transformer does not do any magic, but it is just a type constructor, which returns a Monad as result. 
 
 ### Apply Monad Transformer

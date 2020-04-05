@@ -86,7 +86,7 @@
         <time class="article_time"  datetime="2020-03-28">March 28, 2020</time>
     </li>
     <span class="dotDivider"></span>
-    <li> 2612 words </li>
+    <li> 2615 words </li>
     <span class="dotDivider" ></span>
     <li> 14 min </li>
 </ul>
@@ -519,7 +519,7 @@ Let's look at the example of such problem below.</p>
     </span><span style="font-style:italic;color:#66d9ef;">Either</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#8be9fd;">Unit</span><span style="color:#f8f8f2;">]
 
 </span><span style="font-style:italic;color:#8be9fd;">def </span><span style="color:#50fa7b;">clusterExists</span><span style="color:#f8f8f2;">(</span><span style="font-style:italic;color:#ffb86c;">ns</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">): 
-    </span><span style="font-style:italic;color:#66d9ef;">Option</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">Either</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#66d9ef;">Cluster</span><span style="color:#f8f8f2;">]] </span><span style="color:#6272a4;">//Attention &lt;-- two Monads layers
+    </span><span style="font-style:italic;color:#66d9ef;">Option</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">Either</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#66d9ef;">Cluster</span><span style="color:#f8f8f2;">]] </span><span style="color:#6272a4;">//Attention &lt;-- two Monad layers
 
 </span><span style="font-style:italic;color:#8be9fd;">def </span><span style="color:#50fa7b;">createCluster</span><span style="color:#f8f8f2;">(</span><span style="font-style:italic;color:#ffb86c;">ns</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#ffb86c;">cluster</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">Cluster</span><span style="color:#f8f8f2;">): 
     </span><span style="font-style:italic;color:#66d9ef;">Either</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#66d9ef;">Cluster</span><span style="color:#f8f8f2;">] 
@@ -569,22 +569,23 @@ this would be clumsy and not scalable solution in terms of code maintenance. Mon
 <p>Let us look at <code>EitherT</code> example implementation taken from Cats library:</p>
 <pre style="background-color:#282a36;">
 <span style="color:#6272a4;">// takes 3 type parameters: 
-// 1. high-order type for nested Monad 
+// 1. high-order type of the outer Monad 
 // 2. left type of Either
 // 3. right type of Either
 </span><span style="color:#ff79c6;">final </span><span style="font-style:italic;color:#ff79c6;">case class </span><span style="text-decoration:underline;color:#8be9fd;">EitherT</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">F</span><span style="color:#f8f8f2;">[_], </span><span style="font-style:italic;color:#66d9ef;">A</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#66d9ef;">B</span><span style="color:#f8f8f2;">](</span><span style="font-style:italic;color:#ffb86c;">value</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">F</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">Either</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">A</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#66d9ef;">B</span><span style="color:#f8f8f2;">]]) {
 
 </span><span style="color:#f8f8f2;"> </span><span style="font-style:italic;color:#8be9fd;">def </span><span style="color:#50fa7b;">flatMap</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">AA </span><span style="color:#ff79c6;">&gt;: </span><span style="font-style:italic;color:#66d9ef;">A</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#66d9ef;">D</span><span style="color:#f8f8f2;">](</span><span style="font-style:italic;color:#ffb86c;">f</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">B </span><span style="color:#ff79c6;">=&gt; </span><span style="font-style:italic;color:#66d9ef;">EitherT</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">F</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#66d9ef;">AA</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#66d9ef;">D</span><span style="color:#f8f8f2;">])(</span><span style="color:#ff79c6;">implicit </span><span style="font-style:italic;color:#ffb86c;">F</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">Monad</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">F</span><span style="color:#f8f8f2;">])
 </span><span style="color:#f8f8f2;">   : </span><span style="font-style:italic;color:#66d9ef;">EitherT</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">F</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#66d9ef;">AA</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#66d9ef;">D</span><span style="color:#f8f8f2;">] </span><span style="color:#ff79c6;">=
-</span><span style="color:#f8f8f2;">   </span><span style="color:#6272a4;">// Attention: there is second flatMap to unwrap second nested Monad
+</span><span style="color:#f8f8f2;">   </span><span style="color:#6272a4;">// Attention: there is one more &quot;flatMap&quot; to unwrap first Monad layer,
+</span><span style="color:#f8f8f2;">   </span><span style="color:#6272a4;">// which is F[_] 
 </span><span style="color:#f8f8f2;">   </span><span style="color:#6be5fd;">EitherT</span><span style="color:#f8f8f2;">(</span><span style="color:#6be5fd;">F</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">flatMap(value) </span><span style="color:#ffffff;">{ 
 </span><span style="color:#f8f8f2;">     </span><span style="color:#ff79c6;">case </span><span style="font-style:italic;color:#ffb86c;">l </span><span style="color:#ff79c6;">@ </span><span style="color:#6be5fd;">Left</span><span style="color:#f8f8f2;">(</span><span style="color:#bd93f9;">_</span><span style="color:#f8f8f2;">) </span><span style="color:#ff79c6;">=&gt; </span><span style="color:#6be5fd;">F</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">pure(l</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">rightCast)
 </span><span style="color:#f8f8f2;">     </span><span style="color:#ff79c6;">case </span><span style="color:#6be5fd;">Right</span><span style="color:#f8f8f2;">(</span><span style="font-style:italic;color:#ffb86c;">b</span><span style="color:#f8f8f2;">)    </span><span style="color:#ff79c6;">=&gt;</span><span style="color:#f8f8f2;"> f(b)</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">value
 </span><span style="color:#f8f8f2;">   </span><span style="color:#ffffff;">}</span><span style="color:#f8f8f2;">)
 }
 </span></pre>
-<p>See inline comments above. One more important point is that we expect an implicit Monad instance for that nested Monad 
-<code>F[_]</code>. We use it to unwrap second nested Monad, by convention it is also named as variable <code>F</code>. 
+<p>See inline comments above. One more important point is that we expect an implicit Monad instance for that outer Monad 
+<code>F[_]</code>. We use it to unwrap first Monad, by convention this variable is also named <code>F</code>. 
 So Monad Transformer does not do any magic, but it is just a type constructor, which returns a Monad as result. </p>
 <h3 id="apply-monad-transformer">Apply Monad Transformer</h3>
 <p>Now let us use the same example and define return values:</p>
