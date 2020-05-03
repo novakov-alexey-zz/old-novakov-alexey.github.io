@@ -9,6 +9,7 @@ toc_disabled=true
 +++
 
 ## 2020
+- 30.04.2020 Useful SBT Plugins [Slides](https://speakerdeck.com/alexeyn/useful-sbt-plugins)
 - 24.03.2020 Blazing Fast Microservices in Rust and Docker [Slides](https://speakerdeck.com/alexeyn/blazing-fast-microservices-in-rust-and-docker)
 - 06.03.2020 Monads in Scala [Slides](https://speakerdeck.com/alexeyn/monads-in-scala)
 - 21.01.2020 OpenShift: Developer Productivity Booster [Slides](https://speakerdeck.com/alexeyn/openshift-developer-productivity-booster)
