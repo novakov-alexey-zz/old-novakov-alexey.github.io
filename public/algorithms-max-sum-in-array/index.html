@@ -123,16 +123,16 @@
           </div>
       </div>
             
-      <p>Most of the algorithmic tasks are related with iterating over arrays of data. They often can be expressed as a function which takes some input and returns some single value or an array of values. For instance:</p>
+      <p>Most of the algorithmic tasks are related to iterating over arrays of data. They often can be expressed as a function which takes some input and returns some single value or an array of values. For instance:</p>
 <pre style="background-color:#282a36;">
 <span style="font-style:italic;color:#8be9fd;">def </span><span style="color:#50fa7b;">maxSum</span><span style="color:#f8f8f2;">(</span><span style="font-style:italic;color:#ffb86c;">a</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">Array</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#8be9fd;">Int</span><span style="color:#f8f8f2;">]): </span><span style="font-style:italic;color:#66d9ef;">Array</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#8be9fd;">Int</span><span style="color:#f8f8f2;">] </span><span style="color:#ff79c6;">= ???
 </span></pre>
-<p>Let's solve next task using Scala's elegant and consice syntax.</p>
+<p>Let's solve next task using Scala's elegant and concise syntax.</p>
 <h3 id="find-the-max-sum-in-the-given-array">Find the max sum in the given array</h3>
 <p>It is one of the interesting task that I met first time at one of my past job 5 years ago. It was an internal meetup of developers learning new languages as well as training themselves in programming for fun.</p>
 <p>Later I use this task in Scala pet-project, called <a href="https://github.com/novakov-alexey/devgym">DevGym</a>. Project idea was similar to well-known Codility web-site.</p>
 <h3 id="task">Task</h3>
-<p>There is one array as input and another array as ouput. See test examples below:</p>
+<p>There is one array as input and another array as output. See test examples below:</p>
 <pre style="background-color:#282a36;">
 <span style="color:#6272a4;">// Given
 </span><span style="color:#6be5fd;">Array</span><span style="color:#f8f8f2;">(</span><span style="color:#bd93f9;">2</span><span style="color:#f8f8f2;">, -</span><span style="color:#bd93f9;">4</span><span style="color:#f8f8f2;">, </span><span style="color:#bd93f9;">2</span><span style="color:#f8f8f2;">, -</span><span style="color:#bd93f9;">1</span><span style="color:#f8f8f2;">, </span><span style="color:#bd93f9;">3</span><span style="color:#f8f8f2;">, -</span><span style="color:#bd93f9;">3</span><span style="color:#f8f8f2;">, </span><span style="color:#bd93f9;">10</span><span style="color:#f8f8f2;">, -</span><span style="color:#bd93f9;">1</span><span style="color:#f8f8f2;">, -</span><span style="color:#bd93f9;">11</span><span style="color:#f8f8f2;">, -</span><span style="color:#bd93f9;">100</span><span style="color:#f8f8f2;">, </span><span style="color:#bd93f9;">8</span><span style="color:#f8f8f2;">, -</span><span style="color:#bd93f9;">1</span><span style="color:#f8f8f2;">) 
@@ -151,7 +151,7 @@
 <p>4 - 1 + 2 + 1 = 6</p>
 <p><code>6</code> is the max sum.</p>
 <h3 id="solution">Solution</h3>
-<p>In general, we can solve this problem in O(n) complexity. By using intermidiate vairalbles to 
+<p>In general, we can solve this problem in O(n) complexity. By using intermediate variables to 
 accumulate current sum as well as max sum, we can find <code>left</code> and <code>right</code> indices, which can be used
 to return a sub-array.</p>
 <pre style="background-color:#282a36;">
@@ -183,13 +183,13 @@ to return a sub-array.</p>
       </span><span style="color:#ff79c6;">if </span><span style="color:#f8f8f2;">(a(i) &gt; a(maxI)) maxI </span><span style="color:#ff79c6;">=</span><span style="color:#f8f8f2;"> i
     </span><span style="color:#ffffff;">}
   }
-  </span><span style="color:#6272a4;">// at this point we found left anf right
+  </span><span style="color:#6272a4;">// at this point we found left and right
   // indices to capture sub-array with max sum
   </span><span style="color:#ff79c6;">if </span><span style="color:#f8f8f2;">(maxLeft == a</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">length) </span><span style="color:#6be5fd;">Array</span><span style="color:#f8f8f2;">(a(maxI))
   </span><span style="color:#ff79c6;">else</span><span style="color:#f8f8f2;"> a</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">slice(maxLeft, maxRight + </span><span style="color:#bd93f9;">1</span><span style="color:#f8f8f2;">)
 </span><span style="color:#ffffff;">}
 </span></pre>
-<p>Above aglorithm can be even shorter, if we return only final sum, i.e. without tracking left and right indices.</p>
+<p>Above algorithm can be even shorter, if we return only final sum, i.e. without tracking left and right indices.</p>
 <h1 id="summary">Summary</h1>
 <p>Scala is a nice language to solve different algorithmic tasks. Try your next project in Scala, you will be surprised how fun to write code in it. </p>
 <p>See my other blog-posts for algorithms in Scala:</p>

@@ -12,14 +12,14 @@ tags = ["algorithms"]
 categories = ["scala"]
 +++
 
-Most of the algorithmic tasks are related with iterating over arrays of data. They often can be expressed as a function which takes some input and returns some single value or an array of values. For instance:
+Most of the algorithmic tasks are related to iterating over arrays of data. They often can be expressed as a function which takes some input and returns some single value or an array of values. For instance:
 
 ```scala
 def maxSum(a: Array[Int]): Array[Int] = ???
 ```
 
 
-Let's solve next task using Scala's elegant and consice syntax.
+Let's solve next task using Scala's elegant and concise syntax.
 
 ### Find the max sum in the given array
 
@@ -30,7 +30,7 @@ Later I use this task in Scala pet-project, called [DevGym](https://github.com/n
 
 ### Task
 
-There is one array as input and another array as ouput. See test examples below:
+There is one array as input and another array as output. See test examples below:
 
 ```scala
 // Given
@@ -57,7 +57,7 @@ Array(-2, 1, -3, 4, -1, 2, 1, -5, 4)
 
 ### Solution
 
-In general, we can solve this problem in O(n) complexity. By using intermidiate vairalbles to 
+In general, we can solve this problem in O(n) complexity. By using intermediate variables to 
 accumulate current sum as well as max sum, we can find `left` and `right` indices, which can be used
 to return a sub-array.
 
@@ -91,14 +91,14 @@ def maxSum(a: Array[Int]): Array[Int] = {
       if (a(i) > a(maxI)) maxI = i
     }
   }
-  // at this point we found left anf right
+  // at this point we found left and right
   // indices to capture sub-array with max sum
   if (maxLeft == a.length) Array(a(maxI))
   else a.slice(maxLeft, maxRight + 1)
 }
 ```
 
-Above aglorithm can be even shorter, if we return only final sum, i.e. without tracking left and right indices.
+Above algorithm can be even shorter, if we return only final sum, i.e. without tracking left and right indices.
 
 # Summary
 
