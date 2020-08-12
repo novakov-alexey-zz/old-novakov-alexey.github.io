@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+      
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" >
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">   
+        <meta name="twitter:card" content="summary">
+        <meta name="twitter:site" content="@alexey_novakov">
+        <meta name="twitter:creator" content="@alexey_novakov">
+        <meta name="twitter:url" content="https://novakov-alexey.github.io">
+        <meta name="twitter:title" content="SE Notes - Alexey Novakov">
+        <meta name="twitter:description" content="Software Engineering notes on Scala, JVM, Rust, Cloud and other goodies">
+        <meta name="twitter:image" content="https://novakov-alexey.github.io/img/alexey_white2.jpg">
+        <meta name="twitter:image:alt" content="Alexey Novakov photo for personal web-site">
+
+        <!-- SEO -->
+        
+        <title> SBT Plugins | Software Engineering Notes </title>
+        
+
+        <!-- Enable responsiveness on mobile devices-->
+        <meta name="viewport"  content="width=device-width, initial-scale=1.0, maximum-scale=1" >
+
+        <!--  css -->
+        <link rel="stylesheet"  href="http:&#x2F;&#x2F;127.0.0.1:1111/ergo.css" >
+
+        <!-- fonts -->
+        <!-- preload  -->
+        <link rel="preload" href="https://fonts.googleapis.com/css?family=Montserrat:200,300,300i,400,500,500i,600,700,800,900|Raleway" as="style">
+        <link rel="preload"  href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous" as="style" >
+        <!-- load -->
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:200,300,300i,400,500,500i,600,700,800,900|Raleway">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css"  integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+      
+    </head>
+
+    <body>
+      
+        
+<input type="checkbox" id="openSidebarMenu" class="openSidebarMenu">
+<label class="menu cross menu--1" for="openSidebarMenu">
+    <svg viewBox="0 0 75 75" xmlns="https://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="30" />
+        <path class="line--1" d="M0 40h62c13 0 6 28-4 18L35 35" />
+        <path class="line--2" d="M0 50h70" />
+        <path class="line--3" d="M0 60h62c13 0 6-28-4-18L35 65" />
+    </svg>
+</label>
+
+<div id="sidebarMenu">
+    <div class="menu_wrapper">
+        <ul class="sidebarMenuInner" >     
+            <li>
+                <a href="http:&#x2F;&#x2F;127.0.0.1:1111" >Software Engineering Notes</a>
+                <div class="menu_div" ></div>
+            </li>                   
+            <li><a href="http:&#x2F;&#x2F;127.0.0.1:1111/cv/">CV</a></li>
+            <li><a href="http:&#x2F;&#x2F;127.0.0.1:1111/presentations">Presentations</a></li>
+            <li><a href="http:&#x2F;&#x2F;127.0.0.1:1111/categories">Categories</a></li>
+            <li><a href="http:&#x2F;&#x2F;127.0.0.1:1111/tags">Tags</a></li>
+        </ul>
+    </div>
+</div>
+
+      
+
+      
+<nav id="overlord" class="overlord" >
+  
+<figure class="mini_logo ">
+    <a href="http:&#x2F;&#x2F;127.0.0.1:1111" style="background-image: url(http:&#x2F;&#x2F;127.0.0.1:1111/img/alexey_white2.jpg)"></a>
+</figure>
+<h5>
+    <a href="http:&#x2F;&#x2F;127.0.0.1:1111">Software Engineering Notes</a>
+</h5>
+
+</nav>
+
+<section class="post_container">
+  <article>
+    
+      <h1 class="article_title"><a href="http:&#x2F;&#x2F;127.0.0.1:1111&#x2F;sbt-plugins&#x2F;" id="article_link">SBT Plugins</a></h1>
+      
+<ul class="frontmatter frontmatter_page" id="frontmatter">
+    <li>
+        <time class="article_time"  datetime="2020-06-29">June 29, 2020</time>
+    </li>
+    <span class="dotDivider"></span>
+    <li> 2209 words </li>
+    <span class="dotDivider" ></span>
+    <li> 12 min </li>
+</ul>
+
+      
+      <div class="post-toc" id="post-toc">
+          <h3 class="post-toc-title">Contents</h3>
+          <div class="post-toc-content always-active">
+              <nav id="TableOfContents">
+                  <ul>
+                      
+                      <li>
+                          <a href="http://127.0.0.1:1111/sbt-plugins/#giter8" class="toc-link">Giter8</a>
+                          
+                          <ul>
+                              
+                              <li>
+                                  <a href="http://127.0.0.1:1111/sbt-plugins/#template-file-structure" class="toc-link">Template File Structure</a>
+                              </li>
+                              
+                          </ul>
+                          
+                      </li>
+                      
+                      <li>
+                          <a href="http://127.0.0.1:1111/sbt-plugins/#sbt-revolver" class="toc-link">SBT Revolver</a>
+                          
+                      </li>
+                      
+                      <li>
+                          <a href="http://127.0.0.1:1111/sbt-plugins/#sbt-tpolecat" class="toc-link">SBT Tpolecat</a>
+                          
+                      </li>
+                      
+                      <li>
+                          <a href="http://127.0.0.1:1111/sbt-plugins/#sbt-native-packager" class="toc-link">SBT Native Packager</a>
+                          
+                          <ul>
+                              
+                              <li>
+                                  <a href="http://127.0.0.1:1111/sbt-plugins/#java-packaging-format" class="toc-link">Java Packaging Format</a>
+                              </li>
+                              
+                              <li>
+                                  <a href="http://127.0.0.1:1111/sbt-plugins/#docker-image-format" class="toc-link">Docker Image format</a>
+                              </li>
+                              
+                          </ul>
+                          
+                      </li>
+                      
+                      <li>
+                          <a href="http://127.0.0.1:1111/sbt-plugins/#sbt-release" class="toc-link">SBT Release</a>
+                          
+                      </li>
+                      
+                      <li>
+                          <a href="http://127.0.0.1:1111/sbt-plugins/#other-useful-plugins" class="toc-link">Other useful plugins</a>
+                          
+                      </li>
+                      
+                      <li>
+                          <a href="http://127.0.0.1:1111/sbt-plugins/#summary" class="toc-link">Summary</a>
+                          
+                      </li>
+                      
+                  </ul>
+              </nav>
+          </div>
+      </div>
+            
+      <p>SBT is a Scala Build Tool. It is written in Scala and can compile, build artefacts for Scala and Java projects. SBT is also the first build
+tool in the Scala eco-system and the most used one among Scala developers. I am using SBT already for many years and found the following useful plugins which I use in most of my projects:</p>
+<h2 id="giter8">Giter8</h2>
+<p>It allows to create an SBT project template to ramp up new SBT project. Project template usually includes typical configuration that 
+an SBT user copies and pastes from a project to project. User can put any file into a template.</p>
+<p>One part of the Giter8 is embedded into SBT. The second part is the Giter8 plugin itself. User can create new SBT project from template hosted at GitHub and that the most useful part. You just need an internet access, then run SBT <code>new</code> command. For example:</p>
+<pre style="background-color:#282a36;">
+<span style="color:#f8f8f2;">sbt </span><span style="color:#ff79c6;">new </span><span style="font-style:italic;color:#66d9ef;">novakov</span><span style="color:#f8f8f2;">-alexey/scalaboot</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">g8     
+</span></pre>
+<p>scalaboot.g8 is a name of the GitHub repository at my personal account <code>novakov-alexey</code>. SBT converts template name into<br />
+https://github.com/novakov-alexey/scalaboot.g8 path, which you can visit in browser as well. There is also an option to use Giter8 template from the local file system.</p>
+<p>Once we run above command, Giter8 creates new project file structure such as:</p>
+<pre style="background-color:#282a36;">
+<span style="color:#50fa7b;">├──</span><span style="color:#f8f8f2;"> build.sbt
+</span><span style="color:#50fa7b;">├──</span><span style="color:#f8f8f2;"> project
+</span><span style="color:#50fa7b;">│</span><span style="color:#f8f8f2;">   ├── Dependencies.scala
+</span><span style="color:#50fa7b;">│</span><span style="color:#f8f8f2;">   ├── build.properties
+</span><span style="color:#50fa7b;">│</span><span style="color:#f8f8f2;">   └── plugins.sbt
+</span><span style="color:#50fa7b;">├──</span><span style="color:#f8f8f2;"> src
+</span><span style="color:#50fa7b;">│</span><span style="color:#f8f8f2;">   ├── main
+</span><span style="color:#50fa7b;">│</span><span style="color:#f8f8f2;">   └── test
+</span><span style="color:#50fa7b;">└──</span><span style="color:#f8f8f2;"> version.sbt
+</span></pre><h3 id="template-file-structure">Template File Structure</h3>
+<p>Project template is also an SBT project :-). In case of scalaboot.g8 example, it looks like this:</p>
+<img src="http:&#x2F;&#x2F;127.0.0.1:1111&#x2F;processed_images&#x2F;b26019a8856a76fa00.png" />
+<p>Content of the g8 folder is a template content which will be used when users apply this template
+for their projects. Giter8 template supports properties and special syntax for them. Properties can
+be put at any place of your template. Let's look at the example in build.sbt file:</p>
+<pre style="background-color:#282a36;">
+<span style="color:#6be5fd;">ThisBuild</span><span style="color:#f8f8f2;"> / organization := </span><span style="color:#f1fa8c;">&quot;com.example&quot;
+</span><span style="color:#6be5fd;">ThisBuild</span><span style="color:#f8f8f2;"> / scalaVersion := </span><span style="color:#f1fa8c;">&quot;$scalaVersion$&quot;
+</span><span style="color:#6be5fd;">ThisBuild</span><span style="color:#f8f8f2;"> / description  := </span><span style="color:#f1fa8c;">&quot;$desc$&quot;
+
+</span><span style="color:#ff79c6;">lazy </span><span style="font-style:italic;color:#8be9fd;">val </span><span style="color:#f8f8f2;">root </span><span style="color:#ff79c6;">= </span><span style="color:#f8f8f2;">(project in file(</span><span style="color:#f1fa8c;">&quot;.&quot;</span><span style="color:#f8f8f2;">))</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">
+  settings(
+    name := </span><span style="color:#f1fa8c;">&quot;$name;format=&quot;</span><span style="color:#f8f8f2;">lower,</span><span style="color:#8be9fd;">hyphen</span><span style="color:#f1fa8c;">&quot;$&quot;</span><span style="color:#f8f8f2;">,
+    libraryDependencies ++= </span><span style="color:#6be5fd;">Seq</span><span style="color:#f8f8f2;">(
+      akkaHttp,
+      akkaStreams,
+      scalaLogging,
+      logback,
+      …
+
+</span></pre>
+<p>A text between <code>$ ... $</code> is evaluated by Giter8 and replaced by pre-defined or user-given parameters.
+In my <code>scalaboot</code> template, I have following pre-defined values:</p>
+<p><em>src/main/g8/default.properties</em></p>
+<pre style="background-color:#282a36;">
+<span style="color:#f8f8f2;">name=</span><span style="color:#f1fa8c;">Project Name
+</span><span style="color:#f8f8f2;">desc=</span><span style="color:#f1fa8c;">Describe your project a bit
+</span><span style="color:#f8f8f2;">scalaVersion=</span><span style="color:#f1fa8c;">2.13.1
+</span></pre>
+<p>SBT <code>new</code> command is going through the list of defined properties and sets the default values in case
+users do not provide their own values. In the example below, I apply <code>scalaboot</code> template for
+project name <code>app-1</code>. I also set my project description and newer Scala version. They will appear in the build.sbt:</p>
+<pre style="background-color:#282a36;">
+<span style="color:#50fa7b;">[info]</span><span style="color:#f8f8f2;"> Loading settings for project global-plugins from idea.sbt,gpg.sbt ...
+</span><span style="color:#50fa7b;">[info]</span><span style="color:#f8f8f2;"> Loading global plugins from /Users/alexey/.sbt/1.0/plugins
+</span><span style="color:#50fa7b;">[info]</span><span style="color:#f8f8f2;"> Set current project to git (in build file:/Users/alexey/dev/git/)
+</span><span style="color:#50fa7b;">name </span><span style="color:#ff79c6;">[</span><span style="color:#f8f8f2;">Project Name</span><span style="color:#ff79c6;">]</span><span style="color:#f8f8f2;">: app-1
+</span><span style="color:#50fa7b;">desc </span><span style="color:#ff79c6;">[</span><span style="color:#f8f8f2;">Describe your project a bit</span><span style="color:#ff79c6;">]</span><span style="color:#f8f8f2;">: order registration
+</span><span style="color:#50fa7b;">scalaVersion </span><span style="color:#ff79c6;">[</span><span style="color:#f8f8f2;">2.13.1</span><span style="color:#ff79c6;">]</span><span style="color:#f8f8f2;">: 2.13.2
+
+</span><span style="color:#50fa7b;">Template</span><span style="color:#f8f8f2;"> applied in /Users/alexey/dev/git/./app-1
+</span></pre><h2 id="sbt-revolver">SBT Revolver</h2>
+<p>It is simple plugin to be added in a Scala project. However, Giter8 is not necessarily to be added in your project, only when you
+develop new template and want to keep it in the GitHub repo. Revolver plugin can be added to project as any other user plugin via project/plugins.sbt file.
+Adding its definition to that file:</p>
+<pre style="background-color:#282a36;">
+<span style="color:#f8f8f2;">addSbtPlugin(</span><span style="color:#f1fa8c;">&quot;io.spray&quot;</span><span style="color:#f8f8f2;"> % </span><span style="color:#f1fa8c;">&quot;sbt-revolver&quot;</span><span style="color:#f8f8f2;"> % “x</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">y</span><span style="color:#ff79c6;">.</span><span style="color:#8be9fd;">z</span><span style="color:#f1fa8c;">&quot;)</span><span style="background-color:#ff79c6;color:#f8f8f0;">
+</span></pre>
+<p>Change x.y.z to latest version from its GitHub repository. </p>
+<p>Main feature of sbt-reolver is &quot;triggered execution&quot; upon project file modification. 
+It helps to restart your application automatically and may remind
+you dynamic-language experience where developers test their modules by refreshing a browser page or by calling their scripts again.</p>
+<img src="http:&#x2F;&#x2F;127.0.0.1:1111&#x2F;processed_images&#x2F;d9cf78e52b03ff9a00.png" />
+<p>In summary, <em>it enables a super-fast development turnaround for your Scala applications</em>.</p>
+<p>SBT Reolver starts your application in forked JVM, that helps to easily pass JVM options and restart it again upon triggered execution.</p>
+<img src="http:&#x2F;&#x2F;127.0.0.1:1111&#x2F;processed_images&#x2F;1182f2721aaafd8a00.png" />
+<p><em>MainExchange</em> is my Scala application started by sbt-revolver as separate JVM process.</p>
+<p>Revolver has its own configuration to control JVM options, environment variables, etc.</p>
+<p>JVM options example:</p>
+<pre style="background-color:#282a36;">
+<span style="color:#f8f8f2;">javaOptions in reStart += </span><span style="color:#f1fa8c;">&quot;-Xmx2g&quot;
+</span></pre>
+<p>Set your main class. It is useful when you have more than one:</p>
+<pre style="background-color:#282a36;">
+<span style="color:#f8f8f2;">mainClass in reStart := </span><span style="color:#6be5fd;">Some</span><span style="color:#f8f8f2;">(</span><span style="color:#f1fa8c;">&quot;com.example.Main&quot;</span><span style="color:#f8f8f2;">)
+</span></pre>
+<p>Enable debug of the forked JVM process:</p>
+<pre style="background-color:#282a36;">
+<span style="color:#6be5fd;">Revolver</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">enableDebugging(port </span><span style="color:#ff79c6;">= </span><span style="color:#bd93f9;">5050</span><span style="color:#f8f8f2;">, suspend </span><span style="color:#ff79c6;">= </span><span style="color:#bd93f9;">true</span><span style="color:#f8f8f2;">)
+</span></pre>
+<p>Export environment variables for your Scala application:</p>
+<pre style="background-color:#282a36;">
+<span style="color:#f8f8f2;">envVars in reStart := </span><span style="color:#6be5fd;">Map</span><span style="color:#f8f8f2;">(“</span><span style="color:#8be9fd;">K8S_NAMESPACE</span><span style="color:#f1fa8c;">&quot; -&gt; “test&quot;</span><span style="color:#f8f8f2;">)
+</span></pre>
+<p>Below is an example of starting an application via sbt-revolver:</p>
+<img src="http:&#x2F;&#x2F;127.0.0.1:1111&#x2F;processed_images&#x2F;6e045aee4425a35100.png" />
+<p>MainExchange is Akka-HTTP based application running HTTP server. Now let us change some line of code in the code base.
+Once we done that, sbt-revolver immediately triggers compilation, stop running process and starts new one:</p>
+<img src="http:&#x2F;&#x2F;127.0.0.1:1111&#x2F;processed_images&#x2F;ec35aa80c157a52a00.png" />
+<p>There are 3 things happened:</p>
+<ul>
+<li>Build triggered (compilation)</li>
+<li>Stop running application</li>
+<li>Start new application</li>
+</ul>
+<p><code>restart</code> revolver SBT task is leveraging SBT triggered execution which is enabled by tilde <em>~</em> in front the task name,
+when running it in SBT shell.</p>
+<p>There are other useful commands to be combined with ~ to trigger some task upon files modification:</p>
+<pre style="background-color:#282a36;">
+<span style="color:#50fa7b;">//</span><span style="color:#f8f8f2;"> runs failed tests, if any
+</span><span style="color:#bd93f9;">~</span><span style="color:#f8f8f2;"> testQuick
+
+</span><span style="color:#50fa7b;">//</span><span style="color:#f8f8f2;"> runs specific test
+</span><span style="color:#bd93f9;">~</span><span style="color:#f8f8f2;"> testOnly org.alexeyn.SomeTest
+
+</span><span style="color:#50fa7b;">//</span><span style="color:#f8f8f2;"> runs all tests
+</span><span style="color:#bd93f9;">~</span><span style="color:#f8f8f2;"> test
+
+</span><span style="color:#50fa7b;">//</span><span style="color:#f8f8f2;"> cleans compiled sources and runs all tests
+</span><span style="color:#bd93f9;">~</span><span style="color:#f8f8f2;"> clean</span><span style="color:#ff79c6;">; </span><span style="color:#50fa7b;">test
+</span></pre><h2 id="sbt-tpolecat">SBT Tpolecat</h2>
+<p>Enables Scala compiler options as per recommendations of Rob Norris <a href="https://tpolecat.github.io/2017/04/25/scalac-flags.html">blog-post</a>. Plugin enables as many Scala compiler options as possible to enforce type safety and
+discourage bad practises in the code base by turning warnings into compiler errors.</p>
+<p>Add plugin to your project:</p>
+<pre style="background-color:#282a36;">
+<span style="color:#f8f8f2;">addSbtPlugin(“io</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">github</span><span style="color:#ff79c6;">.</span><span style="color:#8be9fd;">davidgregory084</span><span style="color:#f1fa8c;">&quot; % &quot;</span><span style="color:#f8f8f2;">sbt-</span><span style="color:#8be9fd;">tpolecat</span><span style="color:#f1fa8c;">&quot; % “0.1.10&quot;</span><span style="color:#f8f8f2;">)
+</span></pre>
+<p>Actually, the same compiler options can be enabled manually within the SBT definition. However, it is more convenient to
+enable this plugin once and forget about adding anything manually. One can also disable particular options enabled by this
+plugin, in case that option does not make sense for particular project.</p>
+<p>Some of the options which are enabled by this plugin:</p>
+<pre style="background-color:#282a36;">
+<span style="color:#f8f8f2;">scalacOptions ++= </span><span style="color:#6be5fd;">Seq</span><span style="color:#f8f8f2;">(
+</span><span style="color:#f8f8f2;"> </span><span style="color:#f1fa8c;">&quot;-deprecation&quot;</span><span style="color:#f8f8f2;">,               
+</span><span style="color:#f8f8f2;"> </span><span style="color:#f1fa8c;">&quot;-encoding&quot;</span><span style="color:#f8f8f2;">, </span><span style="color:#f1fa8c;">&quot;utf-8&quot;</span><span style="color:#f8f8f2;">,         
+</span><span style="color:#f8f8f2;"> </span><span style="color:#f1fa8c;">&quot;-explaintypes&quot;</span><span style="color:#f8f8f2;">,                  
+</span><span style="color:#f8f8f2;"> </span><span style="color:#f1fa8c;">&quot;-language:higherKinds&quot;</span><span style="color:#f8f8f2;">,          
+</span><span style="color:#f8f8f2;"> </span><span style="color:#f1fa8c;">&quot;-language:implicitConversions&quot;</span><span style="color:#f8f8f2;">,  
+</span><span style="color:#f8f8f2;"> </span><span style="color:#f1fa8c;">&quot;-unchecked&quot;</span><span style="color:#f8f8f2;">,                       
+</span><span style="color:#f8f8f2;"> </span><span style="color:#f1fa8c;">&quot;-Xfatal-warnings&quot;</span><span style="color:#f8f8f2;">,            
+</span><span style="color:#f8f8f2;"> </span><span style="color:#f1fa8c;">&quot;-Xlint:infer-any&quot;</span><span style="color:#f8f8f2;">,                 
+</span><span style="color:#f8f8f2;"> </span><span style="color:#f1fa8c;">&quot;-Ywarn-dead-code&quot;</span><span style="color:#f8f8f2;">,              
+</span><span style="color:#f8f8f2;"> </span><span style="color:#f1fa8c;">&quot;-Ywarn-extra-implicit&quot;</span><span style="color:#f8f8f2;">,        
+</span><span style="color:#f8f8f2;"> </span><span style="color:#f1fa8c;">&quot;-Ywarn-inaccessible&quot;</span><span style="color:#f8f8f2;">,          
+</span><span style="color:#f8f8f2;"> </span><span style="color:#f1fa8c;">&quot;-Ywarn-infer-any&quot;</span><span style="color:#f8f8f2;">,            
+</span><span style="color:#f8f8f2;"> </span><span style="color:#f1fa8c;">&quot;-Ywarn-numeric-widen&quot;</span><span style="color:#f8f8f2;">,       
+</span><span style="color:#f8f8f2;"> </span><span style="color:#f1fa8c;">&quot;-Ywarn-unused:implicits&quot;</span><span style="color:#f8f8f2;">,   
+</span><span style="color:#f8f8f2;"> </span><span style="color:#f1fa8c;">&quot;-Ywarn-unused:imports&quot;</span><span style="color:#f8f8f2;">,     
+</span><span style="color:#f8f8f2;"> </span><span style="color:#f1fa8c;">&quot;-Ywarn-unused:locals&quot;</span><span style="color:#f8f8f2;">,     
+</span><span style="color:#f8f8f2;"> </span><span style="color:#f1fa8c;">&quot;-Ywarn-unused:params&quot;</span><span style="color:#f8f8f2;">,     
+</span><span style="color:#f8f8f2;"> </span><span style="color:#f1fa8c;">&quot;-Ywarn-unused:patvars&quot;</span><span style="color:#f8f8f2;">,    
+</span><span style="color:#f8f8f2;"> </span><span style="color:#f1fa8c;">&quot;-Ywarn-unused:privates&quot;</span><span style="color:#f8f8f2;">,   
+</span><span style="color:#f8f8f2;"> </span><span style="color:#f1fa8c;">&quot;-Ywarn-value-discard&quot;</span><span style="color:#f8f8f2;">     
+…    
+)
+</span></pre>
+<p>Last time I checked this plugin it enables 54 scalac options. I recommend to use this plugin by default in every project, it will
+make your code base much more robust.</p>
+<h2 id="sbt-native-packager">SBT Native Packager</h2>
+<p>To enbale in your project:</p>
+<pre style="background-color:#282a36;">
+<span style="color:#f8f8f2;">addSbtPlugin(</span><span style="color:#f1fa8c;">&quot;com.typesafe.sbt&quot;</span><span style="color:#f8f8f2;"> %% </span><span style="color:#f1fa8c;">&quot;sbt-native-packager&quot;</span><span style="color:#f8f8f2;"> % “x</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">y</span><span style="color:#ff79c6;">.</span><span style="color:#8be9fd;">z</span><span style="color:#f1fa8c;">&quot;)</span><span style="background-color:#ff79c6;color:#f8f8f0;">
+</span></pre>
+<p>Native Packager allows to package your application in different formats such as:</p>
+<ul>
+<li>universal zip, tar.gz, xz archives</li>
+<li>deb and rpm packages</li>
+<li>dmg </li>
+<li>msi </li>
+<li>Docker</li>
+<li>GraalVM native images</li>
+</ul>
+<p>Native packager is not auto-plugin, i.e. it is not enabled by default. In order to use it for some of
+your module, you need to enable it in SBT definition:</p>
+<pre style="background-color:#282a36;">
+<span style="color:#ff79c6;">lazy </span><span style="font-style:italic;color:#8be9fd;">val </span><span style="color:#f8f8f2;">root </span><span style="color:#ff79c6;">= </span><span style="color:#f8f8f2;">(project in file(</span><span style="color:#f1fa8c;">&quot;.&quot;</span><span style="color:#f8f8f2;">))</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">
+  settings(
+    name := </span><span style="color:#f1fa8c;">&quot;exchange&quot;</span><span style="color:#f8f8f2;">,
+    …</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">
+    dockerBaseImage := “openjdk:</span><span style="color:#bd93f9;">8</span><span style="color:#f8f8f2;">-</span><span style="font-style:italic;color:#66d9ef;">jre</span><span style="color:#f8f8f2;">-alpine”,
+    dockerExposedPorts ++= </span><span style="color:#6be5fd;">Seq</span><span style="color:#f8f8f2;">(</span><span style="color:#bd93f9;">8080</span><span style="color:#f8f8f2;">),
+    dockerRepository := </span><span style="color:#6be5fd;">Some</span><span style="color:#f8f8f2;">(“</span><span style="color:#8be9fd;">alexeyn</span><span style="color:#f1fa8c;">&quot;)</span><span style="background-color:#ff79c6;color:#f8f8f0;">
+</span><span style="color:#f1fa8c;">  ).enablePlugins(AshScriptPlugin) </span><span style="background-color:#ff79c6;color:#f8f8f0;">
+</span><span style="color:#f1fa8c;">                          // or other options - DockerPlugin, JavaAppPackaging</span><span style="background-color:#ff79c6;color:#f8f8f0;">
+</span></pre>
+<p>This plugins comes with different types of packaging format, which you can choose when enabling it for some SBT module.
+In the example above, we enable Java packaging format with Ash shell compatible executable script, so that we can run a JAR file
+in Alpine Linux. Basically, JavaAppPackaging is a base format. It creats a couple of scripts to start JVM with a long list 
+of JAR files in the CLASSPATH variable. It also puts all required dependencies into the <code>lib</code> folder, 
+which is referenced from that automatically generated shell script. </p>
+<h3 id="java-packaging-format">Java Packaging Format</h3>
+<p>Below an example of such SBT task. It builds a universal ZIP archive:</p>
+<pre style="background-color:#282a36;">
+<span style="color:#f8f8f2;">sbt universal:</span><span style="font-style:italic;color:#66d9ef;">packageBin
+</span></pre>
+<p>it will create a ZIP archive with a file structure shown below:</p>
+<pre style="background-color:#282a36;">
+<span style="color:#bd93f9;">~</span><span style="color:#50fa7b;">/dev/git/exchange/target/universal/exchange-0.1.1-SNAPSHOT.zip
+
+tree</span><span style="font-style:italic;color:#ffb86c;"> -L</span><span style="color:#f8f8f2;"> 2
+</span><span style="color:#50fa7b;">├──</span><span style="color:#f8f8f2;"> bin
+</span><span style="color:#50fa7b;">│</span><span style="color:#f8f8f2;">   ├── exchange
+</span><span style="color:#50fa7b;">│</span><span style="color:#f8f8f2;">   └── exchange.bat
+</span><span style="color:#50fa7b;">└──</span><span style="color:#f8f8f2;"> lib
+    </span><span style="color:#50fa7b;">├──</span><span style="color:#f8f8f2;"> ch.qos.logback.logback-classic-1.2.3.jar
+    </span><span style="color:#50fa7b;">├──</span><span style="color:#f8f8f2;"> ch.qos.logback.logback-core-1.2.3.jar
+    </span><span style="color:#50fa7b;">├──</span><span style="color:#f8f8f2;"> com.chuusai.shapeless_2.13-2.3.3.jar
+    </span><span style="color:#50fa7b;">├──</span><span style="color:#f8f8f2;"> com.example.exchange-0.1.1-SNAPSHOT.jar
+    </span><span style="color:#50fa7b;">├──</span><span style="color:#f8f8f2;"> com.google.protobuf.protobuf-java-3.10.0.jar
+    </span><span style="color:#50fa7b;">├──</span><span style="color:#f8f8f2;"> com.typesafe.akka.akka-actor_2.13-2.6.1.jar
+    </span><span style="color:#50fa7b;">├──</span><span style="color:#f8f8f2;"> com.typesafe.akka.akka-http-core_2.13-10.1.11.jar
+    </span><span style="color:#50fa7b;">├──</span><span style="color:#f8f8f2;"> com.typesafe.akka.akka-http_2.13-10.1.11.jar
+    </span><span style="color:#50fa7b;">├──</span><span style="color:#f8f8f2;"> com.typesafe.akka.akka-parsing_2.13-10.1.11.jar
+    </span><span style="color:#50fa7b;">├──</span><span style="color:#f8f8f2;"> com.typesafe.akka.akka-protobuf-v3_2.13-2.6.1.jar
+    </span><span style="color:#50fa7b;">├──</span><span style="color:#f8f8f2;"> com.typesafe.akka.akka-stream_2.13-2.6.1.jar
+    </span><span style="color:#50fa7b;">├──</span><span style="color:#f8f8f2;"> com.typesafe.config-1.4.0.jar
+    </span><span style="color:#50fa7b;">├──</span><span style="color:#f8f8f2;"> com.typesafe.scala-logging.scala-logging_2.13-3.9.2.jar
+    </span><span style="color:#50fa7b;">├──</span><span style="color:#f8f8f2;"> com.typesafe.ssl-config-core_2.13-0.4.1.jar
+    </span><span style="color:#50fa7b;">├──</span><span style="color:#f8f8f2;"> de.heikoseeberger.akka-http-circe_2.13-1.30.0.jar
+    </span><span style="color:#50fa7b;">├──</span><span style="color:#f8f8f2;"> io.circe.circe-core_2.13-0.12.3.jar
+    </span><span style="color:#50fa7b;">├──</span><span style="color:#f8f8f2;"> io.circe.circe-generic_2.13-0.12.3.jar
+    </span><span style="color:#50fa7b;">├──</span><span style="color:#f8f8f2;"> io.circe.circe-jawn_2.13-0.12.3.jar
+    </span><span style="color:#50fa7b;">├──</span><span style="color:#f8f8f2;"> io.circe.circe-numbers_2.13-0.12.3.jar
+    </span><span style="color:#50fa7b;">├──</span><span style="color:#f8f8f2;"> io.circe.circe-parser_2.13-0.12.3.jar
+    </span><span style="color:#50fa7b;">├──</span><span style="color:#f8f8f2;"> org.reactivestreams.reactive-streams-1.0.3.jar
+    </span><span style="color:#50fa7b;">├──</span><span style="color:#f8f8f2;"> org.scala-lang.modules.scala-java8-compat_2.13-0.9.0.jar
+    </span><span style="color:#50fa7b;">├──</span><span style="color:#f8f8f2;"> org.scala-lang.modules.scala-parser-combinators_2.13-1.1.2.jar
+    </span><span style="color:#50fa7b;">├──</span><span style="color:#f8f8f2;"> org.scala-lang.scala-library-2.13.1.jar
+    </span><span style="color:#50fa7b;">├──</span><span style="color:#f8f8f2;"> org.scala-lang.scala-reflect-2.13.1.jar
+    </span><span style="color:#50fa7b;">├──</span><span style="color:#f8f8f2;"> org.slf4j.slf4j-api-1.7.26.jar
+    </span><span style="color:#50fa7b;">├──</span><span style="color:#f8f8f2;"> org.typelevel.cats-core_2.13-2.0.0.jar
+    </span><span style="color:#50fa7b;">├──</span><span style="color:#f8f8f2;"> org.typelevel.cats-kernel_2.13-2.0.0.jar
+    </span><span style="color:#50fa7b;">├──</span><span style="color:#f8f8f2;"> org.typelevel.cats-macros_2.13-2.0.0.jar
+    </span><span style="color:#50fa7b;">└──</span><span style="color:#f8f8f2;"> org.typelevel.jawn-parser_2.13-0.14.2.jar
+
+</span><span style="color:#50fa7b;">2</span><span style="color:#f8f8f2;"> directories, 32 files
+</span></pre>
+<p><em>bin/exchange</em> is a shell script to run your Scala application Main class.</p>
+<h3 id="docker-image-format">Docker Image format</h3>
+<p>SBT task to create a Dockerfile and the same file structure as for Java packaging format:</p>
+<pre style="background-color:#282a36;">
+<span style="color:#f8f8f2;">sbt docker:</span><span style="font-style:italic;color:#66d9ef;">stage
+</span></pre><pre style="background-color:#282a36;">
+<span style="color:#8be9fd;">cd</span><span style="color:#f8f8f2;"> /Users/alexey/dev/git/exchange/target/docker
+</span><span style="color:#50fa7b;">tree</span><span style="font-style:italic;color:#ffb86c;"> -L</span><span style="color:#f8f8f2;"> 5
+</span><span style="color:#8be9fd;">.
+</span><span style="color:#50fa7b;">└──</span><span style="color:#f8f8f2;"> stage
+    </span><span style="color:#50fa7b;">├──</span><span style="color:#f8f8f2;"> Dockerfile
+    </span><span style="color:#50fa7b;">└──</span><span style="color:#f8f8f2;"> opt
+        </span><span style="color:#50fa7b;">└──</span><span style="color:#f8f8f2;"> docker
+            </span><span style="color:#50fa7b;">├──</span><span style="color:#f8f8f2;"> bin
+            </span><span style="color:#50fa7b;">│</span><span style="color:#f8f8f2;">   ├── exchange
+            </span><span style="color:#50fa7b;">│</span><span style="color:#f8f8f2;">   └── exchange.bat
+            </span><span style="color:#50fa7b;">└──</span><span style="color:#f8f8f2;"> lib
+                </span><span style="color:#50fa7b;">├──</span><span style="color:#f8f8f2;"> ch.qos.logback.logback-classic-1.2.3.jar
+                </span><span style="color:#50fa7b;">├──</span><span style="color:#f8f8f2;"> ch.qos.logback.logback-core-1.2.3.jar
+                </span><span style="color:#50fa7b;">├──</span><span style="color:#f8f8f2;"> com.chuusai.shapeless_2.13-2.3.3.jar
+                </span><span style="color:#50fa7b;">├──</span><span style="color:#f8f8f2;"> com.example.exchange-0.1.1-SNAPSHOT.jar
+</span></pre>
+<p>In order to build an image and publish it to a container registry:</p>
+<pre style="background-color:#282a36;">
+<span style="color:#f8f8f2;">sbt docker:</span><span style="font-style:italic;color:#66d9ef;">publish
+</span></pre>
+<p>You can also customise Dockerfile, which is by default generated automatically. 
+Default docker file content can be be seen via:</p>
+<pre style="background-color:#282a36;">
+<span style="color:#f8f8f2;">sbt&gt; show dockerCommands
+
+[</span><span style="font-style:italic;color:#66d9ef;">info</span><span style="color:#f8f8f2;">] * </span><span style="color:#6be5fd;">Cmd</span><span style="color:#f8f8f2;">(</span><span style="color:#6be5fd;">FROM</span><span style="color:#f8f8f2;">,</span><span style="color:#6be5fd;">WrappedArray</span><span style="color:#f8f8f2;">(openjdk:</span><span style="color:#bd93f9;">8</span><span style="color:#f8f8f2;">, as, stage0))
+[</span><span style="font-style:italic;color:#66d9ef;">info</span><span style="color:#f8f8f2;">] * </span><span style="color:#6be5fd;">Cmd</span><span style="color:#f8f8f2;">(</span><span style="color:#6be5fd;">LABEL</span><span style="color:#f8f8f2;">,</span><span style="color:#6be5fd;">WrappedArray</span><span style="color:#f8f8f2;">(snp-multi-stage</span><span style="color:#ff79c6;">=</span><span style="color:#f1fa8c;">&quot;intermediate&quot;</span><span style="color:#f8f8f2;">))
+[</span><span style="font-style:italic;color:#66d9ef;">info</span><span style="color:#f8f8f2;">] * </span><span style="color:#6be5fd;">Cmd</span><span style="color:#f8f8f2;">(</span><span style="color:#6be5fd;">LABEL</span><span style="color:#f8f8f2;">,</span><span style="color:#6be5fd;">WrappedArray</span><span style="color:#f8f8f2;">(snp-multi-stage-id</span><span style="color:#ff79c6;">=</span><span style="color:#f1fa8c;">&quot;b8437d6f-af0a-459c-ae51-cd3b9c5b7404&quot;</span><span style="color:#f8f8f2;">))
+[</span><span style="font-style:italic;color:#66d9ef;">info</span><span style="color:#f8f8f2;">] * </span><span style="color:#6be5fd;">Cmd</span><span style="color:#f8f8f2;">(</span><span style="color:#6be5fd;">WORKDIR</span><span style="color:#f8f8f2;">,</span><span style="color:#6be5fd;">WrappedArray</span><span style="color:#f8f8f2;">(/opt/docker))
+[</span><span style="font-style:italic;color:#66d9ef;">info</span><span style="color:#f8f8f2;">] * </span><span style="color:#6be5fd;">Cmd</span><span style="color:#f8f8f2;">(</span><span style="color:#6be5fd;">COPY</span><span style="color:#f8f8f2;">,</span><span style="color:#6be5fd;">WrappedArray</span><span style="color:#f8f8f2;">(opt /opt))
+[</span><span style="font-style:italic;color:#66d9ef;">info</span><span style="color:#f8f8f2;">] * </span><span style="color:#6be5fd;">Cmd</span><span style="color:#f8f8f2;">(</span><span style="color:#6be5fd;">USER</span><span style="color:#f8f8f2;">,</span><span style="color:#6be5fd;">WrappedArray</span><span style="color:#f8f8f2;">(root))
+[</span><span style="font-style:italic;color:#66d9ef;">info</span><span style="color:#f8f8f2;">] * </span><span style="color:#6be5fd;">ExecCmd</span><span style="color:#f8f8f2;">(</span><span style="color:#6be5fd;">RUN</span><span style="color:#f8f8f2;">,</span><span style="color:#6be5fd;">List</span><span style="color:#f8f8f2;">(chmod, -</span><span style="color:#6be5fd;">R</span><span style="color:#f8f8f2;">, u</span><span style="color:#ff79c6;">=</span><span style="color:#f8f8f2;">rX,g</span><span style="color:#ff79c6;">=</span><span style="color:#f8f8f2;">rX, /opt/docker))
+[</span><span style="font-style:italic;color:#66d9ef;">info</span><span style="color:#f8f8f2;">] * </span><span style="color:#6be5fd;">ExecCmd</span><span style="color:#f8f8f2;">(</span><span style="color:#6be5fd;">RUN</span><span style="color:#f8f8f2;">,</span><span style="color:#6be5fd;">List</span><span style="color:#f8f8f2;">(chmod, u+x,g+x, /opt/docker/bin/exchange))
+</span></pre>
+<p>In order to customize Dockerfile content you can set your sequence of Dockerfile commands:</p>
+<pre style="background-color:#282a36;">
+<span style="color:#f8f8f2;">dockerCommands := </span><span style="color:#6be5fd;">Seq</span><span style="color:#f8f8f2;">(
+  </span><span style="color:#6be5fd;">Cmd</span><span style="color:#f8f8f2;">(</span><span style="color:#f1fa8c;">&quot;FROM&quot;</span><span style="color:#f8f8f2;">, </span><span style="color:#f1fa8c;">&quot;openjdk:8&quot;</span><span style="color:#f8f8f2;">),
+  </span><span style="color:#6be5fd;">Cmd</span><span style="color:#f8f8f2;">(</span><span style="color:#f1fa8c;">&quot;LABEL&quot;</span><span style="color:#f8f8f2;">, </span><span style="color:#8be9fd;">s</span><span style="color:#f1fa8c;">&quot;&quot;&quot;MAINTAINER=&quot;${</span><span style="color:#f8f8f2;">maintainer</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">value</span><span style="color:#f1fa8c;">}&quot;&quot;&quot;&quot;</span><span style="color:#f8f8f2;">),
+  </span><span style="color:#6be5fd;">ExecCmd</span><span style="color:#f8f8f2;">(</span><span style="color:#f1fa8c;">&quot;CMD&quot;</span><span style="color:#f8f8f2;">, </span><span style="color:#f1fa8c;">&quot;echo&quot;</span><span style="color:#f8f8f2;">, </span><span style="color:#f1fa8c;">&quot;Hello, World from Docker&quot;</span><span style="color:#f8f8f2;">)
+)
+</span></pre>
+<p>Sometimes I use only Java packaging part of this plugin and build Docker image directly via <code>docker build</code> command
+to avoid new SBT start. It is usually done, when image build is designed as separate step in CI pipeline.</p>
+<h2 id="sbt-release">SBT Release</h2>
+<p>SBT Release provides customisable release process. It helps to manage your project version, publish project artefacts to configured 
+repository. </p>
+<pre style="background-color:#282a36;">
+<span style="color:#f8f8f2;">addSbtPlugin(</span><span style="color:#f1fa8c;">&quot;com.github.gseitz&quot;</span><span style="color:#f8f8f2;"> % </span><span style="color:#f1fa8c;">&quot;sbt-release&quot;</span><span style="color:#f8f8f2;"> % “</span><span style="color:#bd93f9;">1.0.12</span><span style="color:#f1fa8c;">&quot;)</span><span style="background-color:#ff79c6;color:#f8f8f0;">
+</span></pre>
+<p>Typical Scala project release process may include:</p>
+<img src="http:&#x2F;&#x2F;127.0.0.1:1111&#x2F;processed_images&#x2F;62194d412004728000.png" />
+<p>You can script all typical tasks to perform version increase, creating Git tag, building an image, publishing
+a JAR file to central artefact repository, etc. SBT Release gives a list of predefined tasks, which we
+can use as is or customise to fulfil project needs.</p>
+<p>Default list of release steps is:</p>
+<pre style="background-color:#282a36;">
+<span style="color:#f8f8f2;">releaseProcess := </span><span style="color:#6be5fd;">Seq</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">ReleaseStep</span><span style="color:#f8f8f2;">](
+    checkSnapshotDependencies,
+    inquireVersions,
+    runTest,
+    setReleaseVersion,
+    commitReleaseVersion,
+    tagRelease, 
+    publishArtifacts,
+    inquireVersions, 
+    setNextVersion, 
+    commitNextVersion, 
+    pushChanges  
+)
+</span></pre>
+<p>Default list can be good enough for typical Scala project. You do not need to define it in SBT build file if you are fine
+with it.</p>
+<p>In order to run SBT tasks to release with default steps, one can run:</p>
+<pre style="background-color:#282a36;">
+<span style="color:#f8f8f2;">sbt </span><span style="color:#bd93f9;">&#39;release </span><span style="background-color:#ff79c6;color:#f8f8f0;">with</span><span style="color:#f8f8f2;">-defaults&#39;
+</span></pre>
+<p>Some of the steps are responsible for project version management. Project version is usually located in project root folder and named
+as version.sbt file. </p>
+<p>In case we have such version in the file: </p>
+<pre style="background-color:#282a36;">
+<span style="color:#f8f8f2;">version in </span><span style="color:#6be5fd;">ThisBuild</span><span style="color:#f8f8f2;"> := </span><span style="color:#f1fa8c;">&quot;0.1.1-SNAPSHOT&quot;
+</span></pre>
+<p>then</p>
+<ul>
+<li>inquireVersions step will read it </li>
+<li>setReleaseVersion step will make as release version</li>
+</ul>
+<pre style="background-color:#282a36;">
+<span style="color:#f8f8f2;">version in </span><span style="color:#6be5fd;">ThisBuild</span><span style="color:#f8f8f2;"> := “</span><span style="color:#bd93f9;">0.1.1</span><span style="color:#f1fa8c;">&quot;</span><span style="background-color:#ff79c6;color:#f8f8f0;">
+</span></pre>
+<ul>
+<li>setNextVersion step will switch release version to next snapshot version</li>
+</ul>
+<pre style="background-color:#282a36;">
+<span style="color:#f8f8f2;">version in </span><span style="color:#6be5fd;">ThisBuild</span><span style="color:#f8f8f2;"> := “</span><span style="color:#bd93f9;">0.1.2</span><span style="color:#f8f8f2;">-</span><span style="color:#8be9fd;">SNAPSHOT</span><span style="color:#f1fa8c;">&quot;</span><span style="background-color:#ff79c6;color:#f8f8f0;">
+</span></pre>
+<p>Version increment can be customised, so that you can control which number is incremented: patch, minor or major version.</p>
+<p>There are steps to commit and push changes, typically placed at the end of the process. 
+If we look at Git log after release is executed, then we will see that sbt-release is making a couple of commits to reflect
+the release process in Git commit history.</p>
+<p>Latest message on top:</p>
+<pre style="background-color:#282a36;">
+<span style="color:#50fa7b;">commit</span><span style="color:#f8f8f2;"> 99b1094dce14bf99b6f38a8ff9870edaf7c728d3 (HEAD -</span><span style="color:#ff79c6;">&gt;</span><span style="color:#f8f8f2;"> master, origin/master)
+</span><span style="color:#50fa7b;">Date:</span><span style="color:#f8f8f2;">   Fri Feb 7 09:20:03 2020 +0100
+
+    </span><span style="color:#50fa7b;">Setting</span><span style="color:#f8f8f2;"> version to 0.1.2-SNAPSHOT
+
+</span><span style="color:#50fa7b;">commit</span><span style="color:#f8f8f2;"> cb9ec293a11a5f6d989c936b18922d3f3ec40bcd (tag: v0.2.2)
+</span><span style="color:#50fa7b;">Date:</span><span style="color:#f8f8f2;">   Fri Feb 7 09:16:59 2020 +0100
+
+    </span><span style="color:#50fa7b;">Setting</span><span style="color:#f8f8f2;"> version to 0.1.1
+
+</span><span style="color:#50fa7b;">commit</span><span style="color:#f8f8f2;"> 63abea7141901419ad732d354dc703f884e53010
+</span><span style="color:#50fa7b;">Merge:</span><span style="color:#f8f8f2;"> b180810 a1c0c14
+</span><span style="color:#50fa7b;">Date:</span><span style="color:#f8f8f2;">   Fri Feb 7 08:57:00 2020 +0100
+
+    </span><span style="color:#50fa7b;">Merge</span><span style="color:#f8f8f2;"> pull request </span><span style="color:#6272a4;">#35 from novakov-alexey/add-cookier-attributes
+</span><span style="color:#f8f8f2;">    add string property attributes to put user defined parameters into th…
+</span></pre><h2 id="other-useful-plugins">Other useful plugins</h2>
+<p>There are many other useful plugins I usually use from project to project:</p>
+<ul>
+<li><em>sbt-updates</em> to report newest versions of the libraries inlucluded in your project.</li>
+<li><em>sbt-scalafmt</em> to format Scala code.</li>
+<li><em>sbt-mdoc</em> to compile Scala code snippets in the Markdown documentation. Useful for own Scala libraries.</li>
+<li><em>sbt-scoverage</em> to report test coverage in the project.</li>
+</ul>
+<h2 id="summary">Summary</h2>
+<p>SBT has become quite mature build tool. It offers good variety of plugins for every day life of Scala developer.
+If you cannot find specific SBT plugin that fits your requirements, you can try to implement it using SBT Tasks and Plugin API. 
+Then it could be published as open source project. This is how many SBT plugins were born.</p>
+
+      
+  </article>
+</section>
+
+       
+
+      <footer>
+        
+          
+<figure class="mini_logo ">
+    <a href="http:&#x2F;&#x2F;127.0.0.1:1111" style="background-image: url(http:&#x2F;&#x2F;127.0.0.1:1111/img/alexey_white2.jpg)"></a>
+</figure>
+<h5>
+    <a href="http:&#x2F;&#x2F;127.0.0.1:1111">Software Engineering Notes</a>
+</h5>
+
+          
+<ul class="social_list foot_list" >
+    
+    
+    <li class="button extra_small font_faint"><a href="https://github.com/novakov-alexey" target="_blank" >novakov-alexey</a><i class="fab fa-github" ></i></li>
+    
+    
+    <li class="button extra_small font_faint"><a href="https://twitter.com/alexey_novakov" target="_blank">@alexey_novakov</a><i class="fab fa-twitter" ></i></li>
+    
+    
+    
+    
+    <li class="button extra_small font_faint"><a href="https://www.linkedin.com/in/alexey-novakov-26468624" target="_blank">alexey-novakov-26468624</a><i class="fab fa-linkedin" ></i></li>
+    
+    
+    
+    
+    
+</ul>
+
+        
+      </footer>
+    <script src="/livereload.js?port=1024&amp;mindelay=10"></script></body>
+</html>
