@@ -62,7 +62,7 @@ _Jun 2019 – present_
     </tr>
     <tr>
         <td align="left">Technologies</td>
-        <td align="left">Java, Scala. Kubernetes, OpenShift, Helm, Hadoop, Spark, SBT, Docker, Kafka</td>        
+        <td align="left">Java, Scala. AWS, Azure, Kubernetes, OpenShift, Helm, Hadoop, Spark, SBT, Docker, Kafka</td>        
     </tr>
 </table>  
 &nbsp;      
@@ -380,7 +380,9 @@ _Jan 2007 – May 2007_
 
 **Scala:** Coursera – FP in Scala, Parallel Programming, Big Data with Spark 
 
-**Elasticsearch:** Core Developer, Advanced Developer, DevOps Engineer 
+**Elasticsearch:** Core Developer, Advanced Developer, DevOps Engineer
+
+**AWS:** Solution Architect Associate Udemy Traning
 
 ### Language
 Russian, Ukrainian – native, English – advanced, German – B1
