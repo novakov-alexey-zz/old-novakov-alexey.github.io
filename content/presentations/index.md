@@ -9,7 +9,7 @@ toc_disabled=true
 +++
 
 ## 2020
-- 28.09.2020 http4s Middleware. SPNEGO Authentication [Slides](https://speakerdeck.com/alexeyn/http4s-middleware)
+- 28.09.2020 http4s Middleware. SPNEGO Authentication [Slides](https://speakerdeck.com/alexeyn/http4s-middleware), [Video](https://www.youtube.com/watch?v=Jw_MALH3VDc)
 - 18.06.2020 Writing Kubernetes Operator using Cats-Effect [Slides](https://speakerdeck.com/alexeyn/writing-kubernetes-operators-using-cats-effect), [Video](https://www.youtube.com/watch?v=5sDmT1-ZgYY)
 - 30.04.2020 Useful SBT Plugins [Slides](https://speakerdeck.com/alexeyn/useful-sbt-plugins)
 - 24.03.2020 Blazing Fast Microservices in Rust and Docker [Slides](https://speakerdeck.com/alexeyn/blazing-fast-microservices-in-rust-and-docker)
