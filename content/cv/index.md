@@ -126,7 +126,7 @@ _Mar 2016 – Dec 2016_
     <tr>
         <td align="left">Responsibilities</td>                
         <td align="left">
-        Technical design, development, support of business analyst and QA teams. Technologies: Java8, JavaFx, Linux, Oracle, Spring, Hibernate, RMI, JMX, OSGI</td>        
+        Technical design, development, support of business analyst and QA teams.</td>        
     </tr>
     <tr>
         <td align="left">Technologies</td>
