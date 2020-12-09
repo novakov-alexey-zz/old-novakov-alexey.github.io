@@ -382,7 +382,7 @@ _Jan 2007 – May 2007_
 
 **Elasticsearch:** Core Developer, Advanced Developer, DevOps Engineer
 
-**AWS:** Solution Architect Associate Udemy Traning
+**AWS:** Certified Solution Architect - Associate (WKFNLMRJKM44QBCX) [Badge](https://www.youracclaim.com/badges/4c86c08a-48d2-4df7-a97f-357b09765338)
 
 ### Language
 Russian, Ukrainian – native, English – advanced, German – B1
