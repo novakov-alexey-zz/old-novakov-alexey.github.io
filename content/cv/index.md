@@ -10,7 +10,7 @@ toc_disabled=true
 
 **Alexey Novakov**
 
-Software Architect, Senior Software Engineer,
+Software Solution Architect, Senior Software Engineer,
 [Rhein-Main Scala Enthusiasts Meetup speaker](https://www.meetup.com/Rhein-Main-Scala-Enthusiasts)
 
 **Birthday:** 15th of June 1986
@@ -37,8 +37,8 @@ _Development practice:_
 - Pair Programming
 
 _Technical expertise:_
-- Developing commercial applications on Kubernetes, JVM, Oracle, MySql, Linux, Docker
-- Developing specifications and solution documents for long time projects
+- Developing commercial applications on Kubernetes, JVM, Oracle, Linux, Docker
+- Developing specifications and design solution documents for long term projects
 - Deep and rich expertise on web technologies: Java, Scala, JavaScript, HTML/CSS, PHP
 
 ---
@@ -335,7 +335,7 @@ _Jan 2007 – May 2007_
     <tr>
         <td align="left">Software tools</td>
         <td align="left">
-        IntelliJ IDEA, Eclipse, Apache Web Server, SVN, Git, Tomcat, Weblogic, PL/SQL Developer, SoapUI, Verifix, Kuberenets, Docker.
+        IntelliJ IDEA, Eclipse, Apache Web Server, SVN, Git, Tomcat, Weblogic, PL/SQL Developer, SoapUI, Verifix, Kuberenets, Docker, Helm
         </td>        
     </tr>
     <tr>
@@ -346,11 +346,11 @@ _Jan 2007 – May 2007_
     </tr>
     <tr>
         <td align="left">Operating systems</td>
-        <td align="left">Windows, RHEL, Ubuntu, MacOS</td>        
+        <td align="left">Windows, RHEL/Ubuntu/CentOS, MacOS</td>        
     </tr>
     <tr>
         <td align="left">Programming languages, technologies</td>
-        <td align="left">Scala, Java, JavaFX, JSTL, SQL, XSL, PHP, Rust</td>        
+        <td align="left">Scala, Java, Rust, JavaFX, JSTL, SQL, XSL, PHP</td>        
     </tr>
     <tr>
         <td align="left">Web</td>
@@ -368,7 +368,7 @@ _Jan 2007 – May 2007_
         <td align="left">Libraries / Tool-kits</td>
         <td align="left">
         Spring, Struts, MyBatis, Hibernate, JUnit, Mockito, CXF, Camel, Playframework, Akka (Actor, Streams, Http), 
-        Cats, Slick, Scalacheck, Scalameter, Circe, Doobie, Quartz
+        Cats-Effect, Slick, Scalacheck, Refined, Circe, Doobie, FS2, Quartz
         </td>        
     </tr>
 </table>

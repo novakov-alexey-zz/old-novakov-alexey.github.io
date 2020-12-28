@@ -8,6 +8,8 @@ category="menu_page"
 toc_disabled=true
 +++
 
+{{ resize_image(path="presentations/images/bob-berlin-alexey.jpg", width=600, height=600, op="fit") }}
+
 ## 2020
 - 28.09.2020 http4s Middleware. SPNEGO Authentication [Slides](https://speakerdeck.com/alexeyn/http4s-middleware), [Video](https://www.youtube.com/watch?v=Jw_MALH3VDc)
 - 18.06.2020 Writing Kubernetes Operator using Cats-Effect [Slides](https://speakerdeck.com/alexeyn/writing-kubernetes-operators-using-cats-effect), [Video](https://www.youtube.com/watch?v=5sDmT1-ZgYY)
@@ -30,3 +32,5 @@ toc_disabled=true
 - 10.06.2016 Akka on Scala - Test-kit, Supervision, FSM. [Slides](https://speakerdeck.com/alexeyn/devmeetup-akka-on-scala)
 - 01.05.2016 Akka on Java - Actors, Persistence. [Slides](https://speakerdeck.com/alexeyn/devmeetup-akka-on-java)
 - 01.09.2016 Favourite IntelliJ shorcuts, templates, settings, pereferences. [Slides](https://speakerdeck.com/alexeyn/favorite-intellij-shortcuts)
+
+{{ resize_image(path="presentations/images/lxscala-alexey.jpg", width=600, height=600, op="fit") }}
