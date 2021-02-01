@@ -1,7 +1,7 @@
 +++
 title="Artificial Neural Network in Scala - part 1"
 date=2021-02-04
-draft = true
+draft = false
 
 [extra]
 category="blog"
@@ -50,7 +50,7 @@ on the Deep learning name definitions, so that it is important to know why some 
 |z | layer activation, calculated as <br/> `x * w + b` | 2-d tensor |
 | f, actFunc | activation function to activate neuron. Specific implementation: sigmoid, relu | Scala function |
 |a | layer activity, calculated as f(z)| 2-d tensor |
-| Neuron | keep state of a neuron (x, z, a) | case class |
+| Neuron | keeps state of a neuron (x, z, a) | case class |
 | Weight | keeps state of a weight at particular training cycle, epoch| case class |
 | Layer | keeps layer configuration: number of neurons, activation function for all neurons in the layer | case class |
 | error | it is result of yHat - y | 1-d tensor |
@@ -80,7 +80,21 @@ RowNumber,CustomerId,Surname,CreditScore,Geography,Gender,Age,Tenure,Balance,Num
 4,15701354,Boni,699,France,Female,39,1,0,2,0,0,93826.63,0
 ```
 
-The last column is `y`, i.e. the value we want our ANN to predict between 0 and 1. Rest of the columns are `x` data, also known as features. We will drop some of the columns before we use them as `x` matrix.
+The last column is `y`, i.e. the value we want our ANN to predict between 0 and 1. Rest of the columns are `x` data, also known as features. We drop 
+first 3 columns and the last column `y` before we use them as `x` matrix. Remaining columns:
+
+```csv
+CreditScore,
+Geography,
+Gender,
+Age,
+Tenure,
+Balance,
+NumOfProducts,
+HasCrCard,
+IsActiveMember,
+EstimatedSalary
+```
 
 # Network Topology
 

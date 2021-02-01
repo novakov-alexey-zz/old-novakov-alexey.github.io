@@ -25,3 +25,6 @@ This implementation will consist of:
 
 Everything will be implemented in pure Scala without using any third-party code. 
 By plugable I mean extendable, i.e. a user can provide own implementation by implementing Scala trait (type classes).
+
+
+TODO...................
