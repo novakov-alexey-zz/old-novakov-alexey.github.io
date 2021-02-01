@@ -1,5 +1,5 @@
 +++
-title="Artificial Neural Network in Scala"
+title="Artificial Neural Network in Scala - part 1"
 date=2021-02-04
 draft = true
 
@@ -8,41 +8,39 @@ category="blog"
 
 [taxonomies]
 tags = ["deep learning", "machine learning", "gradient descent"]
-categories = ["scala"]
+categories = ["math"]
 +++
 
+{{ resize_image(path="ann-in-scala-1/images/deep-learning.png", width=600, height=600, op="fit") }}
+
 _Deep Learning_ is a part of machine learning methods which are based on artificial neural networks. Some of the deep learning architectures are deep neural networks.
-Deep neural network is an artificial neural network (ANN) with multiple layers between the input and output layers. There are different types of neural networks, but they always have
+Deep neural network is an artificial neural network (ANN further) with multiple layers between the input and output layers. There are different types of neural networks, but they always have
 neurons, synapses, weights, biases and functions.
 
-[Scala](https://www.scala-lang.org/) is a full-stack multi-paradigm programming language which is famous for its innovations in JVM eco-system. Scala is also popular language thanks to Apache Spark, Kafka and Flink projects which are implemented in it. 
+{{ resize_image(path="ann-in-scala-1/images/Scala_logo.png", width=600, height=600, op="fit") }}
+
+[Scala](https://www.scala-lang.org/) is a full-stack multi-paradigm programming language. Scala is famous for its innovations in JVM eco-system and
+ambitios language syntax features leaving all other JVM-based languages for years behind. 
+Scala is also popular language thanks to Apache Spark, Kafka and Flink projects which are mainly implemented in it. 
 
 # Scope 
 
-In this aritcle we are going to implement ANN from scrtach in Scala. This implementation will consist of:
+This tutorial is divided into 2 articles. 
 
-1. Mini-library for sub-set of Tensor calculus
-1. Mini-library for data preparation
-1. A DSL for Neural Network creation including layers, neurons, weights
-1. Plugable weights optimizer
-1. Plugable backpropogation algorithm based on mini-batch gradient descent
-1. Plugable implementation of activation and loss functions
-1. Plugable training metric calculation
 
-Everything will be implemented in pure Scala from scratch without using any third-party code. When I say plugable I mean extendable, i.e. a user
-can provide own implementation by implementing Scala trait (type classes).
+1. In this aritcle we will go through the theory of ANN implementation. I will guide you through the basic calculus such as liniear algebra and a little bit of differential calculus, which you need to know to implement neural network tranining and optimization algorithms.
 
-Before juming into the code, I will guide you through the basic calculus, which you need to know to implement neural network tranining and optimization algorithms.
-Those calculus we need to know is liniear algebra and a little bit of differential calculus,
+2. In [the second aritcle](../ann-in-scala-2) we are going to implement ANN from scratch in Scala. 
+You can jump into second part directly, if you are familiar with the theory. But first look at the ANN Jargon table, if you decided to switch to second part.
 
 # ANN Jargon
 
-I assume you are a bit familiar with machine learning or even deep learning. Nevertheless, below table will be useful to match 
-deep learning terminology with further Scala implementation. Some of the variable names in Scala code will be directly based 
-on the deep learning name definitions, so that it is important to know why some variable is named as `z` and another one as `w`.
+I assume you are a bit familiar with Machine Learning or Deep Learning. Nevertheless, below table will be useful to match 
+Deep Learning terminology with further Scala implementation. Some of the variable names in Scala code will be directly based 
+on the Deep learning name definitions, so that it is important to know why some variable is named as `z` and another one as `w`.
 
 
-| Code Symbol / Type    | Description   | Designed in Code as |
+| Code Symbol / Type    | Description   | Encoded as |
 | ------------- |:-------------:|:-------------:|
 | x             | input data for each neuron | 2-dimensional tensor, i.e. matrix |
 | y , actual            | target data we know in advance from the training dataset | 1-d tensor, i.e. vector |
@@ -55,11 +53,18 @@ on the deep learning name definitions, so that it is important to know why some 
 | Neuron | keep state of a neuron (x, z, a) | case class |
 | Weight | keeps state of a weight at particular training cycle, epoch| case class |
 | Layer | keeps layer configuration: number of neurons, activation function for all neurons in the layer | case class |
-| error | it is result of: yHat - y (i.e. predicted - actual) | 1-d tensor |
-| lossFunc | loss/cost function to calculate a value of incorrect predictions. Specific implementation: mean squared error | Scala function |
-| epochs | number of iterations to train ANN | integer > 0 |
-| accuracy | % of correct predictions on train or test data sets | as double number between 0 and 1 |
-| learningRate | numeric paramater used in weights update | as double number, usually 0.01 or 0.001 | 
+| error | it is result of yHat - y | 1-d tensor |
+| lossFunc | loss function to calculate error rate on training/validation (example: mean squared error) | Scala function |
+| epochs | number of iterations to train ANN | `integer` > 0 |
+| accuracy | % of correct predictions on train or test data sets | `double` number, between 0 and 1 |
+| learningRate | numeric paramater used in weights update | `double` number, usually 0.01 or 0.001 | 
+
+# Tensor
+
+Deep Learning is all about tensor calculus. Tensor in computer science is a generic abstraction for N-dimensional array. 
+In our ANN implementation, we are going to use scalar numbers which are encoded as 0-dimension tensor, vector - encoded as 1-d tensor and
+finally matrix - encoded as 2-d tensor. Vector and matrix are the most used buidling blocks for Deep Learning calculus. All tensor shapes we will
+use are going to be rectangular - every element is the same size along each axis.
 
 # Dataset
 
@@ -79,15 +84,15 @@ The last column is `y`, i.e. the value we want our ANN to predict between 0 and 
 
 # Network Topology
 
-{{ resize_image(path="ann-in-scala/images/ann.png", width=600, height=600, op="fit") }}
+{{ resize_image(path="ann-in-scala-1/images/ann.png", width=600, height=600, op="fit") }}
 
 Above picture descibes a network we are going to implement.
 
-- Each layer is fully connected with next layer. I draw each layer by skipping middle neurons to get smaller visual overhead.
-
 - _N_ is a number of features, i.e. remaning columns from the input dataset.
 
-- Between each layer we have weights which form linear equasions by multiplying `x` to `w` plus `bias`.
+- Each layer is fully connected with next layer. I draw each layer by skipping middle neurons to get smaller visual overhead.
+
+- Between each layer we have weights which form linear equasions via dot product `x` * `w` + `bias`.
 
 - Each layer has its own activation functions. We use ReLU (Rectified Linear Unit) and Sigmoid functions.
 
@@ -107,7 +112,7 @@ It is one data record:
 1. w3: 6 x 1 matrix + 1 x 1 matrix for baises
 1. yHat: scalar number
 
-An amount of hidden layers and neurons are parameters to be tuned by machine learning engineer, i.e. externally to the main algorithm. 
+An amount of hidden layers and neurons are parameters to be tuned by an expert, i.e. externally to the main algorithm. 
 We set 2 hidden layers with 6 neurons each. Our last layer
 is single neuron that produces final prediction, which we will treat as `yes` or `no` to answer customer churn question.
 
@@ -130,17 +135,17 @@ When we train neural network, we use input data and parameters on all hidden lay
 First part of the ANN implementation that calculates predictions, i.e. `yHat` is called _forward propogation_.
 
 Linear algebra helps us to feed data into the network and get the result using matrix multiplication principals. That makes the entire training and single
-predictions quite generic, so that we can easily program that in any programming language. 
+prediction quite generic, so that we can easily program that in any programming language. 
 
 In a nutshell, our 12 x 6 x 6 x 1 network will form the following expressions for every training batch:
 
 ### First Layer
 
-{{ resize_image(path="ann-in-scala/images/ann-forward.png", width=600, height=600, op="fit") }}
+{{ resize_image(path="ann-in-scala-1/images/ann-forward.png", width=600, height=600, op="fit") }}
 
 Above picture shows activations for the neurons of the first hidden layer. In fact, next layers are calculated in similar way.
 
-- _X_ is a matrix where each row is a data sample. Every column is a particular feature/column from the initial dataset, but scaled/encoded.
+- _X_ is a matrix where each row is a data sample. Every column is a particular feature/column from the initial dataset. Usually, input column is scaled/encoded (see second article).
 
 - We use dot product operation for _X_ and _W_. 
 Resulting matrix is used to add biases using element-wise addition. b1 will be added to each element of the first row of that resulting matrix,
@@ -148,7 +153,7 @@ then b2 to the second row and so on.
 
 ### Second Layer
 
-Second layer X is an `a` we calculated on the previous layer. We will call it `a1`.
+The `x` of the second layer is an `a` we calculated on the previous layer. We will call it `a1`.
 
 ```bash
 a1 (16 x 6) * w2 (6 x 6) + b2 (6 x 1) = z2 (16 x 6)
@@ -170,8 +175,7 @@ f(z3) = a3 (16 x 1)
 
 `a3` a.k.a yHat represents a prediction for each data sample in the batch. Prediction values are probabilites between 0 and 1. 
 
-If you are confused with above explanation, I recommend to check great video series on Deep Learning 
-here [But what is a Neural Network? | Deep learning, chapter 1](https://www.youtube.com/watch?v=aircAruvnKk).
+If you are confused with above explanation, I recommend to check great video series on Deep Learning: [But what is a Neural Network? | Deep learning, chapter 1](https://www.youtube.com/watch?v=aircAruvnKk).
 
 
 ## Batch Tracing
@@ -296,9 +300,8 @@ They are going to change their values a lot after running traning loop 100 times
 # Backward Propagation
 
 Initial weights and biases are not going to give us right equastions to predict our _y_. Even if we propogate the entire dataset through the network.
-Obviously, someone needs to update these parameters based on some feedback. This feedback is called `loss` metric, which
-is calculated via `loss function`. In the science literature, `loss` metric is also called `cost` and `loss function` as `cost function`. 
-We are going to use `loss` and `cost` as synonymous.
+Obviously, someone needs to update these parameters based on some feedback. This feedback is calculated via `loss` function. 
+In the science literature, `loss function` is also called as `cost function`. We are going to use `loss` and `cost` here as synonymous.
 
 There are different loss functions in Deep Learning we can use. We will go with one of the classic one - `mean squarred error`. 
 Our loss value will show how good we are updating the network weights at specific training epoch. However, updates will be done using Gradient
@@ -307,10 +310,10 @@ Descent optimization algorithm.
 ## Gradient Descent optimization
 
 Model prediction is calculated through the forward propagation of the input data sample(s). 
-If weights and biases are trained well, then our predictions will be accurate as well. In order to say whether our model peformance is good,
- we use check `loss` value on every training cycle as well as `accuracy` metric. Accuracy is number of `correct predictions` divided by `total number` of data samples during the training or validation.
+If weights and biases are trained well, then our predictions will be accurate as well. In order to say whether our model performs well,
+ we check `loss` value on every training cycle as well as `accuracy` metric. Accuracy is number of `correct predictions` divided by `total number` of data samples during the training or validation.
 
-How train model parameters well? In other words how update them in right direction so that give accurate predictions? 
+You might ask yourself - how can I train model parameters well? In other words how to update them in right direction, so that they give accurate predictions? 
 
 Here we meet _Gradient Descent._
 
@@ -332,14 +335,15 @@ There are thousands of articles explaining that visaully. In short, we are tryin
 Using small coefficient `learningRate` we substract the gradient value from the initial parameter. That allows us to find best parameter and
 minimize the loss function. One the good visiual explantion for linear regression problem with gradient descent is [here](https://www.mygreatlearning.com/blog/gradient-descent/). It also works well for mutliple linear regression like in our case, we got 12 features, so 12 independen variables.
 
-Coming back to out backprogation implementation. `f'(x)`is a derrivative function of the layer's activation function. We used derrivative function to update all weights except the last one, i.e. `w1` and `w2`, not `w3`. To update `w3` we use delta based on the `error`. Layers `w1` and `w2` are using `relu` as activation function. Derrivative of the `relu` function is following:
+Coming back to our backprogation implementation. `f'(x)`is a derrivative function of the layer's activation function. We use derrivative function to update all weights except the last one, i.e. `w1` and `w2`, not `w3`. To update `w3`, we use delta based on the `error`, i.e. predicted - actual. 
+Layers `w1` and `w2` are using `relu` as activation function. Derrivative of the `relu` function is following:
 
 ```scala
 if (x < 0) 0 
 else 1
 ```
 
-Such derrivative function is applied element-wise to `z` matrix in the step #6 of the back propagation part.
+Such derrivative function is applied element-wise to `z` matrix in the step #6 of the back propagation part (see second article for Scala reference implementation).
 
 ## Math of the Backward propagation
 
@@ -349,36 +353,37 @@ In _Gradient Descent Optimization_ algorithm, we calculate derrivatives to calcu
 ### High-level steps of the Gradient Descent algorithm
 
 0. Calculate error based on actual `y` and on predicted `yHat`. It will be called `delta` further and in the code.
+
 ```bash
 delta = yHat - y
 
 result is a 16 x 1 matrix
 ```
 
-1. Iterate weights from end to start, i.e. backwards.
+1. Iterate list of weights matrices from end to start, i.e. backwards.
 2. Calculate partial derrivative as:
 ```bash
- partialDerrivativeN = xn.T * delta
+ partialDerrivativeN = xi.T * delta
 
- where "n" - is layer index, 
+ where "i" - is layer index, 
     "T" is a matrix transpose operation,
     "*" is dot product operarion.
  ``` 
-3. Update n-th weights via:
+3. Update weights of `i` layer via:
 
  ```bash
- wn = wn - learningRate * partialDerrivativeN 
+ wi = wi - learningRate * partialDerrivative_i 
  ```
-`learningRate` is a scalar number. `partialDerrivativeN` is a matrix, so `*` is dot product here as well.
+`learningRate` is a scalar number. `partialDerrivative_i` is a matrix, so `*` is dot product here as well.
 
-4. Update n-th bias via:
+4. Update bias of `i` layer via:
 
 ```bash
-Bn = Bn - sum(delta)
+bi = bi - sum(delta)
 ```
 
-5. Pass updated weight `wn` and `delta` to previous layer, i.e. to `wn - 1`.
-6. Now starting `wn - 1` weight update, we calculate `delta` differently.
+5. Pass updated weight `wi` and `delta` to previous layer, i.e. to `wi - 1`.
+6. Now starting `wi - 1` weight update, we calculate `delta` differently.
 ```bash
 delta = (previousDelta * previousW) multiply f'(z)
 
@@ -392,13 +397,13 @@ delta = (previousDelta * previousW) multiply f'(z)
 
 ```
 
-_If n > 0, then:_
+_If i > 0, then:_
 
-decrement n via n = n -1 and then repeat steps from 2 to 5. 
+decrement `i` via `i` = `i` -1 and then repeat steps from 2 to 5. 
 
 _otherwise:_ 
 
-we finished backpropogation for a specific batch or a single (in case of stochastic gradien descent).
+we finished backpropogation for a specific batch or a single data sample (in case of stochastic gradien descent).
 
 ### Backpropagation tracing 
 
@@ -423,7 +428,7 @@ sizes: 6x16, Tensor2D[Float]:
  [0.0,0.0,3.2367752,0.0,2.513441,9.055562,10.566048,0.26056617,1.7771944,3.133051,0.015981253,0.0,0.0,0.0,0.0,4.64655]]
 ```
 
-partialDerrivativeN = x.T * delta :
+partialDerrivative3 = x.T * delta :
 
 ```bash
 sizes: 6x1, Tensor2D[Float]:
@@ -435,7 +440,7 @@ sizes: 6x1, Tensor2D[Float]:
  [22.569763]]
 ```
 
-updated Weight = w - learningRate * partialDerivative :
+updated Weight = w - learningRate * partialDerivative3 :
 
 ```bash
 sizes: 6x1, Tensor2D[Float]:
@@ -465,13 +470,13 @@ delta (16x6) = (previous delta * previous w) multiply f`(z)
 current derrivative:
 
 ```bash
-partialDerrivativeN (6 x 6) = x.T (6 x 16) * delta (16 x 6)
+partialDerrivative2 (6 x 6) = x.T (6 x 16) * delta (16 x 6)
 ```
 
 updated Weight:
 
 ```bash
-w2 (6x6) = w2 (6x6) - learningRate * partialDerivative (6 x 6)
+w2 (6x6) = w2 (6x6) - learningRate * partialDerivative2 (6 x 6)
 ```
 
 updated Bias:
@@ -491,13 +496,13 @@ delta (16x6) = (previous delta * previous w) multiply f`(z)
 current derrivative:
 
 ```bash
-partialDerrivativeN (12 x 6) = x.T (12 x 16) * delta (16 x 6)
+partialDerrivative1 (12 x 6) = x.T (12 x 16) * delta (16 x 6)
 ```
 
 updated Weight:
 
 ```bash
-w1 (12x6) = w2 (12x6) - learningRate * partialDerivative (12 x 6)
+w1 (12x6) = w2 (12x6) - learningRate * partialDerivative1 (12 x 6)
 ```
 
 updated Bias:
@@ -506,4 +511,8 @@ updated Bias:
 b1 (6 x 1) = b1 (6 x 1) - learningRate * sum(delta)
 ```
 
+# Wrapping up
 
+We have finished with theoretical part and ready to continue with the second article [ANN in Scala: implementation](todo).
+In case you have not gotten how the ANN is actually working in theory, then I encourage you to search for other articles and 
+videos. It is important to understand this part before looking at actual implementation in code.
