@@ -48,11 +48,8 @@ on the Deep learning name definitions, so that it is important to know why some 
 | w      | layer weight, a.k.a model paramaters | 2-d tensor |
 | b | layer bias, part of the layer parameters | 1-d tensor
 |z | layer activation, calculated as <br/> `x * w + b` | 2-d tensor |
-| f, actFunc | activation function to activate neuron. Specific implementation: sigmoid, relu | Scala function |
+| f | activation function to activate neuron. Specific implementation: sigmoid, relu | Scala function |
 |a | layer activity, calculated as f(z)| 2-d tensor |
-| Neuron | keeps state of a neuron (x, z, a) | case class |
-| Weight | keeps state of a weight at particular training cycle, epoch| case class |
-| Layer | keeps layer configuration: number of neurons, activation function for all neurons in the layer | case class |
 | error | it is result of yHat - y | 1-d tensor |
 | lossFunc | loss function to calculate error rate on training/validation (example: mean squared error) | Scala function |
 | epochs | number of iterations to train ANN | `integer` > 0 |
@@ -369,26 +366,36 @@ In _Gradient Descent Optimization_ algorithm, we calculate derrivatives to calcu
 0. Calculate error based on actual `y` and on predicted `yHat`. It will be called `delta` further and in the code.
 
 ```bash
-delta = yHat - y
+delta = (yHat - y) multiply f'(z)
 
 result is a 16 x 1 matrix
+
+where:
+    - "f`" is a derrivative to activation function on the current layer.   
+    - "z" is current layer activation.
+    - "multiply" is Hadamard product, a.k.a. element-wise multiplication. 
+      Note: it is not the same as dot product.
 ```
 
 1. Iterate list of weights matrices from end to start, i.e. backwards.
+   Let's take "i" as layer index
 2. Calculate partial derrivative as:
 ```bash
  partialDerrivativeN = xi.T * delta
 
- where "i" - is layer index, 
-    "T" is a matrix transpose operation,
-    "*" is dot product operarion.
+ where:     
+     - "T" is a matrix transpose operation,
+     - "*" is dot product operarion.    
  ``` 
 3. Update weights of `i` layer via:
 
  ```bash
  wi = wi - learningRate * partialDerrivative_i 
+
+where:
+   - "learningRate" is a scalar number. 
+   - "partialDerrivative_i" is a matrix, so "*" is dot product here as well.
  ```
-`learningRate` is a scalar number. `partialDerrivative_i` is a matrix, so `*` is dot product here as well.
 
 4. Update bias of `i` layer via:
 
@@ -397,18 +404,15 @@ bi = bi - sum(delta)
 ```
 
 5. Pass updated weight `wi` and `delta` to previous layer, i.e. to `wi - 1`.
+
 6. Now starting `wi - 1` weight update, we calculate `delta` differently.
 ```bash
 delta = (previousDelta * previousW) multiply f'(z)
 
-"previousDelta" is delta from previous step, i.e. it is from layer next to the right, because we go backward. 
-
-"previousW" - is a weight matrix from the previous step as well.
-
-"f`" is a derrivative to activation function on the current layer.
-
-"z" is current layer activation.
-
+where:
+   - "previousDelta" is delta from previous step, i.e. 
+      it is from layer next to the right, because we go backward. 
+   - "previousW" - is a weight matrix from the previous step as well.
 ```
 
 _If i > 0, then:_
@@ -442,7 +446,7 @@ sizes: 6x16, Tensor2D[Float]:
  [0.0,0.0,3.2367752,0.0,2.513441,9.055562,10.566048,0.26056617,1.7771944,3.133051,0.015981253,0.0,0.0,0.0,0.0,4.64655]]
 ```
 
-partialDerrivative3 = x.T * delta :
+partialDerrivative3 = x.T * (delta multiply f`(z)):
 
 ```bash
 sizes: 6x1, Tensor2D[Float]:
