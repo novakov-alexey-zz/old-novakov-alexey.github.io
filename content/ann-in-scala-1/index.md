@@ -314,7 +314,7 @@ Initial weights and biases are not going to give us right equastions to predict 
 Obviously, someone needs to update these parameters based on some feedback. This feedback is calculated via `loss` function. 
 In the science literature, `loss function` is also called as `cost function`. We are going to use `loss` and `cost` here as synonymous.
 
-There are different loss functions in Deep Learning we can use. We will go with one of the classic one - `mean squarred error`. 
+There are different loss functions in Deep Learning we can use. We will go with `binary-cross-entropy` as we predict binary value. 
 Our loss value will show how good we are updating the network weights at specific training epoch. However, updates will be done using Gradient
 Descent optimization algorithm.
 
