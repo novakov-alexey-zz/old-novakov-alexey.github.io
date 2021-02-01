@@ -54,7 +54,7 @@ on the Deep learning name definitions, so that it is important to know why some 
 | lossFunc | loss function to calculate error rate on training/validation (example: mean squared error) | Scala function |
 | epochs | number of iterations to train ANN | `integer` > 0 |
 | accuracy | % of correct predictions on train or test data sets | `double` number, between 0 and 1 |
-| learningRate | numeric paramater used in weights update | `double` number, usually 0.01 or 0.001 | 
+| learningRate | numeric paramater used in weights update | `double` number, usually between 0.01 and 0.1 | 
 
 # Tensor
 
