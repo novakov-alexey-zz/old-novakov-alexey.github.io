@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+      
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" >
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">   
+        <meta name="twitter:card" content="summary">
+        <meta name="twitter:site" content="@alexey_novakov">
+        <meta name="twitter:creator" content="@alexey_novakov">
+        <meta name="twitter:url" content="https://novakov-alexey.github.io">
+        <meta name="twitter:title" content="SE Notes - Alexey Novakov">
+        <meta name="twitter:description" content="Software Engineering notes on Scala, JVM, Rust, Cloud and other goodies">
+        <meta name="twitter:image" content="https://novakov-alexey.github.io/img/alexey_white2.jpg">
+        <meta name="twitter:image:alt" content="Alexey Novakov photo for personal web-site">
+
+        <!-- SEO -->
+        
+        <title> Monads in Scala | Software Engineering Notes </title>
+        
+
+        <!-- Enable responsiveness on mobile devices-->
+        <meta name="viewport"  content="width=device-width, initial-scale=1.0, maximum-scale=1" >
+
+        <!--  css -->
+        <link rel="stylesheet"  href="https:&#x2F;&#x2F;novakov-alexey.github.io/ergo.css" >
+
+        <!-- fonts -->
+        <!-- preload  -->
+        <link rel="preload" href="https://fonts.googleapis.com/css?family=Montserrat:200,300,300i,400,500,500i,600,700,800,900|Raleway" as="style">
+        <link rel="preload"  href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous" as="style" >
+        <!-- load -->
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:200,300,300i,400,500,500i,600,700,800,900|Raleway">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css"  integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+      
+    </head>
+
+    <body>
+      
+        
+<input type="checkbox" id="openSidebarMenu" class="openSidebarMenu">
+<label class="menu cross menu--1" for="openSidebarMenu">
+    <svg viewBox="0 0 75 75" xmlns="https://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="30" />
+        <path class="line--1" d="M0 40h62c13 0 6 28-4 18L35 35" />
+        <path class="line--2" d="M0 50h70" />
+        <path class="line--3" d="M0 60h62c13 0 6-28-4-18L35 65" />
+    </svg>
+</label>
+
+<div id="sidebarMenu">
+    <div class="menu_wrapper">
+        <ul class="sidebarMenuInner" >     
+            <li>
+                <a href="https:&#x2F;&#x2F;novakov-alexey.github.io" >Software Engineering Notes</a>
+                <div class="menu_div" ></div>
+            </li>                   
+            <li><a href="https:&#x2F;&#x2F;novakov-alexey.github.io/cv/">CV</a></li>
+            <li><a href="https:&#x2F;&#x2F;novakov-alexey.github.io/presentations">Presentations</a></li>
+            <li><a href="https:&#x2F;&#x2F;novakov-alexey.github.io/categories">Categories</a></li>
+            <li><a href="https:&#x2F;&#x2F;novakov-alexey.github.io/tags">Tags</a></li>
+        </ul>
+    </div>
+</div>
+
+      
+
+      
+<nav id="overlord" class="overlord" >
+  
+<figure class="mini_logo ">
+    <a href="https:&#x2F;&#x2F;novakov-alexey.github.io" style="background-image: url(https:&#x2F;&#x2F;novakov-alexey.github.io/img/alexey_white2.jpg)"></a>
+</figure>
+<h5>
+    <a href="https:&#x2F;&#x2F;novakov-alexey.github.io">Software Engineering Notes</a>
+</h5>
+
+</nav>
+
+<section class="post_container">
+  <article>
+    
+      <h1 class="article_title"><a href="https:&#x2F;&#x2F;novakov-alexey.github.io&#x2F;scala-monads&#x2F;" id="article_link">Monads in Scala</a></h1>
+      
+<ul class="frontmatter frontmatter_page" id="frontmatter">
+    <li>
+        <time class="article_time"  datetime="2020-03-28">March 28, 2020</time>
+    </li>
+    <span class="dotDivider"></span>
+    <li> 2615 words </li>
+    <span class="dotDivider" ></span>
+    <li> 14 min </li>
+</ul>
+
+      
+      <div class="post-toc" id="post-toc">
+          <h3 class="post-toc-title">Contents</h3>
+          <div class="post-toc-content always-active">
+              <nav id="TableOfContents">
+                  <ul>
+                      
+                      <li>
+                          <a href="https://novakov-alexey.github.io/scala-monads/#what-is-monad" class="toc-link">What is Monad?</a>
+                          
+                      </li>
+                      
+                      <li>
+                          <a href="https://novakov-alexey.github.io/scala-monads/#what-makes-thing-a-monad" class="toc-link">What makes thing a Monad?</a>
+                          
+                      </li>
+                      
+                      <li>
+                          <a href="https://novakov-alexey.github.io/scala-monads/#make-your-monad" class="toc-link">Make your Monad</a>
+                          
+                      </li>
+                      
+                      <li>
+                          <a href="https://novakov-alexey.github.io/scala-monads/#scala-examples" class="toc-link">Scala Examples</a>
+                          
+                      </li>
+                      
+                      <li>
+                          <a href="https://novakov-alexey.github.io/scala-monads/#generic-monad" class="toc-link">Generic Monad</a>
+                          
+                      </li>
+                      
+                      <li>
+                          <a href="https://novakov-alexey.github.io/scala-monads/#function-application-in-flatmap" class="toc-link">Function application in flatMap</a>
+                          
+                      </li>
+                      
+                      <li>
+                          <a href="https://novakov-alexey.github.io/scala-monads/#monad-laws" class="toc-link">Monad Laws</a>
+                          
+                          <ul>
+                              
+                              <li>
+                                  <a href="https://novakov-alexey.github.io/scala-monads/#1-identity" class="toc-link">1. Identity</a>
+                              </li>
+                              
+                              <li>
+                                  <a href="https://novakov-alexey.github.io/scala-monads/#2-associative" class="toc-link">2. Associative</a>
+                              </li>
+                              
+                          </ul>
+                          
+                      </li>
+                      
+                      <li>
+                          <a href="https://novakov-alexey.github.io/scala-monads/#functor-laws" class="toc-link">Functor Laws</a>
+                          
+                          <ul>
+                              
+                              <li>
+                                  <a href="https://novakov-alexey.github.io/scala-monads/#1-identity-1" class="toc-link">1. Identity</a>
+                              </li>
+                              
+                              <li>
+                                  <a href="https://novakov-alexey.github.io/scala-monads/#2-associative-1" class="toc-link">2. Associative</a>
+                              </li>
+                              
+                          </ul>
+                          
+                      </li>
+                      
+                      <li>
+                          <a href="https://novakov-alexey.github.io/scala-monads/#application-of-monads" class="toc-link">Application of Monads</a>
+                          
+                          <ul>
+                              
+                              <li>
+                                  <a href="https://novakov-alexey.github.io/scala-monads/#compose-option" class="toc-link">Compose Option</a>
+                              </li>
+                              
+                              <li>
+                                  <a href="https://novakov-alexey.github.io/scala-monads/#compose-either" class="toc-link">Compose Either</a>
+                              </li>
+                              
+                          </ul>
+                          
+                      </li>
+                      
+                      <li>
+                          <a href="https://novakov-alexey.github.io/scala-monads/#for-comprehension" class="toc-link">For comprehension</a>
+                          
+                      </li>
+                      
+                      <li>
+                          <a href="https://novakov-alexey.github.io/scala-monads/#caveat-with-monads" class="toc-link">Caveat with Monads</a>
+                          
+                          <ul>
+                              
+                              <li>
+                                  <a href="https://novakov-alexey.github.io/scala-monads/#problem" class="toc-link">Problem</a>
+                              </li>
+                              
+                          </ul>
+                          
+                      </li>
+                      
+                      <li>
+                          <a href="https://novakov-alexey.github.io/scala-monads/#monad-transformer" class="toc-link">Monad Transformer</a>
+                          
+                          <ul>
+                              
+                              <li>
+                                  <a href="https://novakov-alexey.github.io/scala-monads/#apply-monad-transformer" class="toc-link">Apply Monad Transformer</a>
+                              </li>
+                              
+                          </ul>
+                          
+                      </li>
+                      
+                      <li>
+                          <a href="https://novakov-alexey.github.io/scala-monads/#summary" class="toc-link">Summary</a>
+                          
+                      </li>
+                      
+                  </ul>
+              </nav>
+          </div>
+      </div>
+            
+      <p>Once you start dig deeper into Scala and its suitability for functional programming, you meet Monads. In this blog post, we will explore Monads in Scala:
+their usage and usefulness. </p>
+<img src="https:&#x2F;&#x2F;novakov-alexey.github.io&#x2F;processed_images&#x2F;d3136219c398771400.png" />
+<h2 id="what-is-monad">What is Monad?</h2>
+<p>You have probably already heard this quote:</p>
+<blockquote>
+  A monad is just a monoid in the category of endofunctors<br />
+  
+  -- Saunders Mac Lane
+  
+</blockquote>
+<p><a href="https://stackoverflow.com/a/3870310/6176274">More details on StackOverflow answer</a></p>
+<p>Well, that does not bring much help. Obviously, Monad is not just Scala pattern, but it is something what is coming 
+from <a href="https://en.wikipedia.org/wiki/Category_theory">Category Theory</a>. 
+However, we are not going to touch Category Theory in general, but let's say that Monad definition is coming from abstract theory of Mathematics.</p>
+<p>I like another definition of Monad, which is given in the  book &quot;Functional Programming in Scala&quot;:</p>
+<blockquote>
+  Monad is an abstract interface<br />
+  
+  -- Chiusano, Bjarnason
+  
+</blockquote>
+<p>It is more clear for programmers. Before we clarify in details what Monad is, let us look at some examples of Mondas in Scala standard library.
+This might already click for you that Monad is not something from aliens:</p>
+<ul>
+<li>Option</li>
+<li>Either</li>
+<li>List</li>
+<li>Future</li>
+<li>Map</li>
+<li>Set</li>
+<li>Stream</li>
+<li>Vector</li>
+<li>Try </li>
+</ul>
+<p>... and others</p>
+<h2 id="what-makes-thing-a-monad">What makes thing a Monad?</h2>
+<p>There are several minimum combinations of functions which make some type a Monad. One of the popular minimum set is two functions:</p>
+<ul>
+<li><strong>flatMap</strong> - also known as <code>bind</code></li>
+<li><strong>unit</strong> - also known as <code>pure</code> in <a href="https://typelevel.org/cats/typeclasses/monad.html#monad-instances">Cats library</a> or <code>apply</code> in pure Scala</li>
+</ul>
+<p>These two functions implemented for some type bring powerful abstraction to write complex programs easy.</p>
+<h2 id="make-your-monad">Make your Monad</h2>
+<p>Monad sometimes reminds a container to work with its values using special interface. If we model Monad ourselves, then it may look like a box with a thing
+inside, which we access using <code>flatMap</code> and one more useful function <code>map</code>:</p>
+<pre style="background-color:#282a36;">
+<code><span style="font-style:italic;color:#ff79c6;">class</span><span style="text-decoration:underline;color:#8be9fd;"> Box</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">A</span><span style="color:#f8f8f2;">](</span><span style="font-style:italic;color:#ffb86c;">v</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">A</span><span style="color:#f8f8f2;">) { 
+
+  </span><span style="font-style:italic;color:#8be9fd;">def </span><span style="color:#50fa7b;">flatMap</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">B</span><span style="color:#f8f8f2;">](</span><span style="font-style:italic;color:#ffb86c;">f</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">A </span><span style="color:#ff79c6;">=&gt; </span><span style="font-style:italic;color:#66d9ef;">Box</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">B</span><span style="color:#f8f8f2;">]): </span><span style="font-style:italic;color:#66d9ef;">Box</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">B</span><span style="color:#f8f8f2;">] </span><span style="color:#ff79c6;">=</span><span style="color:#f8f8f2;"> f(v)
+  
+  </span><span style="font-style:italic;color:#8be9fd;">def </span><span style="color:#50fa7b;">map</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">B</span><span style="color:#f8f8f2;">](</span><span style="font-style:italic;color:#ffb86c;">f</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">A </span><span style="color:#ff79c6;">=&gt; </span><span style="font-style:italic;color:#66d9ef;">B</span><span style="color:#f8f8f2;">): </span><span style="font-style:italic;color:#66d9ef;">Box</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">B</span><span style="color:#f8f8f2;">] </span><span style="color:#ff79c6;">=</span><span style="color:#f8f8f2;"> flatMap(</span><span style="font-style:italic;color:#ffb86c;">a </span><span style="font-style:italic;color:#8be9fd;">=&gt; </span><span style="color:#ff79c6;">new </span><span style="font-style:italic;color:#66d9ef;">Box</span><span style="color:#f8f8f2;">(f(a)))
+}
+</span></code></pre>
+<p><strong>map</strong> - is implemented in terms of <code>flatMap</code> + <code>unit</code> (i.e. Box class constructor). 
+So we can implement <code>map</code> for any kind of Monads, as we will see that later.</p>
+<p>Now let's use <code>Box </code> Monad to show some usage example:</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#f8f8f2;">scala&gt; </span><span style="color:#ff79c6;">new </span><span style="font-style:italic;color:#66d9ef;">Box</span><span style="color:#f8f8f2;">(</span><span style="color:#bd93f9;">1</span><span style="color:#f8f8f2;">)
+res2: </span><span style="font-style:italic;color:#66d9ef;">Box</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#8be9fd;">Int</span><span style="color:#f8f8f2;">] </span><span style="color:#ff79c6;">= </span><span style="color:#bd93f9;">1</span><span style="color:#f8f8f2;">
+
+scala&gt; res2</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">map(</span><span style="color:#bd93f9;">_</span><span style="color:#f8f8f2;"> + </span><span style="color:#bd93f9;">1</span><span style="color:#f8f8f2;">)
+res3: </span><span style="font-style:italic;color:#66d9ef;">Box</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#8be9fd;">Int</span><span style="color:#f8f8f2;">] </span><span style="color:#ff79c6;">= </span><span style="color:#bd93f9;">2</span><span style="color:#f8f8f2;">
+
+scala&gt; res3</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">flatMap(</span><span style="font-style:italic;color:#ffb86c;">i </span><span style="font-style:italic;color:#8be9fd;">=&gt; </span><span style="color:#ff79c6;">new </span><span style="font-style:italic;color:#66d9ef;">Box</span><span style="color:#f8f8f2;">(</span><span style="color:#bd93f9;">1</span><span style="color:#f8f8f2;"> + i))
+res5: </span><span style="font-style:italic;color:#66d9ef;">Box</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#8be9fd;">Int</span><span style="color:#f8f8f2;">] </span><span style="color:#ff79c6;">= </span><span style="color:#bd93f9;">3
+</span></code></pre>
+<p><code>Box</code> contains single integer value and allows us to manipulate it without leaving <code>Box</code> context, i.e. our result is always a <code>Box[T]</code>.
+We can also make variable <code>v</code> as public and read it when needed. <code>Box</code> behaves similarly to non-empty single element list.
+It is hard to say when this particular <code>Box</code> Monad will be useful looking at above example. However, it should give you an idea how Monad implementation may look like.</p>
+<h2 id="scala-examples">Scala Examples</h2>
+<p><strong>List</strong></p>
+<p>List operates on collection of values. </p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#f8f8f2;">scala&gt; </span><span style="font-style:italic;color:#8be9fd;">val </span><span style="color:#ffffff;">l </span><span style="color:#ff79c6;">= </span><span style="color:#6be5fd;">List</span><span style="color:#f8f8f2;">(</span><span style="color:#bd93f9;">1</span><span style="color:#f8f8f2;">,</span><span style="color:#bd93f9;">2</span><span style="color:#f8f8f2;">,</span><span style="color:#bd93f9;">3</span><span style="color:#f8f8f2;">) </span><span style="color:#6272a4;">// &lt;-- unit</span><span style="color:#f8f8f2;">
+l: </span><span style="font-style:italic;color:#66d9ef;">List</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#8be9fd;">Int</span><span style="color:#f8f8f2;">] </span><span style="color:#ff79c6;">= </span><span style="color:#6be5fd;">List</span><span style="color:#f8f8f2;">(</span><span style="color:#bd93f9;">1</span><span style="color:#f8f8f2;">, </span><span style="color:#bd93f9;">2</span><span style="color:#f8f8f2;">, </span><span style="color:#bd93f9;">3</span><span style="color:#f8f8f2;">)
+
+scala&gt; l</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">map(</span><span style="color:#bd93f9;">_</span><span style="color:#f8f8f2;"> + </span><span style="color:#bd93f9;">1</span><span style="color:#f8f8f2;">)
+res0: </span><span style="font-style:italic;color:#66d9ef;">List</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#8be9fd;">Int</span><span style="color:#f8f8f2;">] </span><span style="color:#ff79c6;">= </span><span style="color:#6be5fd;">List</span><span style="color:#f8f8f2;">(</span><span style="color:#bd93f9;">2</span><span style="color:#f8f8f2;">, </span><span style="color:#bd93f9;">3</span><span style="color:#f8f8f2;">, </span><span style="color:#bd93f9;">4</span><span style="color:#f8f8f2;">)
+
+scala&gt; l</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">flatMap(</span><span style="font-style:italic;color:#ffb86c;">i </span><span style="font-style:italic;color:#8be9fd;">=&gt; </span><span style="color:#6be5fd;">List</span><span style="color:#f8f8f2;">(i + </span><span style="color:#bd93f9;">1</span><span style="color:#f8f8f2;">))
+res1: </span><span style="font-style:italic;color:#66d9ef;">List</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#8be9fd;">Int</span><span style="color:#f8f8f2;">] </span><span style="color:#ff79c6;">= </span><span style="color:#6be5fd;">List</span><span style="color:#f8f8f2;">(</span><span style="color:#bd93f9;">2</span><span style="color:#f8f8f2;">, </span><span style="color:#bd93f9;">3</span><span style="color:#f8f8f2;">, </span><span style="color:#bd93f9;">4</span><span style="color:#f8f8f2;">)
+</span></code></pre>
+<p><strong>Option</strong></p>
+<p>Option has two sub-types: <code>Some</code> and <code>None</code>. </p>
+<p><code>Some</code> is like non-empty single element list, similar to Box Monad example above.
+<code>None</code> ignores application of lambda function in <code>flatMap</code> or <code>map</code>.</p>
+<pre style="background-color:#282a36;">
+<code><span style="font-style:italic;color:#8be9fd;">val </span><span style="color:#ffffff;">isOn </span><span style="color:#ff79c6;">= </span><span style="color:#6be5fd;">Some</span><span style="color:#f8f8f2;">(</span><span style="color:#bd93f9;">1</span><span style="color:#f8f8f2;">) </span><span style="color:#6272a4;">// &lt;-- unit
+</span><span style="font-style:italic;color:#8be9fd;">val </span><span style="color:#ffffff;">isBlack </span><span style="color:#ff79c6;">= </span><span style="color:#6be5fd;">None </span><span style="color:#6272a4;">// &lt;-- unit without any argument
+
+</span><span style="font-style:italic;color:#8be9fd;">def </span><span style="color:#50fa7b;">makeCoffee</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">Option</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">] </span><span style="color:#ff79c6;">= </span><span style="color:#6be5fd;">Some</span><span style="color:#f8f8f2;">(</span><span style="color:#bd93f9;">1</span><span style="color:#f8f8f2;">)
+
+scala&gt; isOn
+         </span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">flatMap(</span><span style="color:#bd93f9;">_ </span><span style="font-style:italic;color:#8be9fd;">=&gt;</span><span style="color:#f8f8f2;"> isBlack
+         </span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">flatMap(</span><span style="color:#bd93f9;">_ </span><span style="font-style:italic;color:#8be9fd;">=&gt;</span><span style="color:#f8f8f2;"> makeCoffee))
+
+res0: </span><span style="font-style:italic;color:#66d9ef;">Option</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">] </span><span style="color:#ff79c6;">= </span><span style="color:#6be5fd;">None
+</span></code></pre>
+<p>Example above won't return value of <code>isOn</code> variable because the first <code>flatMap</code> call returns <code>None</code> because of <code>isBlack</code>, so that second <code>flatMap</code> even won't be called.</p>
+<h2 id="generic-monad">Generic Monad</h2>
+<p>We have already seen example of at least 3 Monads above. In order to detach definition of Monad from its concrete implementation like
+List or Option, let us define abstract Monad interface using Scala high-order types feature:</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#f8f8f2;">  </span><span style="font-style:italic;color:#ff79c6;">trait</span><span style="text-decoration:underline;color:#8be9fd;"> Monad</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">F</span><span style="color:#f8f8f2;">[</span><span style="color:#bd93f9;">_</span><span style="color:#f8f8f2;">]] </span><span style="color:#ff79c6;">extends </span><span style="text-decoration:underline;font-style:italic;color:#8be9fd;">Functor</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">F</span><span style="color:#f8f8f2;">] {
+    </span><span style="font-style:italic;color:#8be9fd;">def </span><span style="color:#50fa7b;">unit</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">A</span><span style="color:#f8f8f2;">](</span><span style="font-style:italic;color:#ffb86c;">a</span><span style="color:#f8f8f2;">: </span><span style="color:#ff79c6;">=&gt; </span><span style="font-style:italic;color:#66d9ef;">A</span><span style="color:#f8f8f2;">): </span><span style="font-style:italic;color:#66d9ef;">F</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">A</span><span style="color:#f8f8f2;">]
+
+    </span><span style="font-style:italic;color:#8be9fd;">def </span><span style="color:#50fa7b;">flatMap</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">A</span><span style="color:#f8f8f2;">,</span><span style="font-style:italic;color:#66d9ef;">B</span><span style="color:#f8f8f2;">](</span><span style="font-style:italic;color:#ffb86c;">ma</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">F</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">A</span><span style="color:#f8f8f2;">])(</span><span style="font-style:italic;color:#ffb86c;">f</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">A </span><span style="color:#ff79c6;">=&gt; </span><span style="font-style:italic;color:#66d9ef;">F</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">B</span><span style="color:#f8f8f2;">]): </span><span style="font-style:italic;color:#66d9ef;">F</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">B</span><span style="color:#f8f8f2;">]
+
+    </span><span style="font-style:italic;color:#8be9fd;">def </span><span style="color:#50fa7b;">map</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">A</span><span style="color:#f8f8f2;">,</span><span style="font-style:italic;color:#66d9ef;">B</span><span style="color:#f8f8f2;">](</span><span style="font-style:italic;color:#ffb86c;">ma</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">F</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">A</span><span style="color:#f8f8f2;">])(</span><span style="font-style:italic;color:#ffb86c;">f</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">A </span><span style="color:#ff79c6;">=&gt; </span><span style="font-style:italic;color:#66d9ef;">B</span><span style="color:#f8f8f2;">): </span><span style="font-style:italic;color:#66d9ef;">F</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">B</span><span style="color:#f8f8f2;">] </span><span style="color:#ff79c6;">=</span><span style="color:#f8f8f2;"> 
+      flatMap(ma)(</span><span style="font-style:italic;color:#ffb86c;">a </span><span style="font-style:italic;color:#8be9fd;">=&gt;</span><span style="color:#f8f8f2;"> unit(f(a))) 
+  }
+
+  </span><span style="font-style:italic;color:#ff79c6;">trait</span><span style="text-decoration:underline;color:#8be9fd;"> Functor</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">F</span><span style="color:#f8f8f2;">[</span><span style="color:#bd93f9;">_</span><span style="color:#f8f8f2;">]] {
+    </span><span style="font-style:italic;color:#8be9fd;">def </span><span style="color:#50fa7b;">map</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">A</span><span style="color:#f8f8f2;">,</span><span style="font-style:italic;color:#66d9ef;">B</span><span style="color:#f8f8f2;">](</span><span style="font-style:italic;color:#ffb86c;">fa</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">F</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">A</span><span style="color:#f8f8f2;">])(</span><span style="font-style:italic;color:#ffb86c;">f</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">A </span><span style="color:#ff79c6;">=&gt; </span><span style="font-style:italic;color:#66d9ef;">B</span><span style="color:#f8f8f2;">): </span><span style="font-style:italic;color:#66d9ef;">F</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">B</span><span style="color:#f8f8f2;">]
+  }
+</span></code></pre>
+<p>Functor is one more abstraction which is more simpler than Monad. It requires only <code>map</code> implementation. We can say that every Monad also a Functor. 
+Functor is also coming from the Category Theory. I decided to mention it here, because you will frequently find it in the context of Monads,
+when learning functional programming in general. Abstract Monad interface can also implement map in terms of <code>flatMap</code> and <code>unit</code> functions, 
+so that <code>map</code> is implemented automatically for any concrete implementation of some Monad.</p>
+<h2 id="function-application-in-flatmap">Function application in flatMap</h2>
+<p>An application of <code>f</code> function in <code>flatMap</code> and <code>map</code> depends on the concrete Monad instance. In one case the lambda
+function we pass to the <code>flatMap</code> is always executed, in another cases not. Examples:</p>
+<p>&quot;f&quot; applied when:</p>
+<ul>
+<li>Option[A]: is Some(A)</li>
+<li>Either[A, B]: is Right(B)</li>
+<li>List[A]: is non-empty</li>
+<li>Future[A]: is ready</li>
+</ul>
+<p>Even though <code>flatMap</code> behaves differently on concrete Monad instance, there is still great benefits to use them in any ordinary program.
+In order to classify some type as a Monad, it needs to comply with <strong>Monad Laws</strong> and that is closing the definition of Monads. Let's look 
+at Monad laws before we move further to practical examples.</p>
+<h2 id="monad-laws">Monad Laws</h2>
+<h3 id="1-identity">1. Identity</h3>
+<p>Result of a function which creates Monad instance using <code>unit</code> is equal to application of this function over already created Monad instance.</p>
+<p>Example:</p>
+<pre style="background-color:#282a36;">
+<code><span style="font-style:italic;color:#8be9fd;">def </span><span style="color:#50fa7b;">f</span><span style="color:#f8f8f2;">(</span><span style="font-style:italic;color:#ffb86c;">x</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#8be9fd;">Int</span><span style="color:#f8f8f2;">): </span><span style="font-style:italic;color:#66d9ef;">Option</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#8be9fd;">Int</span><span style="color:#f8f8f2;">] </span><span style="color:#ff79c6;">= </span><span style="color:#6be5fd;">Some</span><span style="color:#f8f8f2;">(x)
+
+scala&gt; </span><span style="color:#6be5fd;">Some</span><span style="color:#f8f8f2;">(</span><span style="color:#bd93f9;">1</span><span style="color:#f8f8f2;">)</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">flatMap(f) </span><span style="color:#ff79c6;">==</span><span style="color:#f8f8f2;"> f(</span><span style="color:#bd93f9;">1</span><span style="color:#f8f8f2;">)
+res0: </span><span style="font-style:italic;color:#8be9fd;">Boolean </span><span style="color:#ff79c6;">= </span><span style="color:#bd93f9;">true</span><span style="color:#f8f8f2;">
+
+scala&gt; f(</span><span style="color:#bd93f9;">1</span><span style="color:#f8f8f2;">) </span><span style="color:#ff79c6;">== </span><span style="color:#6be5fd;">Some</span><span style="color:#f8f8f2;">(</span><span style="color:#bd93f9;">1</span><span style="color:#f8f8f2;">)</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">flatMap(f)
+res1: </span><span style="font-style:italic;color:#8be9fd;">Boolean </span><span style="color:#ff79c6;">= </span><span style="color:#bd93f9;">true
+</span></code></pre>
+<p>Abstract definition of Identity Law:</p>
+<h4 id="1-1-left-identity">1.1 Left identity</h4>
+<pre style="background-color:#282a36;">
+<code><span style="font-style:italic;color:#8be9fd;">def </span><span style="color:#50fa7b;">f</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">A</span><span style="color:#f8f8f2;">](</span><span style="font-style:italic;color:#ffb86c;">x</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">A</span><span style="color:#f8f8f2;">): </span><span style="font-style:italic;color:#66d9ef;">Monad</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">A</span><span style="color:#f8f8f2;">] </span><span style="color:#ff79c6;">=</span><span style="color:#f8f8f2;"> unit(x)
+
+flatMap(unit(x))(f) </span><span style="color:#ff79c6;">==</span><span style="color:#f8f8f2;"> f(x) 
+</span></code></pre><h4 id="1-2-right-identity">1.2 Right identity</h4>
+<pre style="background-color:#282a36;">
+<code><span style="color:#f8f8f2;">f(x) </span><span style="color:#ff79c6;">==</span><span style="color:#f8f8f2;"> flatMap(unit(x))(f)
+</span></code></pre><h3 id="2-associative">2. Associative</h3>
+<p>Application of <code>f1</code> and <code>f2</code> functions one after another yields the same result as applying them within the first <code>flatMap</code>.</p>
+<p>Example:</p>
+<pre style="background-color:#282a36;">
+<code><span style="font-style:italic;color:#8be9fd;">def </span><span style="color:#50fa7b;">f1</span><span style="color:#f8f8f2;">(</span><span style="font-style:italic;color:#ffb86c;">a</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#8be9fd;">Int</span><span style="color:#f8f8f2;">): </span><span style="font-style:italic;color:#66d9ef;">Option</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#8be9fd;">Int</span><span style="color:#f8f8f2;">] </span><span style="color:#ff79c6;">= </span><span style="color:#6be5fd;">Some</span><span style="color:#f8f8f2;">(a + </span><span style="color:#bd93f9;">1</span><span style="color:#f8f8f2;">)
+</span><span style="font-style:italic;color:#8be9fd;">def </span><span style="color:#50fa7b;">f2</span><span style="color:#f8f8f2;">(</span><span style="font-style:italic;color:#ffb86c;">a</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#8be9fd;">Int</span><span style="color:#f8f8f2;">): </span><span style="font-style:italic;color:#66d9ef;">Option</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#8be9fd;">Int</span><span style="color:#f8f8f2;">] </span><span style="color:#ff79c6;">= </span><span style="color:#6be5fd;">Some</span><span style="color:#f8f8f2;">(a * </span><span style="color:#bd93f9;">2</span><span style="color:#f8f8f2;">)
+
+scala&gt; </span><span style="color:#6be5fd;">Some</span><span style="color:#f8f8f2;">(</span><span style="color:#bd93f9;">1</span><span style="color:#f8f8f2;">)</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">flatMap(f1)</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">flatMap(f2)
+res0: </span><span style="font-style:italic;color:#66d9ef;">Option</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#8be9fd;">Int</span><span style="color:#f8f8f2;">] </span><span style="color:#ff79c6;">= </span><span style="color:#6be5fd;">Some</span><span style="color:#f8f8f2;">(</span><span style="color:#bd93f9;">4</span><span style="color:#f8f8f2;">)
+
+scala&gt; </span><span style="color:#6be5fd;">Some</span><span style="color:#f8f8f2;">(</span><span style="color:#bd93f9;">1</span><span style="color:#f8f8f2;">)</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">flatMap(</span><span style="font-style:italic;color:#ffb86c;">a </span><span style="font-style:italic;color:#8be9fd;">=&gt;</span><span style="color:#f8f8f2;"> f1(a)</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">flatMap(f2))
+res1: </span><span style="font-style:italic;color:#66d9ef;">Option</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#8be9fd;">Int</span><span style="color:#f8f8f2;">] </span><span style="color:#ff79c6;">= </span><span style="color:#6be5fd;">Some</span><span style="color:#f8f8f2;">(</span><span style="color:#bd93f9;">4</span><span style="color:#f8f8f2;">)
+</span></code></pre>
+<p>Abstract definition:</p>
+<pre style="background-color:#282a36;">
+<code><span style="font-style:italic;color:#8be9fd;">def </span><span style="color:#50fa7b;">f1</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">A</span><span style="color:#f8f8f2;">](</span><span style="font-style:italic;color:#ffb86c;">a</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">A</span><span style="color:#f8f8f2;">): </span><span style="font-style:italic;color:#66d9ef;">Monad</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">A</span><span style="color:#f8f8f2;">]
+</span><span style="font-style:italic;color:#8be9fd;">def </span><span style="color:#50fa7b;">f2</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">A</span><span style="color:#f8f8f2;">](</span><span style="font-style:italic;color:#ffb86c;">a</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">A</span><span style="color:#f8f8f2;">): </span><span style="font-style:italic;color:#66d9ef;">Monad</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">A</span><span style="color:#f8f8f2;">]
+
+</span><span style="color:#ff79c6;">if</span><span style="color:#f8f8f2;"> x is a </span><span style="color:#6be5fd;">Monad</span><span style="color:#f8f8f2;"> instance,
+
+flatMap(flatMap(x)(f1))(f2) </span><span style="color:#ff79c6;">==</span><span style="color:#f8f8f2;"> flatMap(x)(</span><span style="font-style:italic;color:#ffb86c;">a </span><span style="font-style:italic;color:#8be9fd;">=&gt;</span><span style="color:#f8f8f2;"> flatMap(f1(a))(f2))
+</span></code></pre><h2 id="functor-laws">Functor Laws</h2>
+<h3 id="1-identity-1">1. Identity</h3>
+<p>Example:</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#f8f8f2;">map(</span><span style="color:#6be5fd;">Some</span><span style="color:#f8f8f2;">(</span><span style="color:#bd93f9;">1</span><span style="color:#f8f8f2;">))(</span><span style="font-style:italic;color:#ffb86c;">a </span><span style="font-style:italic;color:#8be9fd;">=&gt;</span><span style="color:#f8f8f2;"> a) </span><span style="color:#ff79c6;">== </span><span style="color:#6be5fd;">Some</span><span style="color:#f8f8f2;">(</span><span style="color:#bd93f9;">1</span><span style="color:#f8f8f2;">)
+</span></code></pre>
+<p>Abstract definition:</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#f8f8f2;">map(x)(</span><span style="font-style:italic;color:#ffb86c;">a </span><span style="font-style:italic;color:#8be9fd;">=&gt;</span><span style="color:#f8f8f2;"> a) </span><span style="color:#ff79c6;">==</span><span style="color:#f8f8f2;"> x  </span><span style="color:#6272a4;">// the same value returned
+</span></code></pre><h3 id="2-associative-1">2. Associative</h3>
+<p>Example:</p>
+<pre style="background-color:#282a36;">
+<code><span style="font-style:italic;color:#8be9fd;">val </span><span style="color:#ffffff;">f1 </span><span style="color:#ff79c6;">= </span><span style="color:#f8f8f2;">(</span><span style="font-style:italic;color:#ffb86c;">n</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#8be9fd;">Int</span><span style="color:#f8f8f2;">) </span><span style="font-style:italic;color:#8be9fd;">=&gt;</span><span style="color:#f8f8f2;"> n + </span><span style="color:#bd93f9;">1
+</span><span style="font-style:italic;color:#8be9fd;">val </span><span style="color:#ffffff;">f2 </span><span style="color:#ff79c6;">= </span><span style="color:#f8f8f2;">(</span><span style="font-style:italic;color:#ffb86c;">n</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#8be9fd;">Int</span><span style="color:#f8f8f2;">) </span><span style="font-style:italic;color:#8be9fd;">=&gt;</span><span style="color:#f8f8f2;"> n * </span><span style="color:#bd93f9;">2</span><span style="color:#f8f8f2;">
+
+map(map(</span><span style="color:#6be5fd;">Some</span><span style="color:#f8f8f2;">(</span><span style="color:#bd93f9;">1</span><span style="color:#f8f8f2;">))(f1))(f2) </span><span style="color:#6272a4;">// Some(4)
+            </span><span style="color:#ff79c6;">==</span><span style="color:#f8f8f2;"> 
+map(</span><span style="color:#6be5fd;">Some</span><span style="color:#f8f8f2;">(</span><span style="color:#bd93f9;">1</span><span style="color:#f8f8f2;">))(f2 compose f1) </span><span style="color:#6272a4;">// Some(4)
+</span></code></pre>
+<p>Standard Scala function <code>compose</code> return a function which applies f1 and then f2 taking the result of the first f1 function.</p>
+<p>Abstract definition:</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#f8f8f2;">map(map(x)(f1))(f2) </span><span style="color:#ff79c6;">==</span><span style="color:#f8f8f2;"> map(x)(f2 compose f1) 
+</span></code></pre><h2 id="application-of-monads">Application of Monads</h2>
+<p>Using Monads we can do sequential composition. If we have several values in form of Option, we can sequence them into logic program,
+which evaluates next value based on the <code>flatMap</code> behaviour of the previous value. </p>
+<h3 id="compose-option">Compose Option</h3>
+<pre style="background-color:#282a36;">
+<code><span style="color:#ff79c6;">final </span><span style="font-style:italic;color:#ff79c6;">case class</span><span style="text-decoration:underline;color:#8be9fd;"> Coffee</span><span style="color:#f8f8f2;">(</span><span style="font-style:italic;color:#ffb86c;">name</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">)
+
+</span><span style="font-style:italic;color:#8be9fd;">val </span><span style="color:#ffffff;">isOn </span><span style="color:#ff79c6;">= </span><span style="color:#6be5fd;">Some</span><span style="color:#f8f8f2;">(</span><span style="color:#bd93f9;">1</span><span style="color:#f8f8f2;">)
+</span><span style="font-style:italic;color:#8be9fd;">val </span><span style="color:#ffffff;">coffeeName </span><span style="color:#ff79c6;">= </span><span style="color:#6be5fd;">Some</span><span style="color:#f8f8f2;">(</span><span style="color:#f1fa8c;">&quot;black&quot;</span><span style="color:#f8f8f2;">)
+</span><span style="font-style:italic;color:#8be9fd;">val </span><span style="color:#ffffff;">makeCoffee </span><span style="color:#ff79c6;">= </span><span style="color:#f8f8f2;">(</span><span style="font-style:italic;color:#ffb86c;">name</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">) </span><span style="font-style:italic;color:#8be9fd;">=&gt; </span><span style="color:#6be5fd;">Some</span><span style="color:#f8f8f2;">(</span><span style="color:#6be5fd;">Coffee</span><span style="color:#f8f8f2;">(name))
+
+</span><span style="color:#ff79c6;">for </span><span style="color:#ffffff;">{
+  </span><span style="color:#bd93f9;">_ </span><span style="color:#ff79c6;">&lt;-</span><span style="color:#f8f8f2;"> isOn
+  </span><span style="font-style:italic;color:#ffb86c;">name </span><span style="color:#ff79c6;">&lt;-</span><span style="color:#f8f8f2;"> coffeeName
+  </span><span style="font-style:italic;color:#ffb86c;">coffee </span><span style="color:#ff79c6;">&lt;-</span><span style="color:#f8f8f2;"> makeCoffee(name)
+</span><span style="color:#ffffff;">} </span><span style="color:#ff79c6;">yield</span><span style="color:#f8f8f2;"> coffee
+
+scala&gt; </span><span style="color:#6be5fd;">Option</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">Coffee</span><span style="color:#f8f8f2;">] </span><span style="color:#ff79c6;">= </span><span style="color:#6be5fd;">Some</span><span style="color:#f8f8f2;">(</span><span style="color:#6be5fd;">Coffee</span><span style="color:#f8f8f2;">(black))
+</span></code></pre>
+<p>Final result of this program is Some(..) value. However, it could result into None, if one these three values is None.</p>
+<h3 id="compose-either">Compose Either</h3>
+<p>The following three functions return Either Monad, so that we can compose them into a sequence.</p>
+<pre style="background-color:#282a36;">
+<code><span style="font-style:italic;color:#ff79c6;">case class</span><span style="text-decoration:underline;color:#8be9fd;"> Cluster</span><span style="color:#f8f8f2;">(</span><span style="font-style:italic;color:#ffb86c;">pods</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#8be9fd;">Int</span><span style="color:#f8f8f2;">)
+
+</span><span style="font-style:italic;color:#8be9fd;">def </span><span style="color:#50fa7b;">validateNamespace</span><span style="color:#f8f8f2;">(</span><span style="font-style:italic;color:#ffb86c;">ns</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">): </span><span style="font-style:italic;color:#66d9ef;">Either</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#8be9fd;">Unit</span><span style="color:#f8f8f2;">] </span><span style="color:#ff79c6;">= </span><span style="color:#6be5fd;">Right</span><span style="color:#f8f8f2;">(</span><span style="color:#bd93f9;">()</span><span style="color:#f8f8f2;">)
+</span><span style="font-style:italic;color:#8be9fd;">def </span><span style="color:#50fa7b;">clusterExists</span><span style="color:#f8f8f2;">(</span><span style="font-style:italic;color:#ffb86c;">ns</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">): </span><span style="font-style:italic;color:#66d9ef;">Either</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">Cluster</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#8be9fd;">Unit</span><span style="color:#f8f8f2;">] </span><span style="color:#ff79c6;">= </span><span style="color:#6be5fd;">Right</span><span style="color:#f8f8f2;">(</span><span style="color:#bd93f9;">()</span><span style="color:#f8f8f2;">)
+</span><span style="font-style:italic;color:#8be9fd;">def </span><span style="color:#50fa7b;">createCluster</span><span style="color:#f8f8f2;">(</span><span style="font-style:italic;color:#ffb86c;">ns</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#ffb86c;">cluster</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">Cluster</span><span style="color:#f8f8f2;">): </span><span style="font-style:italic;color:#66d9ef;">Either</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#66d9ef;">Cluster</span><span style="color:#f8f8f2;">] </span><span style="color:#ff79c6;">= 
+  </span><span style="color:#6be5fd;">Right</span><span style="color:#f8f8f2;">(</span><span style="color:#6be5fd;">Cluster</span><span style="color:#f8f8f2;">(cluster</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">pods))
+</span></code></pre>
+<p>We can compose them in same manner as we have done with <strong>Option</strong> example above:</p>
+<pre style="background-color:#282a36;">
+<code><span style="font-style:italic;color:#8be9fd;">val </span><span style="color:#ffffff;">ns </span><span style="color:#ff79c6;">= </span><span style="color:#f1fa8c;">&quot;my-cluster&quot;
+</span><span style="color:#ff79c6;">for </span><span style="color:#ffffff;">{
+   </span><span style="color:#bd93f9;">_ </span><span style="color:#ff79c6;">&lt;-</span><span style="color:#f8f8f2;"> validateNamespace(ns)
+   </span><span style="color:#bd93f9;">_ </span><span style="color:#ff79c6;">&lt;-</span><span style="color:#f8f8f2;"> clusterExists(ns)</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">left</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">map(</span><span style="font-style:italic;color:#ffb86c;">c </span><span style="font-style:italic;color:#8be9fd;">=&gt; 
+           </span><span style="color:#8be9fd;">s</span><span style="color:#f1fa8c;">&quot;Cluster with ${</span><span style="color:#f8f8f2;">c</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">pods</span><span style="color:#f1fa8c;">} pods already exists&quot;</span><span style="color:#f8f8f2;">)
+   </span><span style="font-style:italic;color:#ffb86c;">newCluster </span><span style="color:#ff79c6;">&lt;-</span><span style="color:#f8f8f2;"> createCluster(ns, </span><span style="color:#6be5fd;">Cluster</span><span style="color:#f8f8f2;">(</span><span style="color:#bd93f9;">4</span><span style="color:#f8f8f2;">))
+</span><span style="color:#ffffff;">} </span><span style="color:#ff79c6;">yield</span><span style="color:#f8f8f2;"> newCluster
+</span></code></pre>
+<p>From business logic perspective we want to create some hypothetical cluster if namespace is valid and cluster for the given namespace does not exist. 
+We implemented errors as <code>Either.Left</code> and normal result as <code>Either.Right</code>. Interface like <code>Either</code> is a popular approach not only in Scala to have some sort of result wrapper
+for normal and error results.</p>
+<p>Final result value is based on the return values we hardcoded in the given functions:</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#f8f8f2;">scala&gt; </span><span style="color:#6be5fd;">Either</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">,</span><span style="font-style:italic;color:#66d9ef;">Cluster</span><span style="color:#f8f8f2;">] </span><span style="color:#ff79c6;">= </span><span style="color:#6be5fd;">Right</span><span style="color:#f8f8f2;">(</span><span style="color:#6be5fd;">Cluster</span><span style="color:#f8f8f2;">(</span><span style="color:#bd93f9;">4</span><span style="color:#f8f8f2;">))
+</span></code></pre>
+<p>Benefits of using Monads is that we do not need to use <code>if/else</code> control flow, since we have Monads Laws working when we compose Monad instances.</p>
+<p>In case some of the given function returns <code>Either.Left</code>, for example:</p>
+<pre style="background-color:#282a36;">
+<code><span style="font-style:italic;color:#8be9fd;">def </span><span style="color:#50fa7b;">validNamespace</span><span style="color:#f8f8f2;">(</span><span style="font-style:italic;color:#ffb86c;">ns</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">): </span><span style="font-style:italic;color:#66d9ef;">Either</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#8be9fd;">Unit</span><span style="color:#f8f8f2;">] </span><span style="color:#ff79c6;">= 
+   if </span><span style="color:#f8f8f2;">(ns </span><span style="color:#ff79c6;">== </span><span style="color:#f1fa8c;">&quot;my-cluster&quot;</span><span style="color:#f8f8f2;">) 
+   </span><span style="color:#6be5fd;">Left</span><span style="color:#f8f8f2;">(
+     “</span><span style="color:#6be5fd;">Cluster</span><span style="color:#f8f8f2;"> namespace is not valid name, choose another name”
+   ) </span><span style="color:#ff79c6;">else </span><span style="color:#6be5fd;">Right</span><span style="color:#f8f8f2;">(</span><span style="color:#bd93f9;">()</span><span style="color:#f8f8f2;">)
+</span></code></pre>
+<p>Then it turns the whole result of the composition into error state, i.e. into <code>Either.Left</code>:</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#f8f8f2;">scala&gt; </span><span style="color:#6be5fd;">Either</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">,</span><span style="font-style:italic;color:#66d9ef;">Cluster</span><span style="color:#f8f8f2;">] </span><span style="color:#ff79c6;">= </span><span style="color:#6be5fd;">Left</span><span style="color:#f8f8f2;">(
+              </span><span style="color:#6be5fd;">Cluster</span><span style="color:#f8f8f2;"> namespace is not valid name, choose another name
+            )
+</span></code></pre><h2 id="for-comprehension">For comprehension</h2>
+<p>Scala offers special syntax for the sequence of nested <code>flatMap</code> calls and one <code>map</code> at the end, which is called &quot;for-comprehension&quot;.</p>
+<p><strong>for {…} yield</strong> is a syntactic sugar for a sequence of calls:</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#f8f8f2;">flatMap1(… + flatMapN(</span><span style="color:#ff79c6;">..</span><span style="color:#f8f8f2;"> + map(…)))
+</span></code></pre>
+<p><strong>Desugared version</strong>:</p>
+<p>Behind the scene, Scala compiler desugars the <code>for-comprehension</code> into the following code:</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#f8f8f2;">validNamespace(</span><span style="color:#f1fa8c;">&quot;my-cluster&quot;</span><span style="color:#f8f8f2;">)
+  </span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">flatMap(</span><span style="color:#bd93f9;">_ </span><span style="font-style:italic;color:#8be9fd;">=&gt;</span><span style="color:#f8f8f2;">
+     clusterExists(ns)
+       </span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">left
+       </span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">map(</span><span style="font-style:italic;color:#ffb86c;">c </span><span style="font-style:italic;color:#8be9fd;">=&gt; </span><span style="color:#8be9fd;">s</span><span style="color:#f1fa8c;">&quot;Cluster with ${</span><span style="color:#f8f8f2;">c</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">pods</span><span style="color:#f1fa8c;">} pods already exists&quot;</span><span style="color:#f8f8f2;">)
+       </span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">flatMap(</span><span style="color:#bd93f9;">_ </span><span style="font-style:italic;color:#8be9fd;">=&gt;</span><span style="color:#f8f8f2;">
+            createCluster(ns, </span><span style="color:#6be5fd;">Cluster</span><span style="color:#f8f8f2;">(</span><span style="color:#bd93f9;">4</span><span style="color:#f8f8f2;">))
+               </span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">map(</span><span style="font-style:italic;color:#ffb86c;">newCluster </span><span style="font-style:italic;color:#8be9fd;">=&gt;</span><span style="color:#f8f8f2;"> newCluster)
+        )
+  )
+</span></code></pre>
+<p><strong>Sugared version of the same code snippet</strong>:</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#ff79c6;">for </span><span style="color:#ffffff;">{
+  </span><span style="color:#bd93f9;">_ </span><span style="color:#ff79c6;">&lt;-</span><span style="color:#f8f8f2;"> validNamespace(</span><span style="color:#f1fa8c;">&quot;my-cluster&quot;</span><span style="color:#f8f8f2;">)
+  </span><span style="color:#bd93f9;">_ </span><span style="color:#ff79c6;">&lt;-</span><span style="color:#f8f8f2;"> clusterExists(ns)</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">left</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">map(</span><span style="font-style:italic;color:#ffb86c;">c </span><span style="font-style:italic;color:#8be9fd;">=&gt; 
+          </span><span style="color:#8be9fd;">s</span><span style="color:#f1fa8c;">&quot;Cluster with ${</span><span style="color:#f8f8f2;">c</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">pods</span><span style="color:#f1fa8c;">} pods already exists&quot;</span><span style="color:#f8f8f2;">)
+  </span><span style="font-style:italic;color:#ffb86c;">newCluster </span><span style="color:#ff79c6;">&lt;-</span><span style="color:#f8f8f2;"> createCluster(ns, </span><span style="color:#6be5fd;">Cluster</span><span style="color:#f8f8f2;">(</span><span style="color:#bd93f9;">4</span><span style="color:#f8f8f2;">))
+</span><span style="color:#ffffff;">} </span><span style="color:#ff79c6;">yield</span><span style="color:#f8f8f2;"> newCluster
+</span></code></pre>
+<p>For-comprehension of this program is much more readable and thus recommended to be used when composing monadic values in particular programs.</p>
+<h2 id="caveat-with-monads">Caveat with Monads</h2>
+<img src="https:&#x2F;&#x2F;novakov-alexey.github.io&#x2F;processed_images&#x2F;e47a61eff995083d00.png" />
+<p>We can easily compose Monads of the same types, like we have seen in examples, all values were options or eithers and so on. 
+However, it is not straightforward to compose different Monad stacks, like Option and Either values in one sequence.
+Let's look at the example of such problem below.</p>
+<h3 id="problem">Problem</h3>
+<p>Let's make one of the value in the <code>for-comprehension</code> to be different type, so that we will try to compose different Monads:</p>
+<pre style="background-color:#282a36;">
+<code><span style="font-style:italic;color:#8be9fd;">def </span><span style="color:#50fa7b;">validateNamespace</span><span style="color:#f8f8f2;">(</span><span style="font-style:italic;color:#ffb86c;">ns</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">): 
+    </span><span style="font-style:italic;color:#66d9ef;">Either</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#8be9fd;">Unit</span><span style="color:#f8f8f2;">]
+
+</span><span style="font-style:italic;color:#8be9fd;">def </span><span style="color:#50fa7b;">clusterExists</span><span style="color:#f8f8f2;">(</span><span style="font-style:italic;color:#ffb86c;">ns</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">): 
+    </span><span style="font-style:italic;color:#66d9ef;">Option</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">Either</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#66d9ef;">Cluster</span><span style="color:#f8f8f2;">]] </span><span style="color:#6272a4;">//Attention &lt;-- two Monad layers
+
+</span><span style="font-style:italic;color:#8be9fd;">def </span><span style="color:#50fa7b;">createCluster</span><span style="color:#f8f8f2;">(</span><span style="font-style:italic;color:#ffb86c;">ns</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#ffb86c;">cluster</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">Cluster</span><span style="color:#f8f8f2;">): 
+    </span><span style="font-style:italic;color:#66d9ef;">Either</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#66d9ef;">Cluster</span><span style="color:#f8f8f2;">] 
+</span></code></pre>
+<p>If we try to compile below code:</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#ff79c6;">for </span><span style="color:#ffffff;">{
+  </span><span style="color:#bd93f9;">_ </span><span style="color:#ff79c6;">&lt;-</span><span style="color:#f8f8f2;"> validateNamespace(ns)
+  </span><span style="font-style:italic;color:#ffb86c;">cluster </span><span style="color:#ff79c6;">&lt;-</span><span style="color:#f8f8f2;"> clusterExists(ns)
+  </span><span style="font-style:italic;color:#ffb86c;">updated </span><span style="color:#ff79c6;">&lt;-</span><span style="color:#f8f8f2;"> createCluster(ns, cluster)
+</span><span style="color:#ffffff;">} </span><span style="color:#ff79c6;">yield</span><span style="color:#f8f8f2;">  updated
+</span></code></pre>
+<p>This is going to end up in compiler errors:</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#f8f8f2;">updated &lt;- createCluster(ns, cluster)
+                             ^
+&lt;</span><span style="color:#ff79c6;">pastie</span><span style="color:#f8f8f2;">&gt;:4: error: type mismatch;
+ found   : Either[String,Cluster]
+ required: Cluster
+
+    cluster </span><span style="background-color:#ff79c6;color:#f8f8f0;">&lt;</span><span style="color:#f8f8f2;">- clusterExists(ns)
+            ^
+&lt;</span><span style="color:#ff79c6;">pastie</span><span style="color:#f8f8f2;">&gt;:3: error: type mismatch;
+ found   : Option[Nothing]
+ required: scala.util.Either[?,?]
+Option[Nothing] </span><span style="background-color:#ff79c6;color:#f8f8f0;">&lt;</span><span style="color:#f8f8f2;">: scala.util.Either[?,?]?
+false
+</span></code></pre>
+<p><strong>First Monadic value rules them all</strong>. </p>
+<p>Once we put first value such as <code>validateNamespace</code>, which returns <code>Either[_, _]</code>, it starts
+to drive the return type of the <code>flatMap</code> function. Second nested value is not <code>Either</code> type, but <code>Option[_]</code>. Here it starts to brake
+the Monad interface and eventually won't let it compile the code. What we need is to align monadic values to common ground.</p>
+<h2 id="monad-transformer">Monad Transformer</h2>
+<p>In order to compose different Monad types, we can use one more pattern called <a href="https://en.wikipedia.org/wiki/Monad_transformer">Monad Transformer</a>.</p>
+<p>Monad Transformer is a custom-written Monad designed specifically for composition. Of course we could tackle above problem
+by unboxing Option, then checking what is in the Either, return Either again to make <code>for-comprehension</code> to be compiled. However, 
+this would be clumsy and not scalable solution in terms of code maintenance. Monad Transformers example:</p>
+<ul>
+<li><code>OptionT</code> to compose <code>Option</code> + Any other Monad</li>
+<li><code>EitherT</code> to compose <code>Either</code> + Any other Monad</li>
+<li><code>ReaderT</code> to compose <code>Reader</code> + Any other Monad</li>
+<li><code>WriterT</code> to compose <code>Writer</code> + Any other Monad</li>
+<li>... others</li>
+</ul>
+<p>If we want to compose Option Monad with other monadic values of type <code>Either</code>, then we need to use <code>EitherT</code> monad for <code>Option</code>.
+<code>EitherT</code> instance knows how to unbox and box <code>Option</code> to operate on nested <code>Either</code> and thus guide the <code>flatMap</code> function.</p>
+<p>Let us look at <code>EitherT</code> example implementation taken from Cats library:</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#6272a4;">// takes 3 type parameters: 
+// 1. high-order type of the outer Monad 
+// 2. left type of Either
+// 3. right type of Either
+</span><span style="color:#ff79c6;">final </span><span style="font-style:italic;color:#ff79c6;">case class</span><span style="text-decoration:underline;color:#8be9fd;"> EitherT</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">F</span><span style="color:#f8f8f2;">[</span><span style="color:#bd93f9;">_</span><span style="color:#f8f8f2;">], </span><span style="font-style:italic;color:#66d9ef;">A</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#66d9ef;">B</span><span style="color:#f8f8f2;">](</span><span style="font-style:italic;color:#ffb86c;">value</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">F</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">Either</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">A</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#66d9ef;">B</span><span style="color:#f8f8f2;">]]) {
+
+</span><span style="color:#f8f8f2;"> </span><span style="font-style:italic;color:#8be9fd;">def </span><span style="color:#50fa7b;">flatMap</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">AA </span><span style="color:#ff79c6;">&gt;: </span><span style="font-style:italic;color:#66d9ef;">A</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#66d9ef;">D</span><span style="color:#f8f8f2;">](</span><span style="font-style:italic;color:#ffb86c;">f</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">B </span><span style="color:#ff79c6;">=&gt; </span><span style="font-style:italic;color:#66d9ef;">EitherT</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">F</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#66d9ef;">AA</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#66d9ef;">D</span><span style="color:#f8f8f2;">])(</span><span style="color:#ff79c6;">implicit </span><span style="font-style:italic;color:#ffb86c;">F</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">Monad</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">F</span><span style="color:#f8f8f2;">])
+</span><span style="color:#f8f8f2;">   : </span><span style="font-style:italic;color:#66d9ef;">EitherT</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">F</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#66d9ef;">AA</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#66d9ef;">D</span><span style="color:#f8f8f2;">] </span><span style="color:#ff79c6;">=
+</span><span style="color:#f8f8f2;">   </span><span style="color:#6272a4;">// Attention: there is one more &quot;flatMap&quot; to unwrap first Monad layer,
+</span><span style="color:#f8f8f2;">   </span><span style="color:#6272a4;">// which is F[_] 
+</span><span style="color:#f8f8f2;">   </span><span style="color:#6be5fd;">EitherT</span><span style="color:#f8f8f2;">(</span><span style="color:#6be5fd;">F</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">flatMap(value) </span><span style="color:#ffffff;">{ 
+</span><span style="color:#f8f8f2;">     </span><span style="color:#ff79c6;">case </span><span style="font-style:italic;color:#ffb86c;">l </span><span style="color:#ff79c6;">@ </span><span style="color:#6be5fd;">Left</span><span style="color:#f8f8f2;">(</span><span style="color:#bd93f9;">_</span><span style="color:#f8f8f2;">) </span><span style="font-style:italic;color:#8be9fd;">=&gt; </span><span style="color:#6be5fd;">F</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">pure(l</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">rightCast)
+</span><span style="color:#f8f8f2;">     </span><span style="color:#ff79c6;">case </span><span style="color:#6be5fd;">Right</span><span style="color:#f8f8f2;">(</span><span style="font-style:italic;color:#ffb86c;">b</span><span style="color:#f8f8f2;">)    </span><span style="font-style:italic;color:#8be9fd;">=&gt;</span><span style="color:#f8f8f2;"> f(b)</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">value
+</span><span style="color:#f8f8f2;">   </span><span style="color:#ffffff;">}</span><span style="color:#f8f8f2;">)
+}
+</span></code></pre>
+<p>See inline comments above. One more important point is that we expect an implicit Monad instance for that outer Monad 
+<code>F[_]</code>. We use it to unwrap first Monad, by convention this variable is also named <code>F</code>. 
+So Monad Transformer does not do any magic, but it is just a type constructor, which returns a Monad as result. </p>
+<h3 id="apply-monad-transformer">Apply Monad Transformer</h3>
+<p>Now let us use the same example and define return values:</p>
+<pre style="background-color:#282a36;">
+<code><span style="font-style:italic;color:#ff79c6;">case class</span><span style="text-decoration:underline;color:#8be9fd;"> Cluster</span><span style="color:#f8f8f2;">(</span><span style="font-style:italic;color:#ffb86c;">pods</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#8be9fd;">Int</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#ffb86c;">updated</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#8be9fd;">Long</span><span style="color:#f8f8f2;">)
+
+</span><span style="font-style:italic;color:#8be9fd;">def </span><span style="color:#50fa7b;">validateNamespace</span><span style="color:#f8f8f2;">(</span><span style="font-style:italic;color:#ffb86c;">ns</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">): </span><span style="font-style:italic;color:#66d9ef;">Either</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#8be9fd;">Unit</span><span style="color:#f8f8f2;">] </span><span style="color:#ff79c6;">= 
+  </span><span style="color:#6be5fd;">Right</span><span style="color:#f8f8f2;">(</span><span style="color:#bd93f9;">()</span><span style="color:#f8f8f2;">)
+
+</span><span style="font-style:italic;color:#8be9fd;">def </span><span style="color:#50fa7b;">clusterExists</span><span style="color:#f8f8f2;">(</span><span style="font-style:italic;color:#ffb86c;">ns</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">): </span><span style="font-style:italic;color:#66d9ef;">Option</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">Either</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#66d9ef;">Cluster</span><span style="color:#f8f8f2;">]] </span><span style="color:#ff79c6;">=
+  </span><span style="color:#6be5fd;">Some</span><span style="color:#f8f8f2;">(</span><span style="color:#6be5fd;">Right</span><span style="color:#f8f8f2;">(</span><span style="color:#6be5fd;">Cluster</span><span style="color:#f8f8f2;">(</span><span style="color:#bd93f9;">3</span><span style="color:#f8f8f2;">, </span><span style="color:#6be5fd;">System</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">currentTimeMillis())))
+
+</span><span style="font-style:italic;color:#8be9fd;">def </span><span style="color:#50fa7b;">updateCluster</span><span style="color:#f8f8f2;">(</span><span style="font-style:italic;color:#ffb86c;">ns</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#ffb86c;">cluster</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">Cluster</span><span style="color:#f8f8f2;">): 
+  </span><span style="font-style:italic;color:#66d9ef;">Either</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#66d9ef;">Cluster</span><span style="color:#f8f8f2;">] </span><span style="color:#ff79c6;">=
+  </span><span style="color:#6be5fd;">Right</span><span style="color:#f8f8f2;">(</span><span style="color:#6be5fd;">Cluster</span><span style="color:#f8f8f2;">(cluster</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">pods, </span><span style="color:#6be5fd;">System</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">currentTimeMillis()))
+</span></code></pre>
+<p>We are going to use <code>EitherT</code> instance from <a href="https://typelevel.org/cats/datatypes/eithert.html">Cats</a> library.</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#ff79c6;">import</span><span style="color:#f8f8f2;"> cats</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">implicits</span><span style="color:#ff79c6;">.</span><span style="color:#bd93f9;">_
+</span><span style="color:#ff79c6;">import</span><span style="color:#f8f8f2;"> cats</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">data</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">EitherT
+
+</span><span style="font-style:italic;color:#8be9fd;">val </span><span style="color:#ffffff;">cluster </span><span style="color:#ff79c6;">= for </span><span style="color:#ffffff;">{
+    </span><span style="color:#bd93f9;">_ </span><span style="color:#ff79c6;">&lt;-</span><span style="color:#f8f8f2;"> validateNamespace(ns)</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">toEitherT[</span><span style="font-style:italic;color:#66d9ef;">Option</span><span style="color:#f8f8f2;">]
+    </span><span style="font-style:italic;color:#ffb86c;">cluster</span><span style="color:#ff79c6;">&lt;- </span><span style="color:#6be5fd;">EitherT</span><span style="color:#f8f8f2;">(clusterExists(ns))
+    </span><span style="font-style:italic;color:#ffb86c;">updated </span><span style="color:#ff79c6;">&lt;-</span><span style="color:#f8f8f2;"> updateCluster(ns, cluster)</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">toEitherT[</span><span style="font-style:italic;color:#66d9ef;">Option</span><span style="color:#f8f8f2;">]
+</span><span style="color:#ffffff;">} </span><span style="color:#ff79c6;">yield</span><span style="color:#f8f8f2;">  updated
+</span></code></pre>
+<p>Since we introduced Monad transformer into composition, we have to use it for all the monadic values in the same sequence of flatMaps.
+So, we have to wrap first value and third value into EitherT as well using extension method <code>to EitherT</code>.</p>
+<p>In the result we have two layers of Monads too. First <code>Option</code>, then <code>Either</code>:</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#f8f8f2;">scala&gt; cluster</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">value
+</span><span style="color:#6be5fd;">Some</span><span style="color:#f8f8f2;">(</span><span style="color:#6be5fd;">Right</span><span style="color:#f8f8f2;">(</span><span style="color:#6be5fd;">Cluster</span><span style="color:#f8f8f2;">(</span><span style="color:#bd93f9;">3</span><span style="color:#f8f8f2;">,</span><span style="color:#bd93f9;">1583095558496</span><span style="color:#f8f8f2;">)))
+</span></code></pre>
+<p>Alternative case, when some of the statement in composition yields an error value:</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#6272a4;">// we return Left value this time
+</span><span style="font-style:italic;color:#8be9fd;">def </span><span style="color:#50fa7b;">clusterExists</span><span style="color:#f8f8f2;">(</span><span style="font-style:italic;color:#ffb86c;">ns</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">): </span><span style="font-style:italic;color:#66d9ef;">Option</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">Either</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#66d9ef;">Cluster</span><span style="color:#f8f8f2;">]] </span><span style="color:#ff79c6;">=
+    </span><span style="color:#6be5fd;">Left</span><span style="color:#f8f8f2;">(</span><span style="color:#f1fa8c;">&quot;Cluster is invalid&quot;</span><span style="color:#f8f8f2;">)</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">some
+
+scala&gt; cluster</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">value
+res4: </span><span style="font-style:italic;color:#66d9ef;">Option</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">Either</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">,</span><span style="font-style:italic;color:#66d9ef;">Cluster</span><span style="color:#f8f8f2;">]] </span><span style="color:#ff79c6;">= </span><span style="color:#6be5fd;">Some</span><span style="color:#f8f8f2;">(</span><span style="color:#6be5fd;">Left</span><span style="color:#f8f8f2;">(</span><span style="color:#6be5fd;">Cluster</span><span style="color:#f8f8f2;"> is invalid))
+</span></code></pre>
+<p>In the result, our composition stopped on the second statement. <code>clusterExists</code> returns Some(Left(...)), so that 
+<code>EitherT</code> could detect that <code>Either.Left</code> is end of the journey and entire composition ended on <code>Left</code> even it is wrapped into <code>Some</code>.
+Basically, Monad transformer looks into two layers one by one, when chaining monadic values. This was our goal
+to get a concise program and handle nested monadic value on composition in the same time.</p>
+<h2 id="summary">Summary</h2>
+<p>Monad and Monad transformers are useful abstractions in every day life of functional programmer.
+Although it may seems like Monad is programming language on its own, it allows us to write programs based on the Laws!!!
+We can compose different monadic values without using much a control flow. 
+In the result, we get fewer logical errors in the code, better structured programs and 
+what is more important we get possibility to change programs in future much easier without breaking the entire world.</p>
+<p>Now go and flatMap all the things :-)</p>
+
+      
+  </article>
+</section>
+
+       
+
+      <footer>
+        
+          
+<figure class="mini_logo ">
+    <a href="https:&#x2F;&#x2F;novakov-alexey.github.io" style="background-image: url(https:&#x2F;&#x2F;novakov-alexey.github.io/img/alexey_white2.jpg)"></a>
+</figure>
+<h5>
+    <a href="https:&#x2F;&#x2F;novakov-alexey.github.io">Software Engineering Notes</a>
+</h5>
+
+          
+<ul class="social_list foot_list" >
+    
+    
+    <li class="button extra_small font_faint"><a href="https://github.com/novakov-alexey" target="_blank" >novakov-alexey</a><i class="fab fa-github" ></i></li>
+    
+    
+    <li class="button extra_small font_faint"><a href="https://twitter.com/alexey_novakov" target="_blank">@alexey_novakov</a><i class="fab fa-twitter" ></i></li>
+    
+    
+    
+    
+    <li class="button extra_small font_faint"><a href="https://www.linkedin.com/in/alexey-novakov-26468624" target="_blank">alexey-novakov-26468624</a><i class="fab fa-linkedin" ></i></li>
+    
+    
+    
+    
+    <!-- 
+    <li class="button extra_small font_faint"><a href="https:&#x2F;&#x2F;novakov-alexey.github.io/rss.xml" target ="_blank">rss</a><i class="fas fa-rss" ></i></li>
+     -->
+</ul>
+
+        
+      </footer>
+    </body>
+</html>

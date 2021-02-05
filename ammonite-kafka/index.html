@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+      
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" >
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">   
+        <meta name="twitter:card" content="summary">
+        <meta name="twitter:site" content="@alexey_novakov">
+        <meta name="twitter:creator" content="@alexey_novakov">
+        <meta name="twitter:url" content="https://novakov-alexey.github.io">
+        <meta name="twitter:title" content="SE Notes - Alexey Novakov">
+        <meta name="twitter:description" content="Software Engineering notes on Scala, JVM, Rust, Cloud and other goodies">
+        <meta name="twitter:image" content="https://novakov-alexey.github.io/img/alexey_white2.jpg">
+        <meta name="twitter:image:alt" content="Alexey Novakov photo for personal web-site">
+
+        <!-- SEO -->
+        
+        <title> Ammonite Kafka Producer | Software Engineering Notes </title>
+        
+
+        <!-- Enable responsiveness on mobile devices-->
+        <meta name="viewport"  content="width=device-width, initial-scale=1.0, maximum-scale=1" >
+
+        <!--  css -->
+        <link rel="stylesheet"  href="https:&#x2F;&#x2F;novakov-alexey.github.io/ergo.css" >
+
+        <!-- fonts -->
+        <!-- preload  -->
+        <link rel="preload" href="https://fonts.googleapis.com/css?family=Montserrat:200,300,300i,400,500,500i,600,700,800,900|Raleway" as="style">
+        <link rel="preload"  href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous" as="style" >
+        <!-- load -->
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:200,300,300i,400,500,500i,600,700,800,900|Raleway">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css"  integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+      
+    </head>
+
+    <body>
+      
+        
+<input type="checkbox" id="openSidebarMenu" class="openSidebarMenu">
+<label class="menu cross menu--1" for="openSidebarMenu">
+    <svg viewBox="0 0 75 75" xmlns="https://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="30" />
+        <path class="line--1" d="M0 40h62c13 0 6 28-4 18L35 35" />
+        <path class="line--2" d="M0 50h70" />
+        <path class="line--3" d="M0 60h62c13 0 6-28-4-18L35 65" />
+    </svg>
+</label>
+
+<div id="sidebarMenu">
+    <div class="menu_wrapper">
+        <ul class="sidebarMenuInner" >     
+            <li>
+                <a href="https:&#x2F;&#x2F;novakov-alexey.github.io" >Software Engineering Notes</a>
+                <div class="menu_div" ></div>
+            </li>                   
+            <li><a href="https:&#x2F;&#x2F;novakov-alexey.github.io/cv/">CV</a></li>
+            <li><a href="https:&#x2F;&#x2F;novakov-alexey.github.io/presentations">Presentations</a></li>
+            <li><a href="https:&#x2F;&#x2F;novakov-alexey.github.io/categories">Categories</a></li>
+            <li><a href="https:&#x2F;&#x2F;novakov-alexey.github.io/tags">Tags</a></li>
+        </ul>
+    </div>
+</div>
+
+      
+
+      
+<nav id="overlord" class="overlord" >
+  
+<figure class="mini_logo ">
+    <a href="https:&#x2F;&#x2F;novakov-alexey.github.io" style="background-image: url(https:&#x2F;&#x2F;novakov-alexey.github.io/img/alexey_white2.jpg)"></a>
+</figure>
+<h5>
+    <a href="https:&#x2F;&#x2F;novakov-alexey.github.io">Software Engineering Notes</a>
+</h5>
+
+</nav>
+
+<section class="post_container">
+  <article>
+    
+      <h1 class="article_title"><a href="https:&#x2F;&#x2F;novakov-alexey.github.io&#x2F;ammonite-kafka&#x2F;" id="article_link">Ammonite Kafka Producer</a></h1>
+      
+<ul class="frontmatter frontmatter_page" id="frontmatter">
+    <li>
+        <time class="article_time"  datetime="2020-11-29">November 29, 2020</time>
+    </li>
+    <span class="dotDivider"></span>
+    <li> 1086 words </li>
+    <span class="dotDivider" ></span>
+    <li> 6 min </li>
+</ul>
+
+      
+      <div class="post-toc" id="post-toc">
+          <h3 class="post-toc-title">Contents</h3>
+          <div class="post-toc-content always-active">
+              <nav id="TableOfContents">
+                  <ul>
+                      
+                      <li>
+                          <a href="https://novakov-alexey.github.io/ammonite-kafka/#create-scripts" class="toc-link">Create scripts</a>
+                          
+                          <ul>
+                              
+                              <li>
+                                  <a href="https://novakov-alexey.github.io/ammonite-kafka/#first-script-generate-data" class="toc-link">First Script - Generate Data</a>
+                              </li>
+                              
+                              <li>
+                                  <a href="https://novakov-alexey.github.io/ammonite-kafka/#second-script-send-data" class="toc-link">Second Script - Send Data</a>
+                              </li>
+                              
+                          </ul>
+                          
+                      </li>
+                      
+                      <li>
+                          <a href="https://novakov-alexey.github.io/ammonite-kafka/#execute-script" class="toc-link">Execute Script</a>
+                          
+                      </li>
+                      
+                      <li>
+                          <a href="https://novakov-alexey.github.io/ammonite-kafka/#summary" class="toc-link">Summary</a>
+                          
+                      </li>
+                      
+                  </ul>
+              </nav>
+          </div>
+      </div>
+            
+      <p>If you need to run a Scala code as a script, i.e. using Scala source file to execute some short code, 
+then <a href="https://ammonite.io/#ScalaScripts">Ammonite Scripts</a>
+may be a solution for you. <a href="https://ammonite.io/#Ammonite">Ammonite project consists</a> of a REPL, script launcher and a few Scala libraries.<br />
+Let’s write a script to generate JSON data and send it to <a href="https://kafka.apache.org/documentation/#quickstart_createtopic">Apache Kafka topic</a>.</p>
+<h1 id="create-scripts">Create scripts</h1>
+<p>We are going to create two scripts. One script will be importing another script definitions. 
+In this case will be able to organise our code in modules. Even short scripts may become complex and should be a bit organised for better code maintenance.</p>
+<h2 id="first-script-generate-data">First Script - Generate Data</h2>
+<pre style="background-color:#282a36;">
+<code><span style="color:#50fa7b;">touch</span><span style="color:#f8f8f2;"> common.sc
+</span></code></pre>
+<p>This script imports two libraries:</p>
+<ul>
+<li><code>scalacheck</code> for data generation</li>
+<li><code>circe</code> to format case classes to JSON text</li>
+</ul>
+<pre style="background-color:#282a36;">
+<code><span style="color:#ff79c6;">import</span><span style="color:#f8f8f2;"> $ivy</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">`org.scalacheck::scalacheck:1.14.3`
+</span><span style="color:#ff79c6;">import</span><span style="color:#f8f8f2;"> $ivy</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">`io.circe::circe-generic:0.13.0`
+
+</span><span style="color:#ff79c6;">import</span><span style="color:#f8f8f2;"> io</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">circe</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">generic</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">auto</span><span style="color:#ff79c6;">.</span><span style="color:#bd93f9;">_</span><span style="color:#f8f8f2;">, io</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">circe</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">syntax</span><span style="color:#ff79c6;">.</span><span style="color:#bd93f9;">_
+</span><span style="color:#ff79c6;">import</span><span style="color:#f8f8f2;"> org</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">scalacheck</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">Gen
+
+</span><span style="font-style:italic;color:#ff79c6;">case class</span><span style="text-decoration:underline;color:#8be9fd;"> Sensor</span><span style="color:#f8f8f2;">(</span><span style="font-style:italic;color:#ffb86c;">number</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#8be9fd;">Int</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#ffb86c;">lat</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#8be9fd;">Double</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#ffb86c;">lon</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#8be9fd;">Double</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#ffb86c;">address</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">)
+</span><span style="font-style:italic;color:#ff79c6;">case class</span><span style="text-decoration:underline;color:#8be9fd;"> Event</span><span style="color:#f8f8f2;">(</span><span style="font-style:italic;color:#ffb86c;">time</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#8be9fd;">Long</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#ffb86c;">temperature</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#8be9fd;">Float</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#ffb86c;">sensor</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">Sensor</span><span style="color:#f8f8f2;">)
+
+</span><span style="font-style:italic;color:#8be9fd;">val </span><span style="color:#ffffff;">sensor1 </span><span style="color:#ff79c6;">= </span><span style="color:#6be5fd;">Sensor</span><span style="color:#f8f8f2;">(</span><span style="color:#bd93f9;">1</span><span style="color:#f8f8f2;">, -</span><span style="color:#bd93f9;">75.5712</span><span style="color:#f8f8f2;">, -</span><span style="color:#bd93f9;">130.5355</span><span style="color:#f8f8f2;">, </span><span style="color:#f1fa8c;">&quot;123 Main St, LAX, CA&quot;</span><span style="color:#f8f8f2;">)
+</span><span style="font-style:italic;color:#8be9fd;">val </span><span style="color:#ffffff;">sensor2 </span><span style="color:#ff79c6;">= </span><span style="color:#6be5fd;">Sensor</span><span style="color:#f8f8f2;">(</span><span style="color:#bd93f9;">2</span><span style="color:#f8f8f2;">, -</span><span style="color:#bd93f9;">48.8712</span><span style="color:#f8f8f2;">, -</span><span style="color:#bd93f9;">151.6866</span><span style="color:#f8f8f2;">, </span><span style="color:#f1fa8c;">&quot;456 Side St, SFO, CA&quot;</span><span style="color:#f8f8f2;">)
+</span><span style="font-style:italic;color:#8be9fd;">val </span><span style="color:#ffffff;">sensors </span><span style="color:#ff79c6;">= </span><span style="color:#6be5fd;">Gen</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">oneOf(sensor1, sensor2)
+</span><span style="font-style:italic;color:#8be9fd;">val </span><span style="color:#ffffff;">temperature </span><span style="color:#ff79c6;">= </span><span style="color:#6be5fd;">Gen</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">choose(</span><span style="color:#bd93f9;">21</span><span style="font-style:italic;color:#8be9fd;">f</span><span style="color:#f8f8f2;">, </span><span style="color:#bd93f9;">25</span><span style="font-style:italic;color:#8be9fd;">f</span><span style="color:#f8f8f2;">)
+
+</span><span style="font-style:italic;color:#8be9fd;">def </span><span style="color:#50fa7b;">genEvent </span><span style="color:#ff79c6;">=
+  for </span><span style="color:#ffffff;">{
+    </span><span style="font-style:italic;color:#ffb86c;">s </span><span style="color:#ff79c6;">&lt;-</span><span style="color:#f8f8f2;"> sensors
+    </span><span style="font-style:italic;color:#ffb86c;">t </span><span style="color:#ff79c6;">&lt;-</span><span style="color:#f8f8f2;"> temperature
+  </span><span style="color:#ffffff;">} </span><span style="color:#ff79c6;">yield </span><span style="color:#6be5fd;">Event</span><span style="color:#f8f8f2;">(</span><span style="color:#6be5fd;">System</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">currentTimeMillis(), t, s)
+
+</span><span style="font-style:italic;color:#8be9fd;">def </span><span style="color:#50fa7b;">genBatch</span><span style="color:#f8f8f2;">(</span><span style="font-style:italic;color:#ffb86c;">size</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#8be9fd;">Int </span><span style="color:#ff79c6;">= </span><span style="color:#bd93f9;">10</span><span style="color:#f8f8f2;">) </span><span style="color:#ff79c6;">=
+  for </span><span style="color:#ffffff;">{
+    </span><span style="font-style:italic;color:#ffb86c;">events </span><span style="color:#ff79c6;">&lt;- </span><span style="color:#6be5fd;">Gen</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">listOfN(size, genEvent)
+    </span><span style="font-style:italic;color:#ffb86c;">dataBatch </span><span style="color:#ff79c6;">=</span><span style="color:#f8f8f2;"> events</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">map(</span><span style="color:#bd93f9;">_</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">asJson</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">noSpaces)
+  </span><span style="color:#ffffff;">} </span><span style="color:#ff79c6;">yield</span><span style="color:#f8f8f2;"> dataBatch
+</span></code></pre>
+<p><code>genBatch</code> is main function in this script to be used by another/main script. It generates <code>List[String]</code> as return value. 
+Every string in the list is a JSON text to be sent to Kafka topic.</p>
+<h2 id="second-script-send-data">Second Script - Send Data</h2>
+<pre style="background-color:#282a36;">
+<code><span style="color:#50fa7b;">touch</span><span style="color:#f8f8f2;"> kafka-producer.sc
+</span></code></pre>
+<p>Add below Scala code statements to import Kafka library, Scala, Java classes into our script</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#6272a4;">// file import explained later 
+</span><span style="color:#ff79c6;">import</span><span style="color:#f8f8f2;"> $file</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">common
+</span><span style="color:#6272a4;">// Ammonite imports library automatically!
+</span><span style="color:#ff79c6;">import</span><span style="color:#f8f8f2;"> $ivy</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">`org.apache.kafka:kafka-clients:1.0.0`
+
+</span><span style="color:#ff79c6;">import</span><span style="color:#f8f8f2;"> common</span><span style="color:#ff79c6;">.</span><span style="color:#bd93f9;">_
+</span><span style="color:#ff79c6;">import</span><span style="color:#f8f8f2;"> org</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">apache</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">kafka</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">clients</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">producer</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">Producer
+</span><span style="color:#ff79c6;">import</span><span style="color:#f8f8f2;"> org</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">apache</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">kafka</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">clients</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">producer</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">ProducerRecord
+</span><span style="color:#ff79c6;">import</span><span style="color:#f8f8f2;"> org</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">apache</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">kafka</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">clients</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">producer</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">KafkaProducer
+</span><span style="color:#ff79c6;">import</span><span style="color:#f8f8f2;"> org</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">apache</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">kafka</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">clients</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">producer</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">ProducerConfig
+</span><span style="color:#ff79c6;">import</span><span style="color:#f8f8f2;"> org</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">apache</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">kafka</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">common</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">serialization</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">LongSerializer
+</span><span style="color:#ff79c6;">import</span><span style="color:#f8f8f2;"> org</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">apache</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">kafka</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">common</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">serialization</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">StringSerializer
+</span><span style="color:#ff79c6;">import</span><span style="color:#f8f8f2;"> java</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">util</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">Properties
+</span><span style="color:#ff79c6;">import</span><span style="color:#f8f8f2;"> java</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">io</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">FileReader
+</span><span style="color:#ff79c6;">import</span><span style="color:#f8f8f2;"> java</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">io</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">File
+</span><span style="color:#ff79c6;">import</span><span style="color:#f8f8f2;"> scala</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">annotation</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">tailrec
+</span><span style="color:#ff79c6;">import</span><span style="color:#f8f8f2;"> scala</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">util</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">Using
+</span><span style="color:#ff79c6;">import</span><span style="color:#f8f8f2;"> scala</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">io</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">Source
+</span></code></pre>
+<p>In order to make this script executable we need to annotate one of the method by <code>@main</code> annotation:</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#f8f8f2;">@main
+</span><span style="font-style:italic;color:#8be9fd;">def </span><span style="color:#50fa7b;">main</span><span style="color:#f8f8f2;">(</span><span style="font-style:italic;color:#ffb86c;">topicName</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#ffb86c;">delay</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#8be9fd;">Int </span><span style="color:#ff79c6;">= </span><span style="color:#bd93f9;">1000</span><span style="color:#f8f8f2;">) </span><span style="color:#ff79c6;">= </span><span style="color:#ffffff;">{
+  </span><span style="color:#6272a4;">// create producer properties
+  </span><span style="font-style:italic;color:#8be9fd;">val </span><span style="color:#ffffff;">configFile </span><span style="color:#ff79c6;">= new </span><span style="font-style:italic;color:#66d9ef;">File</span><span style="color:#f8f8f2;">(</span><span style="color:#f1fa8c;">&quot;./producer.properties&quot;</span><span style="color:#f8f8f2;">)
+  </span><span style="font-style:italic;color:#8be9fd;">val </span><span style="color:#ffffff;">props </span><span style="color:#ff79c6;">= new </span><span style="font-style:italic;color:#66d9ef;">Properties</span><span style="color:#f8f8f2;">()
+  </span><span style="color:#6be5fd;">Using</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">resource(</span><span style="color:#ff79c6;">new </span><span style="font-style:italic;color:#66d9ef;">FileReader</span><span style="color:#f8f8f2;">(configFile)) </span><span style="color:#ffffff;">{ </span><span style="font-style:italic;color:#ffb86c;">reader </span><span style="font-style:italic;color:#8be9fd;">=&gt;</span><span style="color:#f8f8f2;">
+    props</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">load(reader)
+  </span><span style="color:#ffffff;">}
+  </span><span style="font-style:italic;color:#8be9fd;">val </span><span style="color:#ffffff;">bootstrapFile </span><span style="color:#ff79c6;">= </span><span style="color:#f1fa8c;">&quot;bootstrap-servers.txt&quot;
+  </span><span style="font-style:italic;color:#8be9fd;">val </span><span style="color:#ffffff;">servers </span><span style="color:#ff79c6;">= </span><span style="color:#6be5fd;">Using</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">resource(</span><span style="color:#6be5fd;">Source</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">fromFile(bootstrapFile)) </span><span style="color:#ffffff;">{
+    </span><span style="font-style:italic;color:#ffb86c;">file </span><span style="font-style:italic;color:#8be9fd;">=&gt;</span><span style="color:#f8f8f2;">
+      file</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">getLines</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">toList</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">headOption
+        </span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">getOrElse(sys</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">error(</span><span style="color:#8be9fd;">s</span><span style="color:#f1fa8c;">&quot;</span><span style="color:#ffffff;">$bootstrapFile</span><span style="color:#f1fa8c;"> file is empty!&quot;</span><span style="color:#f8f8f2;">))
+        </span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">trim
+  </span><span style="color:#ffffff;">}</span><span style="color:#f8f8f2;">
+  props</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">put(
+    </span><span style="color:#f1fa8c;">&quot;bootstrap.servers&quot;</span><span style="color:#f8f8f2;">,
+    servers
+  )
+  props</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">put(</span><span style="color:#6be5fd;">ProducerConfig</span><span style="color:#ff79c6;">.</span><span style="color:#6be5fd;">CLIENT_ID_CONFIG</span><span style="color:#f8f8f2;">, </span><span style="color:#f1fa8c;">&quot;KafkaExampleProducer&quot;</span><span style="color:#f8f8f2;">)
+  props</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">put(
+    </span><span style="color:#6be5fd;">ProducerConfig</span><span style="color:#ff79c6;">.</span><span style="color:#6be5fd;">KEY_SERIALIZER_CLASS_CONFIG</span><span style="color:#f8f8f2;">,
+    classOf[</span><span style="font-style:italic;color:#66d9ef;">LongSerializer</span><span style="color:#f8f8f2;">]</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">getName
+  )
+  props</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">put(
+    </span><span style="color:#6be5fd;">ProducerConfig</span><span style="color:#ff79c6;">.</span><span style="color:#6be5fd;">VALUE_SERIALIZER_CLASS_CONFIG</span><span style="color:#f8f8f2;">,
+    classOf[</span><span style="font-style:italic;color:#66d9ef;">StringSerializer</span><span style="color:#f8f8f2;">]</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">getName
+  )
+  props</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">put(</span><span style="color:#6be5fd;">ProducerConfig</span><span style="color:#ff79c6;">.</span><span style="color:#6be5fd;">ACKS_CONFIG</span><span style="color:#f8f8f2;">, </span><span style="color:#f1fa8c;">&quot;all&quot;</span><span style="color:#f8f8f2;">);
+ 
+  </span><span style="color:#6272a4;">// create producer
+  </span><span style="font-style:italic;color:#8be9fd;">val </span><span style="color:#ffffff;">producer </span><span style="color:#ff79c6;">= new </span><span style="font-style:italic;color:#66d9ef;">KafkaProducer</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#8be9fd;">Long</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">](props)
+ 
+  </span><span style="color:#6272a4;">// send data to Kafka</span><span style="color:#f8f8f2;">
+  sendData(producer, topicName, delay)
+</span><span style="color:#ffffff;">}
+</span></code></pre>
+<p>In the main function we use regular Scala code to:</p>
+<ul>
+<li>read producer properties</li>
+<li>read Kafka broker/bootstrap hostnames</li>
+<li>create <code>KafkaProducer</code> using Java Kafka library API</li>
+<li>send data to Kafka topic infinitely </li>
+</ul>
+<p>Above main function can be executed now via:</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#50fa7b;">amm</span><span style="color:#f8f8f2;"> kafka-producer.sc</span><span style="font-style:italic;color:#ffb86c;"> --topicName</span><span style="color:#f8f8f2;"> test</span><span style="font-style:italic;color:#ffb86c;"> --delay</span><span style="color:#f8f8f2;"> 1000
+</span></code></pre>
+<p>However, it won't compile until we add <code>sendData</code> function.</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#f8f8f2;">@tailrec
+</span><span style="font-style:italic;color:#8be9fd;">def </span><span style="color:#50fa7b;">sendData</span><span style="color:#f8f8f2;">(
+    </span><span style="font-style:italic;color:#ffb86c;">producer</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">Producer</span><span style="color:#f8f8f2;">[</span><span style="font-style:italic;color:#8be9fd;">Long</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">],
+    </span><span style="font-style:italic;color:#ffb86c;">topic</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#66d9ef;">String</span><span style="color:#f8f8f2;">,
+    </span><span style="font-style:italic;color:#ffb86c;">delay</span><span style="color:#f8f8f2;">: </span><span style="font-style:italic;color:#8be9fd;">Int
+</span><span style="color:#f8f8f2;">): </span><span style="font-style:italic;color:#8be9fd;">Unit </span><span style="color:#ff79c6;">= </span><span style="color:#ffffff;">{</span><span style="color:#f8f8f2;">
+  genBatch()</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">sample</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">get</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">foreach </span><span style="color:#ffffff;">{ </span><span style="font-style:italic;color:#ffb86c;">json </span><span style="font-style:italic;color:#8be9fd;">=&gt;</span><span style="color:#f8f8f2;">
+    println(json)
+    </span><span style="font-style:italic;color:#8be9fd;">val </span><span style="color:#ffffff;">record </span><span style="color:#ff79c6;">= new </span><span style="font-style:italic;color:#66d9ef;">ProducerRecord</span><span style="color:#f8f8f2;">(topic, </span><span style="color:#6be5fd;">System</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">currentTimeMillis(), json)
+    producer</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">send(
+      record,
+      (</span><span style="font-style:italic;color:#ffb86c;">metadata</span><span style="color:#f8f8f2;">, </span><span style="font-style:italic;color:#ffb86c;">ex</span><span style="color:#f8f8f2;">) </span><span style="font-style:italic;color:#8be9fd;">=&gt; </span><span style="color:#ffffff;">{
+        </span><span style="color:#6be5fd;">Option</span><span style="color:#f8f8f2;">(ex)</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">foreach </span><span style="color:#ffffff;">{ </span><span style="font-style:italic;color:#ffb86c;">t </span><span style="font-style:italic;color:#8be9fd;">=&gt;
+          </span><span style="color:#ff79c6;">throw new </span><span style="font-style:italic;color:#66d9ef;">RuntimeException</span><span style="color:#f8f8f2;">(</span><span style="color:#8be9fd;">s</span><span style="color:#f1fa8c;">&quot;Failed to send the data: </span><span style="color:#ffffff;">$json</span><span style="color:#f1fa8c;">&quot;</span><span style="color:#f8f8f2;">, t)
+        </span><span style="color:#ffffff;">}
+      }
+    </span><span style="color:#f8f8f2;">)
+  </span><span style="color:#ffffff;">}
+  </span><span style="color:#6be5fd;">Thread</span><span style="color:#ff79c6;">.</span><span style="color:#f8f8f2;">sleep(delay)
+  sendData(producer, topic, delay)
+</span><span style="color:#ffffff;">}
+</span></code></pre>
+<p><code>sendData</code> is calling <code>genBatch()</code> function from the first script <code>common.sc</code>. We imported all definitions from that script via <code>import common._</code>.
+Ammonite script launcher compiles all imported scripts automatically, so we need to import it only.</p>
+<p>In the <code>sendData</code> function we generate List of JSON strings to send them via Kafka producer. In case we get an exception in producer's response, we
+throw an exception to stop the script execution. In case there is no exception thrown by the Kafka producer, then <code>sendData</code> is 
+sending data to Kafka topic again and again sleeping in between with the user given delay in milliseconds.</p>
+<h1 id="execute-script">Execute Script</h1>
+<p>Before we execute above script, we need to have two configuration files for Kafka Producer.</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#50fa7b;">touch</span><span style="color:#f8f8f2;"> producer.properties
+</span></code></pre>
+<p>For example, I have the following properties. In your case, you will have some of them or none of them (if you rely on default Kafka
+producer properties):</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#6272a4;"># this file content is auto-generated by get-jks.sh
+</span><span style="color:#f8f8f2;">ssl.endpoint.identification.algorithm=
+ssl.truststore.location=</span><span style="color:#f1fa8c;">./ssl/producer.truststore.jks
+</span><span style="color:#f8f8f2;">ssl.truststore.password=</span><span style="color:#f1fa8c;">&lt;your trustore password if any&gt;
+</span><span style="color:#f8f8f2;">ssl.keystore.location=</span><span style="color:#f1fa8c;">./ssl/producer.keystore.jks
+</span><span style="color:#f8f8f2;">ssl.keystore.password=</span><span style="color:#f1fa8c;">&lt;your key password if any&gt;
+</span><span style="color:#f8f8f2;">ssl.key.password=</span><span style="color:#f1fa8c;">&lt;your key password if any&gt;
+</span><span style="color:#f8f8f2;">sasl.mechanism=</span><span style="color:#f1fa8c;">GSSAPI
+</span><span style="color:#f8f8f2;">sasl.kerberos.service.name=</span><span style="color:#f1fa8c;">kafka
+</span><span style="color:#f8f8f2;">security.protocol=</span><span style="color:#f1fa8c;">SASL_SSL
+</span><span style="color:#f8f8f2;">sasl.jaas.config=</span><span style="color:#f1fa8c;">com.sun.security.auth.module.Krb5LoginModule required \
+    useKeyTab=true \
+    storeKey=true \
+    useTicketCache=false \
+    keyTab=&quot;./client.keytab&quot; \
+    principal=&quot;my-test@EXAMPLE.COM&quot;;
+
+</span></code></pre>
+<p>Another file that we used in the main script is file with Kafka broker hostnames. Put your broker hostname(s) or IP address(es) separaing by coma:</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#f8f8f2;">&lt;hostname of the broker 1&gt;,&lt;hostname of the broker 2&gt;....
+</span></code></pre>
+<p>Finally, if we run the main script, it will start to print the JSON data that is sent to Kafka topic:</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#50fa7b;">amm</span><span style="color:#f8f8f2;"> kafka-producer.sc</span><span style="font-style:italic;color:#ffb86c;"> --topicName</span><span style="color:#f8f8f2;"> test</span><span style="font-style:italic;color:#ffb86c;"> --delay</span><span style="color:#f8f8f2;"> 1000
+</span><span style="color:#50fa7b;">Compiling </span><span style="color:#bd93f9;">~</span><span style="color:#f8f8f2;">/kafka-produce.sc
+</span><span style="color:#50fa7b;">{</span><span style="color:#f1fa8c;">&quot;time&quot;</span><span style="color:#50fa7b;">:1606601101634,</span><span style="color:#f1fa8c;">&quot;temperature&quot;</span><span style="color:#50fa7b;">:21.944403,</span><span style="color:#f1fa8c;">&quot;sensor&quot;</span><span style="color:#50fa7b;">:{</span><span style="color:#f1fa8c;">&quot;number&quot;</span><span style="color:#50fa7b;">:2,</span><span style="color:#f1fa8c;">&quot;lat&quot;</span><span style="color:#50fa7b;">:-48.8712,</span><span style="color:#f1fa8c;">&quot;lon&quot;</span><span style="color:#50fa7b;">:-151.6866,</span><span style="color:#f1fa8c;">&quot;address&quot;</span><span style="color:#50fa7b;">:</span><span style="color:#f1fa8c;">&quot;456 Side St, SFO, CA&quot;</span><span style="color:#f8f8f2;">}}
+</span><span style="color:#50fa7b;">{</span><span style="color:#f1fa8c;">&quot;time&quot;</span><span style="color:#50fa7b;">:1606601101635,</span><span style="color:#f1fa8c;">&quot;temperature&quot;</span><span style="color:#50fa7b;">:24.016523,</span><span style="color:#f1fa8c;">&quot;sensor&quot;</span><span style="color:#50fa7b;">:{</span><span style="color:#f1fa8c;">&quot;number&quot;</span><span style="color:#50fa7b;">:1,</span><span style="color:#f1fa8c;">&quot;lat&quot;</span><span style="color:#50fa7b;">:-75.5712,</span><span style="color:#f1fa8c;">&quot;lon&quot;</span><span style="color:#50fa7b;">:-130.5355,</span><span style="color:#f1fa8c;">&quot;address&quot;</span><span style="color:#50fa7b;">:</span><span style="color:#f1fa8c;">&quot;123 Main St, LAX, CA&quot;</span><span style="color:#f8f8f2;">}}
+</span><span style="color:#50fa7b;">{</span><span style="color:#f1fa8c;">&quot;time&quot;</span><span style="color:#50fa7b;">:1606601101635,</span><span style="color:#f1fa8c;">&quot;temperature&quot;</span><span style="color:#50fa7b;">:24.302032,</span><span style="color:#f1fa8c;">&quot;sensor&quot;</span><span style="color:#50fa7b;">:{</span><span style="color:#f1fa8c;">&quot;number&quot;</span><span style="color:#50fa7b;">:2,</span><span style="color:#f1fa8c;">&quot;lat&quot;</span><span style="color:#50fa7b;">:-48.8712,</span><span style="color:#f1fa8c;">&quot;lon&quot;</span><span style="color:#50fa7b;">:-151.6866,</span><span style="color:#f1fa8c;">&quot;address&quot;</span><span style="color:#50fa7b;">:</span><span style="color:#f1fa8c;">&quot;456 Side St, SFO, CA&quot;</span><span style="color:#f8f8f2;">}}
+</span><span style="color:#50fa7b;">{</span><span style="color:#f1fa8c;">&quot;time&quot;</span><span style="color:#50fa7b;">:1606601101635,</span><span style="color:#f1fa8c;">&quot;temperature&quot;</span><span style="color:#50fa7b;">:24.295887,</span><span style="color:#f1fa8c;">&quot;sensor&quot;</span><span style="color:#50fa7b;">:{</span><span style="color:#f1fa8c;">&quot;number&quot;</span><span style="color:#50fa7b;">:2,</span><span style="color:#f1fa8c;">&quot;lat&quot;</span><span style="color:#50fa7b;">:-48.8712,</span><span style="color:#f1fa8c;">&quot;lon&quot;</span><span style="color:#50fa7b;">:-151.6866,</span><span style="color:#f1fa8c;">&quot;address&quot;</span><span style="color:#50fa7b;">:</span><span style="color:#f1fa8c;">&quot;456 Side St, SFO, CA&quot;</span><span style="color:#f8f8f2;">}}
+</span><span style="color:#50fa7b;">{</span><span style="color:#f1fa8c;">&quot;time&quot;</span><span style="color:#50fa7b;">:1606601101635,</span><span style="color:#f1fa8c;">&quot;temperature&quot;</span><span style="color:#50fa7b;">:24.507029,</span><span style="color:#f1fa8c;">&quot;sensor&quot;</span><span style="color:#50fa7b;">:{</span><span style="color:#f1fa8c;">&quot;number&quot;</span><span style="color:#50fa7b;">:2,</span><span style="color:#f1fa8c;">&quot;lat&quot;</span><span style="color:#50fa7b;">:-48.8712,</span><span style="color:#f1fa8c;">&quot;lon&quot;</span><span style="color:#50fa7b;">:-151.6866,</span><span style="color:#f1fa8c;">&quot;address&quot;</span><span style="color:#50fa7b;">:</span><span style="color:#f1fa8c;">&quot;456 Side St, SFO, CA&quot;</span><span style="color:#f8f8f2;">}}
+</span><span style="color:#50fa7b;">{</span><span style="color:#f1fa8c;">&quot;time&quot;</span><span style="color:#50fa7b;">:1606601101636,</span><span style="color:#f1fa8c;">&quot;temperature&quot;</span><span style="color:#50fa7b;">:24.488947,</span><span style="color:#f1fa8c;">&quot;sensor&quot;</span><span style="color:#50fa7b;">:{</span><span style="color:#f1fa8c;">&quot;number&quot;</span><span style="color:#50fa7b;">:1,</span><span style="color:#f1fa8c;">&quot;lat&quot;</span><span style="color:#50fa7b;">:-75.5712,</span><span style="color:#f1fa8c;">&quot;lon&quot;</span><span style="color:#50fa7b;">:-130.5355,</span><span style="color:#f1fa8c;">&quot;address&quot;</span><span style="color:#50fa7b;">:</span><span style="color:#f1fa8c;">&quot;123 Main St, LAX, CA&quot;</span><span style="color:#f8f8f2;">}}
+</span><span style="color:#50fa7b;">.....
+</span></code></pre><h1 id="summary">Summary</h1>
+<p>If you want to use Scala for scripting purposes, you can easily do that with Ammonite Scripts.
+It allows you to import any JVM library from <a href="https://search.maven.org/">Sonatype public repository</a>. 
+<a href="(https://ammonite.io/#import$ivy)">Ammonite can be also configured</a> to search any other public or private Maven, Ivy repositories. </p>
+<p>Another cool feature of Ammonite Scripts is local <a href="https://ammonite.io/#import$file">file imports</a>. That allows to write many scripts and organise them in modules, reuse them in many places.
+Code editor like VSCode and IntelliJ IDE support Ammonite Scripts well, so that you can benefit from auto-completion and &quot;go to definition&quot; features while writing your code 
+with Ammonite Scripts.</p>
+<p><a href="https://www.artima.com/pins1ed/scala-scripts-on-unix-and-windows.html">Standard Scala SDK can also execute Scala file</a> <code>.scala</code> as shell script. 
+One needs to add a special directive at the top of the file, so that the file will be executed via Scala compiler. However, in this way, you can't download some library like Ammonite does.</p>
+
+      
+  </article>
+</section>
+
+       
+
+      <footer>
+        
+          
+<figure class="mini_logo ">
+    <a href="https:&#x2F;&#x2F;novakov-alexey.github.io" style="background-image: url(https:&#x2F;&#x2F;novakov-alexey.github.io/img/alexey_white2.jpg)"></a>
+</figure>
+<h5>
+    <a href="https:&#x2F;&#x2F;novakov-alexey.github.io">Software Engineering Notes</a>
+</h5>
+
+          
+<ul class="social_list foot_list" >
+    
+    
+    <li class="button extra_small font_faint"><a href="https://github.com/novakov-alexey" target="_blank" >novakov-alexey</a><i class="fab fa-github" ></i></li>
+    
+    
+    <li class="button extra_small font_faint"><a href="https://twitter.com/alexey_novakov" target="_blank">@alexey_novakov</a><i class="fab fa-twitter" ></i></li>
+    
+    
+    
+    
+    <li class="button extra_small font_faint"><a href="https://www.linkedin.com/in/alexey-novakov-26468624" target="_blank">alexey-novakov-26468624</a><i class="fab fa-linkedin" ></i></li>
+    
+    
+    
+    
+    <!-- 
+    <li class="button extra_small font_faint"><a href="https:&#x2F;&#x2F;novakov-alexey.github.io/rss.xml" target ="_blank">rss</a><i class="fas fa-rss" ></i></li>
+     -->
+</ul>
+
+        
+      </footer>
+    </body>
+</html>

@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+      
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" >
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">   
+        <meta name="twitter:card" content="summary">
+        <meta name="twitter:site" content="@alexey_novakov">
+        <meta name="twitter:creator" content="@alexey_novakov">
+        <meta name="twitter:url" content="https://novakov-alexey.github.io">
+        <meta name="twitter:title" content="SE Notes - Alexey Novakov">
+        <meta name="twitter:description" content="Software Engineering notes on Scala, JVM, Rust, Cloud and other goodies">
+        <meta name="twitter:image" content="https://novakov-alexey.github.io/img/alexey_white2.jpg">
+        <meta name="twitter:image:alt" content="Alexey Novakov photo for personal web-site">
+
+        <!-- SEO -->
+        
+        <title> Artificial Neural Network in Scala - part 1 | Software Engineering Notes </title>
+        
+
+        <!-- Enable responsiveness on mobile devices-->
+        <meta name="viewport"  content="width=device-width, initial-scale=1.0, maximum-scale=1" >
+
+        <!--  css -->
+        <link rel="stylesheet"  href="https:&#x2F;&#x2F;novakov-alexey.github.io/ergo.css" >
+
+        <!-- fonts -->
+        <!-- preload  -->
+        <link rel="preload" href="https://fonts.googleapis.com/css?family=Montserrat:200,300,300i,400,500,500i,600,700,800,900|Raleway" as="style">
+        <link rel="preload"  href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous" as="style" >
+        <!-- load -->
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:200,300,300i,400,500,500i,600,700,800,900|Raleway">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css"  integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+      
+    </head>
+
+    <body>
+      
+        
+<input type="checkbox" id="openSidebarMenu" class="openSidebarMenu">
+<label class="menu cross menu--1" for="openSidebarMenu">
+    <svg viewBox="0 0 75 75" xmlns="https://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="30" />
+        <path class="line--1" d="M0 40h62c13 0 6 28-4 18L35 35" />
+        <path class="line--2" d="M0 50h70" />
+        <path class="line--3" d="M0 60h62c13 0 6-28-4-18L35 65" />
+    </svg>
+</label>
+
+<div id="sidebarMenu">
+    <div class="menu_wrapper">
+        <ul class="sidebarMenuInner" >     
+            <li>
+                <a href="https:&#x2F;&#x2F;novakov-alexey.github.io" >Software Engineering Notes</a>
+                <div class="menu_div" ></div>
+            </li>                   
+            <li><a href="https:&#x2F;&#x2F;novakov-alexey.github.io/cv/">CV</a></li>
+            <li><a href="https:&#x2F;&#x2F;novakov-alexey.github.io/presentations">Presentations</a></li>
+            <li><a href="https:&#x2F;&#x2F;novakov-alexey.github.io/categories">Categories</a></li>
+            <li><a href="https:&#x2F;&#x2F;novakov-alexey.github.io/tags">Tags</a></li>
+        </ul>
+    </div>
+</div>
+
+      
+
+      
+<nav id="overlord" class="overlord" >
+  
+<figure class="mini_logo ">
+    <a href="https:&#x2F;&#x2F;novakov-alexey.github.io" style="background-image: url(https:&#x2F;&#x2F;novakov-alexey.github.io/img/alexey_white2.jpg)"></a>
+</figure>
+<h5>
+    <a href="https:&#x2F;&#x2F;novakov-alexey.github.io">Software Engineering Notes</a>
+</h5>
+
+</nav>
+
+<section class="post_container">
+  <article>
+    
+      <h1 class="article_title"><a href="https:&#x2F;&#x2F;novakov-alexey.github.io&#x2F;ann-in-scala-1&#x2F;" id="article_link">Artificial Neural Network in Scala - part 1</a></h1>
+      
+<ul class="frontmatter frontmatter_page" id="frontmatter">
+    <li>
+        <time class="article_time"  datetime="2021-02-04">February 04, 2021</time>
+    </li>
+    <span class="dotDivider"></span>
+    <li> 2862 words </li>
+    <span class="dotDivider" ></span>
+    <li> 15 min </li>
+</ul>
+
+      
+      <div class="post-toc" id="post-toc">
+          <h3 class="post-toc-title">Contents</h3>
+          <div class="post-toc-content always-active">
+              <nav id="TableOfContents">
+                  <ul>
+                      
+                      <li>
+                          <a href="https://novakov-alexey.github.io/ann-in-scala-1/#scope" class="toc-link">Scope</a>
+                          
+                      </li>
+                      
+                      <li>
+                          <a href="https://novakov-alexey.github.io/ann-in-scala-1/#ann-jargon" class="toc-link">ANN Jargon</a>
+                          
+                      </li>
+                      
+                      <li>
+                          <a href="https://novakov-alexey.github.io/ann-in-scala-1/#tensor" class="toc-link">Tensor</a>
+                          
+                      </li>
+                      
+                      <li>
+                          <a href="https://novakov-alexey.github.io/ann-in-scala-1/#dataset" class="toc-link">Dataset</a>
+                          
+                      </li>
+                      
+                      <li>
+                          <a href="https://novakov-alexey.github.io/ann-in-scala-1/#network-topology" class="toc-link">Network Topology</a>
+                          
+                      </li>
+                      
+                      <li>
+                          <a href="https://novakov-alexey.github.io/ann-in-scala-1/#forward-propagation" class="toc-link">Forward Propagation</a>
+                          
+                          <ul>
+                              
+                              <li>
+                                  <a href="https://novakov-alexey.github.io/ann-in-scala-1/#dimensions" class="toc-link">Dimensions</a>
+                              </li>
+                              
+                              <li>
+                                  <a href="https://novakov-alexey.github.io/ann-in-scala-1/#math-of-the-forward-propagation" class="toc-link">Math of the Forward propagation</a>
+                              </li>
+                              
+                              <li>
+                                  <a href="https://novakov-alexey.github.io/ann-in-scala-1/#batch-tracing" class="toc-link">Batch Tracing</a>
+                              </li>
+                              
+                          </ul>
+                          
+                      </li>
+                      
+                      <li>
+                          <a href="https://novakov-alexey.github.io/ann-in-scala-1/#backward-propagation" class="toc-link">Backward Propagation</a>
+                          
+                          <ul>
+                              
+                              <li>
+                                  <a href="https://novakov-alexey.github.io/ann-in-scala-1/#gradient-descent-optimization" class="toc-link">Gradient Descent optimization</a>
+                              </li>
+                              
+                              <li>
+                                  <a href="https://novakov-alexey.github.io/ann-in-scala-1/#math-of-the-backward-propagation" class="toc-link">Math of the Backward propagation</a>
+                              </li>
+                              
+                          </ul>
+                          
+                      </li>
+                      
+                      <li>
+                          <a href="https://novakov-alexey.github.io/ann-in-scala-1/#wrapping-up" class="toc-link">Wrapping up</a>
+                          
+                      </li>
+                      
+                  </ul>
+              </nav>
+          </div>
+      </div>
+            
+      <img src="https:&#x2F;&#x2F;novakov-alexey.github.io&#x2F;processed_images&#x2F;166d0eb3d49bca2500.png" />
+<p><em>Deep Learning</em> is a group of machine learning methods which are based on artificial neural networks. Some of the deep learning architectures are deep neural networks.
+Deep neural network is an artificial neural network (ANN further) with multiple layers between the input and output layers. There are different types of neural networks, but they always have
+neurons, synapses, weights, biases and functions.</p>
+<img src="https:&#x2F;&#x2F;novakov-alexey.github.io&#x2F;processed_images&#x2F;40e274ae4488a42300.png" />
+<p><a href="https://www.scala-lang.org/">Scala</a> is a full-stack multi-paradigm programming language. Scala is famous for its innovations in JVM eco-system and
+ambitious language syntax features leaving all other JVM-based languages for years behind. 
+Scala is also popular language thanks to Apache Spark, Kafka and Flink projects which are mainly implemented in it. </p>
+<h1 id="scope">Scope</h1>
+<p>This tutorial is divided into 2 articles. </p>
+<ol>
+<li>
+<p>In this article we will go through the theory of ANN implementation. I will guide you through the basic calculus such as linear algebra and a little bit of differential calculus, which you need to know to implement neural network training and optimization algorithms.</p>
+</li>
+<li>
+<p>In <a href="../ann-in-scala-2">the second aritcle</a> we are going to implement ANN from scratch in Scala. 
+You can jump into second part directly, if you are familiar with the theory. But first look at the ANN Jargon table, if you decided to switch to second part.</p>
+</li>
+</ol>
+<h1 id="ann-jargon">ANN Jargon</h1>
+<p>I assume you are a bit familiar with Machine Learning or Deep Learning. Nevertheless, below table will be useful to match 
+Deep Learning terminology with further Scala implementation. Some of the variable names in Scala code will be directly based 
+on the Deep learning name definitions, so that it is important to know why some variable is named as <code>z</code> and another one as <code>w</code>.</p>
+<table><thead><tr><th>Code Symbol / Type</th><th align="center">Description</th><th align="center">Encoded as</th></tr></thead><tbody>
+<tr><td>x</td><td align="center">input data for each neuron</td><td align="center">2-dimensional tensor, i.e. matrix</td></tr>
+<tr><td>y , actual</td><td align="center">target data we know in advance from the training dataset</td><td align="center">1-d tensor, i.e. vector</td></tr>
+<tr><td>yHat , predicted</td><td align="center">output of the neural network during the training or single prediction</td><td align="center">1-d tensor</td></tr>
+<tr><td>w</td><td align="center">layer weight, a.k.a model parameters</td><td align="center">2-d tensor</td></tr>
+<tr><td>b</td><td align="center">layer bias, part of the layer parameters</td><td align="center">1-d tensor</td></tr>
+<tr><td>z</td><td align="center">layer activation, calculated as <br/> <code>x * w + b</code></td><td align="center">2-d tensor</td></tr>
+<tr><td>f</td><td align="center">activation function to activate neuron. Specific implementation: sigmoid, relu</td><td align="center">Scala function</td></tr>
+<tr><td>a</td><td align="center">layer activity, calculated as f(z)</td><td align="center">2-d tensor</td></tr>
+<tr><td>error</td><td align="center">it is result of yHat - y</td><td align="center">1-d tensor</td></tr>
+<tr><td>lossFunc</td><td align="center">loss function to calculate error rate on training/validation (example: mean squared error)</td><td align="center">Scala function</td></tr>
+<tr><td>epochs</td><td align="center">number of iterations to train ANN</td><td align="center"><code>integer</code> &gt; 0</td></tr>
+<tr><td>accuracy</td><td align="center">% of correct predictions on train or test data sets</td><td align="center"><code>double</code> number, between 0 and 1</td></tr>
+<tr><td>learningRate</td><td align="center">numeric parameter used in weights update</td><td align="center"><code>double</code> number, usually between 0.01 and 0.1</td></tr>
+</tbody></table>
+<h1 id="tensor">Tensor</h1>
+<p>Deep Learning is all about tensor calculus. Tensor in computer science is a generic abstraction for N-dimensional array. 
+In our ANN implementation, we are going to use scalar numbers which are encoded as 0-dimension tensor, vector - encoded as 1-d tensor and
+finally matrix - encoded as 2-d tensor. Vector and matrix are the most used building blocks for Deep Learning calculus. All tensor shapes we will
+use are going to be rectangular - every element is the same size along each axis.</p>
+<h1 id="dataset">Dataset</h1>
+<p>We will take _Churn Modelling dataset which predicts whether a customer is going to leave the bank or not. 
+This dataset is traveling across many tutorials at the Internet, 
+so that you can find a couple different code implementations among dozens of articles using the same data, so do I.</p>
+<pre style="background-color:#282a36;">
+<code><span style="font-style:italic;color:#8be9fd;">RowNumber</span><span style="color:#ff79c6;">,</span><span style="font-style:italic;color:#8be9fd;">CustomerId</span><span style="color:#ff79c6;">,</span><span style="font-style:italic;color:#8be9fd;">Surname</span><span style="color:#ff79c6;">,</span><span style="font-style:italic;color:#8be9fd;">CreditScore</span><span style="color:#ff79c6;">,</span><span style="font-style:italic;color:#8be9fd;">Geography</span><span style="color:#ff79c6;">,</span><span style="font-style:italic;color:#8be9fd;">Gender</span><span style="color:#ff79c6;">,</span><span style="font-style:italic;color:#8be9fd;">Age</span><span style="color:#ff79c6;">,</span><span style="font-style:italic;color:#8be9fd;">Tenure</span><span style="color:#ff79c6;">,</span><span style="font-style:italic;color:#8be9fd;">Balance</span><span style="color:#ff79c6;">,</span><span style="font-style:italic;color:#8be9fd;">NumOfProducts</span><span style="color:#ff79c6;">,</span><span style="font-style:italic;color:#8be9fd;">HasCrCard</span><span style="color:#ff79c6;">,</span><span style="font-style:italic;color:#8be9fd;">IsActiveMember</span><span style="color:#ff79c6;">,</span><span style="font-style:italic;color:#8be9fd;">EstimatedSalary</span><span style="color:#ff79c6;">,</span><span style="font-style:italic;color:#8be9fd;">Exited
+1</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">15634602</span><span style="color:#ff79c6;">,</span><span style="font-style:italic;color:#8be9fd;">Hargrave</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">619</span><span style="color:#ff79c6;">,</span><span style="font-style:italic;color:#8be9fd;">France</span><span style="color:#ff79c6;">,</span><span style="font-style:italic;color:#8be9fd;">Female</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">42</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">2</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">0</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">1</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">1</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">1</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">101348.88</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">1
+2</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">15647311</span><span style="color:#ff79c6;">,</span><span style="font-style:italic;color:#8be9fd;">Hill</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">608</span><span style="color:#ff79c6;">,</span><span style="font-style:italic;color:#8be9fd;">Spain</span><span style="color:#ff79c6;">,</span><span style="font-style:italic;color:#8be9fd;">Female</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">41</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">1</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">83807.86</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">1</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">0</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">1</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">112542.58</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">0
+3</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">15619304</span><span style="color:#ff79c6;">,</span><span style="font-style:italic;color:#8be9fd;">Onio</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">502</span><span style="color:#ff79c6;">,</span><span style="font-style:italic;color:#8be9fd;">France</span><span style="color:#ff79c6;">,</span><span style="font-style:italic;color:#8be9fd;">Female</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">42</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">8</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">159660.8</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">3</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">1</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">0</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">113931.57</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">1
+4</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">15701354</span><span style="color:#ff79c6;">,</span><span style="font-style:italic;color:#8be9fd;">Boni</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">699</span><span style="color:#ff79c6;">,</span><span style="font-style:italic;color:#8be9fd;">France</span><span style="color:#ff79c6;">,</span><span style="font-style:italic;color:#8be9fd;">Female</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">39</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">1</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">0</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">2</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">0</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">0</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">93826.63</span><span style="color:#ff79c6;">,</span><span style="color:#bd93f9;">0
+</span></code></pre>
+<p>The last column is <code>y</code>, i.e. the value we want our ANN to predict between 0 and 1. Rest of the columns are <code>x</code> data, also known as features. We drop 
+first 3 columns and the last column <code>y</code> before we use them as <code>x</code> matrix. Remaining columns:</p>
+<pre style="background-color:#282a36;">
+<code><span style="font-style:italic;color:#8be9fd;">CreditScore</span><span style="color:#ff79c6;">,</span><span style="font-style:italic;color:#8be9fd;">
+Geography</span><span style="color:#ff79c6;">,</span><span style="font-style:italic;color:#8be9fd;">
+Gender</span><span style="color:#ff79c6;">,</span><span style="font-style:italic;color:#8be9fd;">
+Age</span><span style="color:#ff79c6;">,</span><span style="font-style:italic;color:#8be9fd;">
+Tenure</span><span style="color:#ff79c6;">,</span><span style="font-style:italic;color:#8be9fd;">
+Balance</span><span style="color:#ff79c6;">,</span><span style="font-style:italic;color:#8be9fd;">
+NumOfProducts</span><span style="color:#ff79c6;">,</span><span style="font-style:italic;color:#8be9fd;">
+HasCrCard</span><span style="color:#ff79c6;">,</span><span style="font-style:italic;color:#8be9fd;">
+IsActiveMember</span><span style="color:#ff79c6;">,</span><span style="font-style:italic;color:#8be9fd;">
+EstimatedSalary
+</span></code></pre><h1 id="network-topology">Network Topology</h1>
+<img src="https:&#x2F;&#x2F;novakov-alexey.github.io&#x2F;processed_images&#x2F;71264b2ba4b8086f00.png" />
+<p>Above picture describes a network we are going to implement.</p>
+<ul>
+<li>
+<p><em>N</em> is a number of features, i.e. remaining columns from the input dataset.</p>
+</li>
+<li>
+<p>Each layer is fully connected with next layer. I draw each layer by skipping middle neurons to get smaller visual overhead.</p>
+</li>
+<li>
+<p>Between each layer we have weights which form linear equations via dot product <code>x</code> * <code>w</code> + <code>bias</code>.</p>
+</li>
+<li>
+<p>Each layer has its own activation functions. We use ReLU (Rectified Linear Unit) and Sigmoid functions.</p>
+</li>
+</ul>
+<h1 id="forward-propagation">Forward Propagation</h1>
+<p>Basic idea of neural network implementation is to leverage math principals for matrix and vector multiplication. As neural network is going to be fully connected from layer to layer, we can represent learning and optimization algorithms as following:</p>
+<h2 id="dimensions">Dimensions</h2>
+<h3 id="single-training-example">Single training example</h3>
+<p>It is one data record:</p>
+<ol>
+<li>x: 12 input columns as 1 x 12 matrix</li>
+<li>w1: 12 x 6 matrix + 6 x 1 matrix for baises</li>
+<li>w2: 6 x 6 matrix + 6 x 1 matrix for baises</li>
+<li>w3: 6 x 1 matrix + 1 x 1 matrix for baises</li>
+<li>yHat: scalar number</li>
+</ol>
+<p>An amount of hidden layers and neurons are parameters to be tuned by an expert, i.e. externally to the main algorithm. 
+We set 2 hidden layers with 6 neurons each. Our last layer
+is single neuron that produces final prediction, which we will treat as <code>yes</code> or <code>no</code> to answer customer churn question.</p>
+<h3 id="multiple-training-examples">Multiple training examples</h3>
+<p>Mini-batch approach, i.e. multiple training examples at once. Batch size to be tuned externally as well. Let's take 16 as batch size:</p>
+<ol>
+<li>x: 16 x 12 matrix</li>
+<li>w1: 12 x 6 matrix + 6 x 1 matrix for baises</li>
+<li>w2: 6 x 6 matrix + 6 x 1 matrix for baises</li>
+<li>w3: 6 x 1 matrix + 1 x 1 matrix for baises</li>
+<li>yHat: 16 x 1 matrix</li>
+</ol>
+<p>As you can see, our matrices are equal in rows at input and output layers.
+That means we can input any number of rows through the neural network at once when we do training or prediction.</p>
+<h2 id="math-of-the-forward-propagation">Math of the Forward propagation</h2>
+<p>When we train neural network, we use input data and parameters on all hidden layers to reach output layer, so that we get the prediction value(s).
+First part of the ANN implementation that calculates predictions, i.e. <code>yHat</code> is called _forward propagation.</p>
+<p>Linear algebra helps us to feed data into the network and get the result using matrix multiplication principals. That makes the entire training and single
+prediction quite generic, so that we can easily program that in any programming language. </p>
+<p>In a nutshell, our 12 x 6 x 6 x 1 network will form the following expressions for every training batch:</p>
+<h3 id="first-hidden-layer">First Hidden Layer</h3>
+<img src="https:&#x2F;&#x2F;novakov-alexey.github.io&#x2F;processed_images&#x2F;523c9fa1a7caa8a100.png" />
+<p>Above picture shows activations for the neurons of the first hidden layer. In fact, next layers are calculated in similar way.</p>
+<ul>
+<li>
+<p><em>X</em> is a matrix where each row is a data sample. Every column is a particular feature/column from the initial dataset. Usually, input column is scaled/encoded (see second article).</p>
+</li>
+<li>
+<p>We use dot product operation for <em>X</em> and <em>W</em>. 
+Resulting matrix is used to add biases using element-wise addition. b1 will be added to each element of the first row of that resulting matrix,
+then b2 to the second row and so on.</p>
+</li>
+</ul>
+<h3 id="second-hidden-layer">Second Hidden Layer</h3>
+<p>The <code>x</code> of the second layer is an <code>a</code> we calculated on the previous layer. We will call it <code>a1</code>.</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#50fa7b;">a1</span><span style="color:#f8f8f2;"> (16 x 6) </span><span style="color:#50fa7b;">*</span><span style="color:#f8f8f2;"> w2 (6 x 6) </span><span style="color:#50fa7b;">+</span><span style="color:#f8f8f2;"> b2 (6 x 1) </span><span style="color:#ff79c6;">= </span><span style="color:#50fa7b;">z2</span><span style="color:#f8f8f2;"> (16 x 6)
+
+</span><span style="color:#50fa7b;">f</span><span style="color:#f8f8f2;">(z2) </span><span style="color:#ff79c6;">= </span><span style="color:#50fa7b;">a2</span><span style="color:#f8f8f2;"> (16 x 6)
+</span></code></pre>
+<p>Above pseudo-code shows matrix dimensions in the parenthesis.</p>
+<h3 id="output-layer">Output Layer</h3>
+<p>Input data is a2. Here we get out prediction at the end:</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#50fa7b;">a2</span><span style="color:#f8f8f2;"> (16 x 6) </span><span style="color:#50fa7b;">*</span><span style="color:#f8f8f2;"> w3 (6 x 1) </span><span style="color:#50fa7b;">+</span><span style="color:#f8f8f2;"> b3 (1 x 1) </span><span style="color:#ff79c6;">= </span><span style="color:#50fa7b;">z3</span><span style="color:#f8f8f2;"> (16 x 1)
+
+</span><span style="color:#50fa7b;">f</span><span style="color:#f8f8f2;">(z3) </span><span style="color:#ff79c6;">= </span><span style="color:#50fa7b;">a3</span><span style="color:#f8f8f2;"> (16 x 1)
+</span></code></pre>
+<p><code>a3</code> a.k.a yHat represents a prediction for each data sample in the batch. Prediction values are probabilities between 0 and 1. </p>
+<p>If you are confused with above explanation, I recommend to check great video series on Deep Learning: <a href="https://www.youtube.com/watch?v=aircAruvnKk">But what is a Neural Network? | Deep learning, chapter 1</a>.</p>
+<h2 id="batch-tracing">Batch Tracing</h2>
+<p>In order to see what is going on with the state of neural network, let's feed one single batch into it.</p>
+<p>There are different strategies for initial weights and biases initialisation. In our implementation we will follow:</p>
+<ul>
+<li>weight matrices are initialised using uniform-random</li>
+<li>bias vectors are initialised with zeros</li>
+</ul>
+<p>Later they will be updated via optimization algorithm.</p>
+<h3 id="x-input">x - input</h3>
+<p>Below matrix is our <code>x</code>, which is our input data from the training or test set. The values it contains is a result of 
+data preparation step, which I will explain in details further:</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#50fa7b;">sizes:</span><span style="color:#f8f8f2;"> 16x12, Tensor2D</span><span style="color:#ff79c6;">[</span><span style="color:#f8f8f2;">Float</span><span style="color:#ff79c6;">]</span><span style="color:#f8f8f2;">:
+</span><span style="color:#50fa7b;">[[-0.032920357,1.1368092,-0.579135,-0.6694619,-0.9335201,0.3765018,-1.0295835,-1.0824665,-0.9476086,0.7312724,0.8284169,-0.05904571]
+ [-0.12171035,-0.86240697,-0.579135,1.464448,-0.9335201,0.26486462,-1.3750359,0.2695743,-0.9476086,-1.340666,0.8284169,0.1443363]
+ [-0.97732306,1.1368092,-0.579135,-0.6694619,-0.9335201,0.3765018,1.0431306,1.4932814,2.0728939,0.7312724,-1.1834527,0.16957337]
+ [0.6128251,1.1368092,-0.579135,-0.6694619,-0.9335201,0.041590314,-1.3750359,-1.0824665,0.5626426,-1.340666,-1.1834527,-0.19572]
+ [1.8316696,-0.86240697,-0.579135,1.464448,-0.9335201,0.48813897,-1.0295835,0.94235253,-0.9476086,0.7312724,0.8284169,-0.463582]
+ [0.17694691,-0.86240697,-0.579135,1.464448,1.0502101,0.59977615,1.0431306,0.7527129,0.5626426,0.7312724,-1.1834527,0.82049227]
+ [1.6056587,1.1368092,-0.579135,-0.6694619,1.0502101,1.2695991,0.69767827,-1.0824665,0.5626426,0.7312724,0.8284169,-1.7176533]
+ [-1.9943721,-0.86240697,1.6928561,-0.6694619,-0.9335201,-1.0747813,-0.33867878,0.7735395,3.583145,0.7312724,-1.1834527,0.267966]
+ [-0.9853949,1.1368092,-0.579135,-0.6694619,1.0502101,0.59977615,-0.33867878,1.20919,0.5626426,-1.340666,0.8284169,-0.5388685]
+ [0.49174783,1.1368092,-0.579135,-0.6694619,1.0502101,-1.2980556,-1.0295835,1.0890474,-0.9476086,0.7312724,0.8284169,-0.5972788]
+ [-0.7674558,1.1368092,-0.579135,-0.6694619,1.0502101,-0.85150695,0.35222593,0.563331,0.5626426,-1.340666,-1.1834527,-0.44364995]
+ [-1.0176822,-0.86240697,-0.579135,1.464448,1.0502101,-1.6329671,-0.68413115,-1.0824665,0.5626426,0.7312724,-1.1834527,-0.5125319]
+ [-1.1871903,1.1368092,-0.579135,-0.6694619,-0.9335201,-0.5165955,1.7340354,-1.0824665,0.5626426,0.7312724,-1.1834527,-1.4233431]
+ [-0.5979476,1.1368092,-0.579135,-0.6694619,-0.9335201,-1.52133,0.0067735757,-1.0824665,0.5626426,-1.340666,-1.1834527,1.5672718]
+ [0.09622873,-0.86240697,-0.579135,1.464448,-0.9335201,-0.40495834,0.69767827,-1.0824665,0.5626426,0.7312724,0.8284169,-0.70219]
+ [-0.05713581,-0.86240697,1.6928561,-0.6694619,1.0502101,0.71141326,-0.68413115,1.2265866,0.5626426,-1.340666,0.8284169,-0.731704]]
+</span></code></pre><h3 id="w1-between-input-and-1st-hidden-layers">w1 - between input and 1st hidden layers</h3>
+<p>weight:</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#50fa7b;">sizes:</span><span style="color:#f8f8f2;"> 12x6, Tensor2D</span><span style="color:#ff79c6;">[</span><span style="color:#f8f8f2;">Float</span><span style="color:#ff79c6;">]</span><span style="color:#f8f8f2;">:
+</span><span style="color:#50fa7b;">[[0.0031250487,0.6230519,0.41888618,0.89568454,0.6927525,0.7887961]
+ [0.30450296,0.75655645,0.075620584,0.898596,0.66731954,0.06079619]
+ [0.21693613,0.89243406,0.6251479,0.080811165,0.30963784,0.87972105]
+ [0.006676915,0.05886997,0.88085854,0.29817313,0.19820364,0.6823392]
+ [0.73550576,0.49408147,0.99867696,0.71354216,0.9676805,0.09009225]
+ [0.19121544,0.021707054,0.53959745,0.74587476,0.16132912,0.08185377]
+ [0.2528674,0.562563,0.17039675,0.7291027,0.41844574,0.4336123]
+ [0.8275197,0.5867702,0.1692482,0.102723576,0.8936942,0.12275006]
+ [0.15337862,0.55374163,0.7993138,0.73106086,0.29611018,0.6279454]
+ [0.15933406,0.5840742,0.42520604,0.44090283,0.13000321,0.25581995]
+ [0.8168607,0.25407365,0.6668799,0.277898,0.13848923,0.94559854]
+ [0.61593276,0.8569094,0.83978665,0.12022303,0.097834654,0.9559516]]
+</span></code></pre>
+<p>bias:</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#50fa7b;">sizes:</span><span style="color:#f8f8f2;"> 6, Tensor1D</span><span style="color:#ff79c6;">[</span><span style="color:#f8f8f2;">Float</span><span style="color:#ff79c6;">]</span><span style="color:#f8f8f2;">:
+</span><span style="color:#50fa7b;">[0.0,0.0,0.0,0.0,0.0,0.0]
+</span></code></pre><h3 id="w2-between-1st-and-2nd-hidden-layers">w2 - between 1st and 2nd hidden layers</h3>
+<p>weight:</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#50fa7b;">sizes:</span><span style="color:#f8f8f2;"> 6x6, Tensor2D</span><span style="color:#ff79c6;">[</span><span style="color:#f8f8f2;">Float</span><span style="color:#ff79c6;">]</span><span style="color:#f8f8f2;">:
+</span><span style="color:#50fa7b;">[[0.77492374,0.20006068,0.8301353,0.8226056,0.726444,0.54590976]
+ [0.8728169,0.83197665,0.5453676,0.7730933,0.77980715,0.20573096]
+ [0.8222075,0.94630164,0.29234344,0.7667057,0.3600455,0.26467463]
+ [0.5196553,0.3935514,0.23351222,0.18136671,0.01824836,0.25099826]
+ [0.8864608,0.64109814,0.3031471,0.18872173,0.5463185,0.26470202]
+ [0.102771536,0.92541504,0.21454614,0.8614344,0.10369446,0.76455885]]
+</span></code></pre>
+<p>bias:</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#50fa7b;">sizes:</span><span style="color:#f8f8f2;"> 6, Tensor1D</span><span style="color:#ff79c6;">[</span><span style="color:#f8f8f2;">Float</span><span style="color:#ff79c6;">]</span><span style="color:#f8f8f2;">:
+</span><span style="color:#50fa7b;">[0.0,0.0,0.0,0.0,0.0,0.0]
+</span></code></pre><h3 id="w3-between-2nd-hidden-and-output-layers">w3 - between 2nd hidden and output layers</h3>
+<p>weight:</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#50fa7b;">sizes:</span><span style="color:#f8f8f2;"> 6x1, Tensor2D</span><span style="color:#ff79c6;">[</span><span style="color:#f8f8f2;">Float</span><span style="color:#ff79c6;">]</span><span style="color:#f8f8f2;">:
+</span><span style="color:#50fa7b;">[[0.63033116]
+ [0.6078242]
+ [0.022346135]
+ [0.62451136]
+ [0.89858407]
+ [0.5960952]]
+</span></code></pre>
+<p>bias:</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#50fa7b;">sizes:</span><span style="color:#f8f8f2;"> 1, Tensor1D</span><span style="color:#ff79c6;">[</span><span style="color:#f8f8f2;">Float</span><span style="color:#ff79c6;">]</span><span style="color:#f8f8f2;">:
+</span><span style="color:#50fa7b;">[0.0]
+</span></code></pre><h3 id="yhat-output-layer">yHat - Output layer</h3>
+<p>Predictions for the input batch:</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#50fa7b;">sizes:</span><span style="color:#f8f8f2;"> 16, Tensor1D</span><span style="color:#ff79c6;">[</span><span style="color:#f8f8f2;">Float</span><span style="color:#ff79c6;">]</span><span style="color:#f8f8f2;">:
+</span><span style="color:#50fa7b;">[0.8810671,0.49800232,0.86774874,0.49800232,0.99999976,0.83703655,0.49800232,0.49800232,0.9976035,0.49800232,0.9999994,0.49800232,0.8031284,0.49800232,0.9775441,0.86094683]
+</span></code></pre>
+<hr />
+<p>Above trace is for the first training batch at the very first epoch. You should not try understand these digits in weights, biases and outputs matrices.
+They are going to change their values a lot after running training loop 100 times (epochs) with N batches each.</p>
+<h1 id="backward-propagation">Backward Propagation</h1>
+<p>Initial weights and biases are not going to give us right equations to predict our <em>y</em>. Even if we propagate the entire dataset through the network.
+Obviously, someone needs to update these parameters based on some feedback. This feedback is calculated via <code>loss</code> function. 
+In the science literature, <code>loss function</code> is also called as <code>cost function</code>. We are going to use <code>loss</code> and <code>cost</code> here as synonymous.</p>
+<p>There are different loss functions in Deep Learning we can use. We will go with <code>binary-cross-entropy</code> as we predict binary value. 
+Our loss value will show how good we are updating the network weights at specific training epoch. However, updates will be done using Gradient
+Descent optimization algorithm.</p>
+<h2 id="gradient-descent-optimization">Gradient Descent optimization</h2>
+<p>Model prediction is calculated through the forward propagation of the input data sample(s). 
+If weights and biases are trained well, then our predictions will be accurate as well. In order to say whether our model performs well,
+we check <code>loss</code> value on every training cycle as well as <code>accuracy</code> metric. Accuracy is number of <code>correct predictions</code> divided by <code>total number</code> of data samples during the training or validation.</p>
+<p>You might ask yourself - how can I train model parameters well? In other words how to update them in right direction, so that they give accurate predictions? </p>
+<p>Here we meet <em>Gradient Descent.</em></p>
+<p>As <a href="https://en.wikipedia.org/wiki/Gradient_descent">per Wikipedia</a>:</p>
+<blockquote>
+  Gradient descent is a first-order iterative optimization algorithm for finding a local minimum of a differentiable function<br />
+  
+</blockquote>
+<p>Gradient descent is a way to minimise an objective loss function for neural network parameters. In other words, it helps to find best parameters by
+minimising loss function. <em>Smaller loss, better overall network accuracy.</em></p>
+<p>Using Gradient Descent, we are finding proper change rate on every training cycle. 
+So that we can update our weights and biases to get the best model performance. </p>
+<p>How exactly the Gradient Descent algorithm calculates that change?</p>
+<p>There are thousands of articles explaining that visually. In short, we are trying to find steepest descent of the derivative function.
+Using small coefficient <code>learningRate</code> we subtract the gradient value from the initial parameter. That allows us to find best parameter and
+minimise the loss function. One of the good visual explanation for linear regression problem with gradient descent is <a href="https://www.mygreatlearning.com/blog/gradient-descent/">here</a>. It also works well for multiple linear regression like in our case, we got 12 features, so 12 independent variables.</p>
+<p>Coming back to our back-propagation implementation. <code>f'(x)</code>is a derivative function of the layer's activation function. We use derivative function to update all weights except the last one, i.e. <code>w1</code> and <code>w2</code>, not <code>w3</code>. To update <code>w3</code>, we use delta based on the <code>error</code>, i.e. predicted - actual. 
+Layers <code>w1</code> and <code>w2</code> are using <code>relu</code> as activation function. Derivative of the <code>relu</code> function is following:</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#ff79c6;">if </span><span style="color:#f8f8f2;">(x &lt; </span><span style="color:#bd93f9;">0</span><span style="color:#f8f8f2;">) </span><span style="color:#bd93f9;">0 
+</span><span style="color:#ff79c6;">else </span><span style="color:#bd93f9;">1
+</span></code></pre>
+<p>Such derivative function is applied element-wise to <code>z</code> matrix in the step #6 of the back propagation part (see second article for Scala reference implementation).</p>
+<h2 id="math-of-the-backward-propagation">Math of the Backward propagation</h2>
+<p>Back-propagation part of ANN is a bit more complicated than forward propagation part. 
+In <em>Gradient Descent Optimization</em> algorithm, we calculate derivatives to calculate <code>yHat</code> rate of change with respect to last <code>z</code>, in our case it is <code>z3</code>. </p>
+<h3 id="high-level-steps-of-the-gradient-descent-algorithm">High-level steps of the Gradient Descent algorithm</h3>
+<ol start="0">
+<li>Calculate error based on actual <code>y</code> and on predicted <code>yHat</code>. It will be called <code>delta</code> further and in the code.</li>
+</ol>
+<pre style="background-color:#282a36;">
+<code><span style="color:#50fa7b;">delta</span><span style="color:#f8f8f2;"> = (yHat - y) </span><span style="color:#50fa7b;">multiply</span><span style="color:#f8f8f2;"> f</span><span style="color:#f1fa8c;">&#39;(z)
+
+result is a 16 x 1 matrix
+
+where:
+    - &quot;f`&quot; is a derivative to activation function on the current layer.   
+    - &quot;z&quot; is current layer activation.
+    - &quot;multiply&quot; is Hadamard product, a.k.a. element-wise multiplication. 
+      Note: it is not the same as dot product.
+</span></code></pre>
+<ol>
+<li>Iterate list of weights matrices from end to start, i.e. backwards.
+Let's take &quot;i&quot; as layer index</li>
+<li>Calculate partial derivative as:</li>
+</ol>
+<pre style="background-color:#282a36;">
+<code><span style="color:#f8f8f2;"> </span><span style="color:#50fa7b;">partialDerivativeN</span><span style="color:#f8f8f2;"> = xi.T </span><span style="color:#ff79c6;">*</span><span style="color:#f8f8f2;"> delta
+
+ </span><span style="color:#50fa7b;">where:     
+     - </span><span style="color:#f1fa8c;">&quot;T&quot;</span><span style="color:#f8f8f2;"> is a matrix transpose operation,
+     </span><span style="color:#50fa7b;">- </span><span style="color:#f1fa8c;">&quot;*&quot;</span><span style="color:#f8f8f2;"> is dot product operation.    
+</span></code></pre>
+<ol start="3">
+<li>Update weights of <code>i</code> layer via:</li>
+</ol>
+<pre style="background-color:#282a36;">
+<code><span style="color:#50fa7b;">wi</span><span style="color:#f8f8f2;"> = wi - learningRate </span><span style="color:#ff79c6;">*</span><span style="color:#f8f8f2;"> partialDerivative_i 
+
+</span><span style="color:#50fa7b;">where:
+</span><span style="color:#f8f8f2;">  </span><span style="color:#50fa7b;">- </span><span style="color:#f1fa8c;">&quot;learningRate&quot;</span><span style="color:#f8f8f2;"> is a scalar number. 
+</span><span style="color:#f8f8f2;">  </span><span style="color:#50fa7b;">- </span><span style="color:#f1fa8c;">&quot;partialDerivative_i&quot;</span><span style="color:#f8f8f2;"> is a matrix, so </span><span style="color:#f1fa8c;">&quot;*&quot;</span><span style="color:#f8f8f2;"> is dot product here as well.
+</span></code></pre>
+<ol start="4">
+<li>Update bias of <code>i</code> layer via:</li>
+</ol>
+<pre style="background-color:#282a36;">
+<code><span style="color:#50fa7b;">bi</span><span style="color:#f8f8f2;"> = bi - sum(delta)
+</span></code></pre>
+<ol start="5">
+<li>
+<p>Pass updated weight <code>wi</code> and <code>delta</code> to previous layer, i.e. to <code>wi - 1</code>.</p>
+</li>
+<li>
+<p>Now starting <code>wi - 1</code> weight update, we calculate <code>delta</code> differently.</p>
+</li>
+</ol>
+<pre style="background-color:#282a36;">
+<code><span style="color:#50fa7b;">delta</span><span style="color:#f8f8f2;"> = (previousDelta </span><span style="color:#ff79c6;">*</span><span style="color:#f8f8f2;"> previousW) </span><span style="color:#50fa7b;">multiply</span><span style="color:#f8f8f2;"> f</span><span style="color:#f1fa8c;">&#39;(z)
+
+where:
+   - &quot;previousDelta&quot; is delta from previous step, i.e. 
+      it is from layer next to the right, because we go backward. 
+   - &quot;previousW&quot; - is a weight matrix from the previous step as well.
+</span></code></pre>
+<p><em>If i &gt; 0, then:</em></p>
+<p>decrement <code>i</code> via <code>i</code> = <code>i</code> -1 and then repeat steps from 2 to 5. </p>
+<p><em>otherwise:</em> </p>
+<p>we finished back-propagation for a specific batch or a single data sample (in case of stochastic gradient descent).</p>
+<h3 id="back-propagation-tracing">Back-propagation tracing</h3>
+<h4 id="w3-between-2nd-hidden-and-output-layers-1">w3 - between 2nd hidden and output layers</h4>
+<p>Delta (error):</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#50fa7b;">sizes:</span><span style="color:#f8f8f2;"> 16, Tensor1D</span><span style="color:#ff79c6;">[</span><span style="color:#f8f8f2;">Float</span><span style="color:#ff79c6;">]</span><span style="color:#f8f8f2;">:
+</span><span style="color:#50fa7b;">[-0.5,0.5,-2.336502E-5,0.5,0.99982685,0.0,1.0,-0.27220798,0.9981591,0.99999166,0.5142617,0.5,0.5,0.5,0.5,0.9999994]
+</span></code></pre>
+<p>x transpose:</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#50fa7b;">sizes:</span><span style="color:#f8f8f2;"> 6x16, Tensor2D</span><span style="color:#ff79c6;">[</span><span style="color:#f8f8f2;">Float</span><span style="color:#ff79c6;">]</span><span style="color:#f8f8f2;">:
+</span><span style="color:#50fa7b;">[[0.0,0.0,2.3540525,0.0,1.1964836,4.380693,6.6140265,0.44490784,1.8534858,2.7576103,0.007678177,0.0,0.0,0.0,0.0,3.0259452]
+ [0.0,0.0,1.4293345,0.0,1.9171724,5.341193,5.351874,0.52522117,1.888961,3.053475,0.0014958136,0.0,0.0,0.0,0.0,4.647504]
+ [0.0,0.0,2.901132,0.0,3.4634292,6.8469305,9.681695,0.16261059,1.7458743,4.406227,0.0116603775,0.0,0.0,0.0,0.0,3.5064058]
+ [0.0,0.0,2.2631726,0.0,1.4329143,5.5888605,7.362318,0.16618003,1.1314285,2.040889,0.023946803,0.0,0.0,0.0,0.0,2.7598464]
+ [0.0,0.0,3.2273922,0.0,2.8001034,8.964131,10.323663,0.10813884,1.4567397,2.918638,0.013493502,0.0,0.0,0.0,0.0,3.6922505]
+ [0.0,0.0,3.2367752,0.0,2.513441,9.055562,10.566048,0.26056617,1.7771944,3.133051,0.015981253,0.0,0.0,0.0,0.0,4.64655]]
+</span></code></pre>
+<p>partialDerivative3 = x.T * (delta multiply f`(z)):</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#50fa7b;">sizes:</span><span style="color:#f8f8f2;"> 6x1, Tensor2D</span><span style="color:#ff79c6;">[</span><span style="color:#f8f8f2;">Float</span><span style="color:#ff79c6;">]</span><span style="color:#f8f8f2;">:
+</span><span style="color:#50fa7b;">[[15.326693]
+ [16.712915]
+ [22.761444]
+ [14.692074]
+ [21.16563]
+ [22.569763]]
+</span></code></pre>
+<p>updated Weight = w - learningRate * partialDerivative3 :</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#50fa7b;">sizes:</span><span style="color:#f8f8f2;"> 6x1, Tensor2D</span><span style="color:#ff79c6;">[</span><span style="color:#f8f8f2;">Float</span><span style="color:#ff79c6;">]</span><span style="color:#f8f8f2;">:
+</span><span style="color:#50fa7b;">[[0.6776238]
+ [0.29685247]
+ [0.496793]
+ [0.95105153]
+ [0.824897]
+ [0.64518374]]
+</span></code></pre>
+<p>updated Bias = b - learningRate * sum(delta) :</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#50fa7b;">sizes:</span><span style="color:#f8f8f2;"> 1, Tensor1D</span><span style="color:#ff79c6;">[</span><span style="color:#f8f8f2;">Float</span><span style="color:#ff79c6;">]</span><span style="color:#f8f8f2;">:
+</span><span style="color:#50fa7b;">[-0.0077400077]
+</span></code></pre><h4 id="w2-between-1st-and-2nd-hidden-layers-1">w2 - between 1st and 2nd hidden layers</h4>
+<p>current delta:</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#50fa7b;">delta</span><span style="color:#f8f8f2;"> (16x6) </span><span style="color:#ff79c6;">= </span><span style="color:#f8f8f2;">(</span><span style="color:#50fa7b;">previous</span><span style="color:#f8f8f2;"> delta </span><span style="color:#ff79c6;">*</span><span style="color:#f8f8f2;"> previous w) multiply f`(</span><span style="color:#50fa7b;">z</span><span style="color:#f8f8f2;">)
+</span></code></pre>
+<p>current derivative:</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#50fa7b;">partialDerivative2</span><span style="color:#f8f8f2;"> (6 x 6) </span><span style="color:#ff79c6;">= </span><span style="color:#50fa7b;">x.T</span><span style="color:#f8f8f2;"> (6 x 16) </span><span style="color:#50fa7b;">*</span><span style="color:#f8f8f2;"> delta (16 x 6)
+</span></code></pre>
+<p>updated Weight:</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#50fa7b;">w2</span><span style="color:#f8f8f2;"> (6x6) </span><span style="color:#ff79c6;">= </span><span style="color:#50fa7b;">w2</span><span style="color:#f8f8f2;"> (6x6) </span><span style="color:#50fa7b;">-</span><span style="color:#f8f8f2;"> learningRate </span><span style="color:#ff79c6;">*</span><span style="color:#f8f8f2;"> partialDerivative2 (6 x 6)
+</span></code></pre>
+<p>updated Bias:</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#50fa7b;">b2</span><span style="color:#f8f8f2;"> (6 x 1) </span><span style="color:#ff79c6;">= </span><span style="color:#50fa7b;">b2</span><span style="color:#f8f8f2;"> (6 x 1) </span><span style="color:#50fa7b;">-</span><span style="color:#f8f8f2;"> learningRate </span><span style="color:#ff79c6;">*</span><span style="color:#f8f8f2;"> sum(delta)
+</span></code></pre><h4 id="w1-between-input-and-1st-hidden-layers-1">w1 - between input and 1st hidden layers</h4>
+<p>current delta:</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#50fa7b;">delta</span><span style="color:#f8f8f2;"> (16x6) </span><span style="color:#ff79c6;">= </span><span style="color:#f8f8f2;">(</span><span style="color:#50fa7b;">previous</span><span style="color:#f8f8f2;"> delta </span><span style="color:#ff79c6;">*</span><span style="color:#f8f8f2;"> previous w) multiply f`(</span><span style="color:#50fa7b;">z</span><span style="color:#f8f8f2;">)
+</span></code></pre>
+<p>current derivative:</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#50fa7b;">partialDerivative1</span><span style="color:#f8f8f2;"> (12 x 6) </span><span style="color:#ff79c6;">= </span><span style="color:#50fa7b;">x.T</span><span style="color:#f8f8f2;"> (12 x 16) </span><span style="color:#50fa7b;">*</span><span style="color:#f8f8f2;"> delta (16 x 6)
+</span></code></pre>
+<p>updated Weight:</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#50fa7b;">w1</span><span style="color:#f8f8f2;"> (12x6) </span><span style="color:#ff79c6;">= </span><span style="color:#50fa7b;">w2</span><span style="color:#f8f8f2;"> (12x6) </span><span style="color:#50fa7b;">-</span><span style="color:#f8f8f2;"> learningRate </span><span style="color:#ff79c6;">*</span><span style="color:#f8f8f2;"> partialDerivative1 (12 x 6)
+</span></code></pre>
+<p>updated Bias:</p>
+<pre style="background-color:#282a36;">
+<code><span style="color:#50fa7b;">b1</span><span style="color:#f8f8f2;"> (6 x 1) </span><span style="color:#ff79c6;">= </span><span style="color:#50fa7b;">b1</span><span style="color:#f8f8f2;"> (6 x 1) </span><span style="color:#50fa7b;">-</span><span style="color:#f8f8f2;"> learningRate </span><span style="color:#ff79c6;">*</span><span style="color:#f8f8f2;"> sum(delta)
+</span></code></pre><h1 id="wrapping-up">Wrapping up</h1>
+<p>We have finished with theoretical part and ready to continue with the second article <a href="../ann-in-scala-2">ANN in Scala: implementation</a>.
+In case you have not gotten how the ANN is actually working in theory, then I encourage you to search for other articles and 
+videos. It is important to understand this part before looking at actual implementation in code.</p>
+
+      
+  </article>
+</section>
+
+       
+
+      <footer>
+        
+          
+<figure class="mini_logo ">
+    <a href="https:&#x2F;&#x2F;novakov-alexey.github.io" style="background-image: url(https:&#x2F;&#x2F;novakov-alexey.github.io/img/alexey_white2.jpg)"></a>
+</figure>
+<h5>
+    <a href="https:&#x2F;&#x2F;novakov-alexey.github.io">Software Engineering Notes</a>
+</h5>
+
+          
+<ul class="social_list foot_list" >
+    
+    
+    <li class="button extra_small font_faint"><a href="https://github.com/novakov-alexey" target="_blank" >novakov-alexey</a><i class="fab fa-github" ></i></li>
+    
+    
+    <li class="button extra_small font_faint"><a href="https://twitter.com/alexey_novakov" target="_blank">@alexey_novakov</a><i class="fab fa-twitter" ></i></li>
+    
+    
+    
+    
+    <li class="button extra_small font_faint"><a href="https://www.linkedin.com/in/alexey-novakov-26468624" target="_blank">alexey-novakov-26468624</a><i class="fab fa-linkedin" ></i></li>
+    
+    
+    
+    
+    <!-- 
+    <li class="button extra_small font_faint"><a href="https:&#x2F;&#x2F;novakov-alexey.github.io/rss.xml" target ="_blank">rss</a><i class="fas fa-rss" ></i></li>
+     -->
+</ul>
+
+        
+      </footer>
+    </body>
+</html>
