@@ -20,11 +20,11 @@ This implementation will consist of:
 1. Mini-library for data preparation
 1. A DSL for Neural Network creation, including layers
 1. Pluggable weights optimizer
-1. Plug-able implementation of activation and loss functions
+1. Pluggable implementation of activation and loss functions
 1. Pluggable training metric calculation
 
 Everything will be implemented in pure Scala without using any third-party code. 
-By plugable I mean extendable, i.e. a user can provide own implementation by implementing Scala trait.
+By pluggable I mean extendable, i.e. a user can provide own implementation by implementing Scala trait.
 
 Neural network and data preprocessing APIs are inspired by [Keras](https://keras.io/) and [scikit-learn](https://scikit-learn.org/stable/) libraries.
 
@@ -34,11 +34,10 @@ Before starting our journey into the world of linear algebra we need good suppor
 multiplication, addition, subtraction, transponding operations. Without these operations, we will clutter the
 main algorithm so that another person, who will be reading our code, may lost. It is very easy to be blown
 away by pile of code which is trying to mimic math. Scala is perfect language to implement math expression as
-it supports custom operands by using symbols as methods, i.e. we can implement "*" or any other math operations for
-our custom type `Tensor`.
+it supports custom operands by using symbols as definition names(variables, methods, etc.), i.e. we can implement "*" or any other math operations as part of our custom type `Tensor`.
 
-Below we define a trait Tensor for generic type T. Later we set boundaries for T. It must have `given` 
-instances of ClassTag and Numeric types for array creation and numerical computations.
+Below we define `Tensor` trait for a generic type `T`. Later, we will set boundaries for T. It must have `given` 
+instances of ClassTag and Numeric types for array creation and general numerical computations.
 
 ```scala
 sealed trait Tensor[T]:
@@ -66,9 +65,9 @@ extension [T: ClassTag: Numeric, U: ClassTag](t: Tensor[T])
 ```
 
 In extension section we add lots of operations that our generic Tensor is going to support. Some of them are symbolic like
-`*` and `-`. Other are operations are more traditional methods such as `map` or `sum`. 
-Note that `*` and `multiply` are two different operations. From math perspective, the first one is a dot product
-another one is a Hadamard product. Most of the time, we will use dot product operation, 
+`*` and `-`. Other operations are more traditional methods such as `map` or `sum`. 
+Note that `*` and `multiply` are two different operations. From math perspective, the first one is a [dot product](https://en.wikipedia.org/wiki/Dot_product)
+another one is a [Hadamard product](https://en.wikipedia.org/wiki/Hadamard_product_(matrices)). Most of the time, we will use "dot product" operation, 
 however in one place Hadamard product is going to be used (back-propagation part).
 
 All extension methods are delegating the operations to plain Scala functions in the Tensor singleton object.
@@ -144,6 +143,8 @@ with one column according to math convention.
 1. Later we check operands dimensions, as they must obey rules of
 matrix multiplication. If rules are not met we throw an error. No Scala `Either` type or other error modelling is used to not clutter the code. Our goal is to stay as close as possible to math and keep balance between using types and readability.
 
+See [source code on GitHub](https://github.com/novakov-alexey/deep-learning-scala/blob/master/src/main/scala/tensor.scala) for full implementation of tensor library.
+
 # Neural Network DSL
 
 Let's define a trait for abstract model that can learn:
@@ -163,7 +164,7 @@ The first two methods are the main ones.
 number of training cycles as `epochs` to learn the right parameters for future predictions.
 1. `predict` allows us to infer target value by giving only `x` data
 1. `reset` cleans model weights, so that it initialises them again upon next training
-1. `currentWeights` and `losses` are giving weights and losses of the last training cycle.
+1. `currentWeights` and `losses` are returning weights and losses of the last training cycle.
 
 Machine learning model is a stateful thing. It keeps list of parameters called weights and biases of type `List[Weight[T]]`.
 These parameters are the heart of the model. They are mutating on every training epoch and data batch.
@@ -228,7 +229,7 @@ case class Sequential[T: ClassTag: RandomGen: Numeric, U: Optimizer](
 
 There are bunch of parameters that we need in simple sequential model with fully connected layers:
 
-1. Generic type `T` is numeric type of the data which can be `Float`, `Double` or `Int`. Most of the time you need numbers with floating point.
+1. Generic type `T` is numeric type of the data which can be `Float`, `Double`, `Int`, etc. Most of the time you want numbers with floating point in machine learning.
 1. Random generator can be provided as contextual abstraction (given instance). It is used to initialise
 weights and biases for every layer.
 1. Generic `U` is a type of optimisation algorithm that we use in back-propagation part of the training cycle. Also given as type class instance.
@@ -339,6 +340,8 @@ In order to update weights an optimizer needs:
 
 Data batching is happening outside of the optimizer, in the `train` method.
 We can select either full batch or mini-batch training by specifying a number of records in the batch. 
+So that is why this optimizer is not specific type of gradient descent (stochastic, mini-batch, batch), but just works with 
+whatever weights are given for updates.
 
 Actual implementation of the gradient descent optimization:
 
@@ -376,7 +379,7 @@ given Optimizer[SimpleGD] with
 ```
 
 The weights update starts from tail and moves to the head of the list, i.e. from the last layer to the first hidden layer.
-`weights` and `activations` are equal in length, since the last one is produced via the weight list during the forward propagation. 
+`weights` and `activations` are equal in length, since the last one is produced via the weight list during the forward-propagation. 
 
 The complex part is calculating the `delta` that we use for partial derivative. 
 
@@ -384,9 +387,9 @@ The complex part is calculating the `delta` that we use for partial derivative.
 1. Last layer does not have previous weights.
 1. Every `delta` is then multiplied by activation function derivative: `f.derivative(z)`.
 1. The rest part is simpler and more or less linear. We calculate `partialDerivative` and update layer weights and biases.
-1. We pass current layer weight and delta to the next layer. Usage of `foldRight` helps us easily to pass these parameters to next layer.
+1. We pass current layer weight and delta to the next layer. Usage of `foldRight` helps us easily to pass these parameters to the next layer.
 
-This folding loop returns updated list of weights, which is of course has equal list length to the original list length.
+This folding loop returns updated list of weights, which is, of course, has equal length comapre to the original list.
 
 # Data Preparation
 
@@ -424,14 +427,13 @@ val y = dataLoader.cols[Float](-1)
 ```
 
 1. First, we load raw data from a CSV file, then we select all columns between 3-rd and last one (-1 means: length - 1).
-1. Initial data is of `String` type, later we choose `Numeric` data type.
-1. We compose label, one-hot encoders and type transformers into a function inside the `createEncoders` function. That allows us to use 
-`prepareData` function later for validation dataset.
+1. Initial data is of `String` type, later we choose numerical data type such as `Float`.
+1. We compose label, one-hot encoders and data type transformer into a function inside the `createEncoders` function. That allows us to use `prepareData` function later for validation dataset.
 1. `y` data we take from the last column of the dataset.
 
 I am not going to describe the entire code of data preparation classes. The goal of encoders is to 
-prepare data for deep neural network to learn by normalising all columns as per their individual means and 
-standard deviations. Also, we encode categorical columns using 0 and 1 via one-hot encoding approach.
+prepare data for deep neural network training and inference. We normalise all columns as per their individual means and 
+standard deviations. Also, we encode categorical columns using `0` and `1` using [one-hot encoding](https://en.wikipedia.org/wiki/One-hot) approach.
 
 # Training Run
 
@@ -440,8 +442,8 @@ val ((xTrain, xTest), (yTrain, yTest)) = (x, y).split(0.2f)
 val model = ann.train(xTrain, yTrain, epochs = 100)
 ```
 
-Then we split `x` and `y` data into two 80% and 20% parts for training and testing accordingly.
-And finally execute the training for 100 `epochs`.
+We split `x` and `y` data into 80% and 20% parts for training and testing accordingly.
+Finally, we execute the training for 100 `epochs`.
 
 ```bash
 sbt:ann> run
@@ -620,16 +622,17 @@ Entire code can be checked here: [tensorflow-ann-python](https://github.com/nova
 We have seen that Scala implementation looks very concise thanks to the great language design.
 It also works faster than Python implementation in Keras on CPU.
 
-Artificial Neural Network may be understood as a magic, but you can see that basic building blocks are just math.
+Artificial Neural Network can be understood by newbies as magic, 
+but a closer look shows that basic building blocks are just math.
 
-Being a functional programmer in Scala, you may find that some of the code is not doing total functions. For that we would 
-need to add more types and model some error handling logic. There are several possibilities where user may provide
-wrong inputs from math perspective, so that we could return an Either.left or something like that. 
+Being a functional programmer in Scala, you may find that some of the code is not doing total functions, but partial functions by throwing erros. 
+Unfortunatelly, there are several possibilities where user may provide
+wrong inputs from math perspective, so that we could return an [Either.Left](https://www.scala-lang.org/api/current/scala/util/Either.html) or something like that to mitigate this problem.
 
-Making a machine learning library is fun, since it is just algorithms and in memory computations, you do not need to deal with that much I/O, networking
-or distributed systems in general.
+Making a machine learning library is fun, since it is just algorithms and in-memory computations.
+You do not need to deal with that much I/O, networking or distributed systems programming.
 Main part even does not parallelise, so no concurrency and cognitive overhead related with it. 
-Of course, to make an ML library today, you would require support of GPU for faster, parallel computation.
+Of course, to make an ML library today for real life, you would require [support of GPU](https://en.wikipedia.org/wiki/General-purpose_computing_on_graphics_processing_units) for faster, parallel computation.
 
 Implemented code demonstrates two points: 
 
