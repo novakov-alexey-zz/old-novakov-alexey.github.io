@@ -13,7 +13,7 @@ categories = ["math"]
 
 {{ resize_image(path="ann-in-scala-1/images/deep-learning.png", width=600, height=600, op="fit") }}
 
-_Deep Learning_ is a part of machine learning methods which are based on artificial neural networks. Some of the deep learning architectures are deep neural networks.
+_Deep Learning_ is a group of machine learning methods which are based on artificial neural networks. Some of the deep learning architectures are deep neural networks.
 Deep neural network is an artificial neural network (ANN further) with multiple layers between the input and output layers. There are different types of neural networks, but they always have
 neurons, synapses, weights, biases and functions.
 
@@ -150,7 +150,7 @@ prediction quite generic, so that we can easily program that in any programming 
 
 In a nutshell, our 12 x 6 x 6 x 1 network will form the following expressions for every training batch:
 
-### First Layer
+### First Hidden Layer
 
 {{ resize_image(path="ann-in-scala-1/images/ann-forward.png", width=600, height=600, op="fit") }}
 
@@ -162,7 +162,7 @@ Above picture shows activations for the neurons of the first hidden layer. In fa
 Resulting matrix is used to add biases using element-wise addition. b1 will be added to each element of the first row of that resulting matrix,
 then b2 to the second row and so on.
 
-### Second Layer
+### Second Hidden Layer
 
 The `x` of the second layer is an `a` we calculated on the previous layer. We will call it `a1`.
 
@@ -174,7 +174,7 @@ f(z2) = a2 (16 x 6)
 
 Above pseudo-code shows matrix dimensions in the parenthesis.
 
-### Output
+### Output Layer
 
 Input data is a2. Here we get out prediction at the end:
 
@@ -306,7 +306,7 @@ sizes: 16, Tensor1D[Float]:
 __________________________________
 
 Above trace is for the first traning batch at the very first epoch. You should not try understand these digits in weights, biases and outputs matrices.
-They are going to change their values a lot after running traning loop 100 times (epocs) with N batches each.
+They are going to change their values a lot after running traning loop 100 times (epochs) with N batches each.
 
 # Backward Propagation
 
