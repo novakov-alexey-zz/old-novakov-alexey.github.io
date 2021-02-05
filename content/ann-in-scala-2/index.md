@@ -641,3 +641,11 @@ Implemented code demonstrates two points:
 Entire code of the Scala ANN implementation can be found here:
 
 [https://github.com/novakov-alexey/deep-learning-scala](https://github.com/novakov-alexey/deep-learning-scala)
+
+# Reference Links
+
+- [Artificial-Neural-Network-ANN-4-Backpropagation](https://www.bogotobogo.com/python/scikit-learn/Artificial-Neural-Network-ANN-4-Backpropagation.php)
+
+- [backpropagation---the-heart-of-neural-networks](https://riptutorial.com/machine-learning/example/31623/backpropagation---the-heart-of-neural-networks)
+
+- [An overview of gradient descent optimization algorithms](https://arxiv.org/pdf/1609.04747.pdf)
