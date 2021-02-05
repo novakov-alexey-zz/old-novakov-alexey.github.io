@@ -20,7 +20,7 @@ neurons, synapses, weights, biases and functions.
 {{ resize_image(path="ann-in-scala-1/images/Scala_logo.png", width=600, height=600, op="fit") }}
 
 [Scala](https://www.scala-lang.org/) is a full-stack multi-paradigm programming language. Scala is famous for its innovations in JVM eco-system and
-ambitios language syntax features leaving all other JVM-based languages for years behind. 
+ambitious language syntax features leaving all other JVM-based languages for years behind. 
 Scala is also popular language thanks to Apache Spark, Kafka and Flink projects which are mainly implemented in it. 
 
 # Scope 
@@ -28,7 +28,7 @@ Scala is also popular language thanks to Apache Spark, Kafka and Flink projects 
 This tutorial is divided into 2 articles. 
 
 
-1. In this aritcle we will go through the theory of ANN implementation. I will guide you through the basic calculus such as liniear algebra and a little bit of differential calculus, which you need to know to implement neural network tranining and optimization algorithms.
+1. In this article we will go through the theory of ANN implementation. I will guide you through the basic calculus such as linear algebra and a little bit of differential calculus, which you need to know to implement neural network training and optimization algorithms.
 
 2. In [the second aritcle](../ann-in-scala-2) we are going to implement ANN from scratch in Scala. 
 You can jump into second part directly, if you are familiar with the theory. But first look at the ANN Jargon table, if you decided to switch to second part.
@@ -45,7 +45,7 @@ on the Deep learning name definitions, so that it is important to know why some 
 | x             | input data for each neuron | 2-dimensional tensor, i.e. matrix |
 | y , actual            | target data we know in advance from the training dataset | 1-d tensor, i.e. vector |
 | yHat , predicted      | output of the neural network during the training or single prediction | 1-d tensor |
-| w      | layer weight, a.k.a model paramaters | 2-d tensor |
+| w      | layer weight, a.k.a model parameters | 2-d tensor |
 | b | layer bias, part of the layer parameters | 1-d tensor
 |z | layer activation, calculated as <br/> `x * w + b` | 2-d tensor |
 | f | activation function to activate neuron. Specific implementation: sigmoid, relu | Scala function |
@@ -54,20 +54,20 @@ on the Deep learning name definitions, so that it is important to know why some 
 | lossFunc | loss function to calculate error rate on training/validation (example: mean squared error) | Scala function |
 | epochs | number of iterations to train ANN | `integer` > 0 |
 | accuracy | % of correct predictions on train or test data sets | `double` number, between 0 and 1 |
-| learningRate | numeric paramater used in weights update | `double` number, usually between 0.01 and 0.1 | 
+| learningRate | numeric parameter used in weights update | `double` number, usually between 0.01 and 0.1 | 
 
 # Tensor
 
 Deep Learning is all about tensor calculus. Tensor in computer science is a generic abstraction for N-dimensional array. 
 In our ANN implementation, we are going to use scalar numbers which are encoded as 0-dimension tensor, vector - encoded as 1-d tensor and
-finally matrix - encoded as 2-d tensor. Vector and matrix are the most used buidling blocks for Deep Learning calculus. All tensor shapes we will
+finally matrix - encoded as 2-d tensor. Vector and matrix are the most used building blocks for Deep Learning calculus. All tensor shapes we will
 use are going to be rectangular - every element is the same size along each axis.
 
 # Dataset
 
-We will take _Churn Modeling_ dataset which predicts whether a customer is going to leave the bank or not. 
-This dataset is traveling accross many tutorials at the Internet, 
-so that you can find a couple different code implementations among dozens of articales using the same data, so do I.
+We will take _Churn Modelling dataset which predicts whether a customer is going to leave the bank or not. 
+This dataset is traveling across many tutorials at the Internet, 
+so that you can find a couple different code implementations among dozens of articles using the same data, so do I.
 
 ```csv
 RowNumber,CustomerId,Surname,CreditScore,Geography,Gender,Age,Tenure,Balance,NumOfProducts,HasCrCard,IsActiveMember,EstimatedSalary,Exited
@@ -97,19 +97,19 @@ EstimatedSalary
 
 {{ resize_image(path="ann-in-scala-1/images/ann.png", width=600, height=600, op="fit") }}
 
-Above picture descibes a network we are going to implement.
+Above picture describes a network we are going to implement.
 
-- _N_ is a number of features, i.e. remaning columns from the input dataset.
+- _N_ is a number of features, i.e. remaining columns from the input dataset.
 
 - Each layer is fully connected with next layer. I draw each layer by skipping middle neurons to get smaller visual overhead.
 
-- Between each layer we have weights which form linear equasions via dot product `x` * `w` + `bias`.
+- Between each layer we have weights which form linear equations via dot product `x` * `w` + `bias`.
 
 - Each layer has its own activation functions. We use ReLU (Rectified Linear Unit) and Sigmoid functions.
 
 # Forward Propagation
 
-Basic idea of neural network implementation is to leverage math principals for maxtrix and vector multiplication. As neural network is going to be fully conected from layer to layer, we can represent learning and opmization algorithms as following:
+Basic idea of neural network implementation is to leverage math principals for matrix and vector multiplication. As neural network is going to be fully connected from layer to layer, we can represent learning and optimization algorithms as following:
 
 ## Dimensions
 
@@ -140,10 +140,10 @@ Mini-batch approach, i.e. multiple training examples at once. Batch size to be t
 As you can see, our matrices are equal in rows at input and output layers.
 That means we can input any number of rows through the neural network at once when we do training or prediction.
  
-## Math of the Forward propogation
+## Math of the Forward propagation
 
 When we train neural network, we use input data and parameters on all hidden layers to reach output layer, so that we get the prediction value(s).
-First part of the ANN implementation that calculates predictions, i.e. `yHat` is called _forward propogation_.
+First part of the ANN implementation that calculates predictions, i.e. `yHat` is called _forward propagation.
 
 Linear algebra helps us to feed data into the network and get the result using matrix multiplication principals. That makes the entire training and single
 prediction quite generic, so that we can easily program that in any programming language. 
@@ -184,26 +184,26 @@ a2 (16 x 6) * w3 (6 x 1) + b3 (1 x 1) = z3 (16 x 1)
 f(z3) = a3 (16 x 1)
 ```
 
-`a3` a.k.a yHat represents a prediction for each data sample in the batch. Prediction values are probabilites between 0 and 1. 
+`a3` a.k.a yHat represents a prediction for each data sample in the batch. Prediction values are probabilities between 0 and 1. 
 
 If you are confused with above explanation, I recommend to check great video series on Deep Learning: [But what is a Neural Network? | Deep learning, chapter 1](https://www.youtube.com/watch?v=aircAruvnKk).
 
 
 ## Batch Tracing
 
-In order to see what is going on with the state of neural network, let's feed one signle batch into it.
+In order to see what is going on with the state of neural network, let's feed one single batch into it.
 
-There are different strategies for initial weights and biases initialization. In our implementation we will follow:
+There are different strategies for initial weights and biases initialisation. In our implementation we will follow:
 
-- weight matrices are initialized using uniform-random
-- bias vectors are initialized with zeros
+- weight matrices are initialised using uniform-random
+- bias vectors are initialised with zeros
 
 Later they will be updated via optimization algorithm.
 
 ### x - input
 
 Below matrix is our `x`, which is our input data from the training or test set. The values it contains is a result of 
-data preparation step, which I will explain in detials further:
+data preparation step, which I will explain in details further:
 
 ```bash
 sizes: 16x12, Tensor2D[Float]:
@@ -305,12 +305,12 @@ sizes: 16, Tensor1D[Float]:
 
 __________________________________
 
-Above trace is for the first traning batch at the very first epoch. You should not try understand these digits in weights, biases and outputs matrices.
-They are going to change their values a lot after running traning loop 100 times (epochs) with N batches each.
+Above trace is for the first training batch at the very first epoch. You should not try understand these digits in weights, biases and outputs matrices.
+They are going to change their values a lot after running training loop 100 times (epochs) with N batches each.
 
 # Backward Propagation
 
-Initial weights and biases are not going to give us right equastions to predict our _y_. Even if we propogate the entire dataset through the network.
+Initial weights and biases are not going to give us right equations to predict our _y_. Even if we propagate the entire dataset through the network.
 Obviously, someone needs to update these parameters based on some feedback. This feedback is calculated via `loss` function. 
 In the science literature, `loss function` is also called as `cost function`. We are going to use `loss` and `cost` here as synonymous.
 
@@ -334,7 +334,7 @@ As [per Wikipedia](https://en.wikipedia.org/wiki/Gradient_descent):
 Gradient descent is a first-order iterative optimization algorithm for finding a local minimum of a differentiable function 
 {% end %}
 
-Gradient descent is a way to minimize an objective loss function for neural network paramaters. In other words, it helps to find best parameters by
+Gradient descent is a way to minimise an objective loss function for neural network parameters. In other words, it helps to find best parameters by
 minimising loss function. _Smaller loss, better overall network accuracy._
 
 Using Gradient Descent, we are finding proper change rate on every training cycle. 
@@ -342,24 +342,24 @@ So that we can update our weights and biases to get the best model performance.
 
 How exactly the Gradient Descent algorithm calculates that change?
 
-There are thousands of articles explaining that visaully. In short, we are trying to find stepest descent of the derivative function.
-Using small coefficient `learningRate` we substract the gradient value from the initial parameter. That allows us to find best parameter and
-minimize the loss function. One the good visiual explantion for linear regression problem with gradient descent is [here](https://www.mygreatlearning.com/blog/gradient-descent/). It also works well for mutliple linear regression like in our case, we got 12 features, so 12 independen variables.
+There are thousands of articles explaining that visually. In short, we are trying to find steepest descent of the derivative function.
+Using small coefficient `learningRate` we subtract the gradient value from the initial parameter. That allows us to find best parameter and
+minimise the loss function. One of the good visual explanation for linear regression problem with gradient descent is [here](https://www.mygreatlearning.com/blog/gradient-descent/). It also works well for multiple linear regression like in our case, we got 12 features, so 12 independent variables.
 
-Coming back to our backprogation implementation. `f'(x)`is a derrivative function of the layer's activation function. We use derrivative function to update all weights except the last one, i.e. `w1` and `w2`, not `w3`. To update `w3`, we use delta based on the `error`, i.e. predicted - actual. 
-Layers `w1` and `w2` are using `relu` as activation function. Derrivative of the `relu` function is following:
+Coming back to our back-propagation implementation. `f'(x)`is a derivative function of the layer's activation function. We use derivative function to update all weights except the last one, i.e. `w1` and `w2`, not `w3`. To update `w3`, we use delta based on the `error`, i.e. predicted - actual. 
+Layers `w1` and `w2` are using `relu` as activation function. Derivative of the `relu` function is following:
 
 ```scala
 if (x < 0) 0 
 else 1
 ```
 
-Such derrivative function is applied element-wise to `z` matrix in the step #6 of the back propagation part (see second article for Scala reference implementation).
+Such derivative function is applied element-wise to `z` matrix in the step #6 of the back propagation part (see second article for Scala reference implementation).
 
 ## Math of the Backward propagation
 
-Backpropogation part of ANN is a bit more complicated than forward propagation part. 
-In _Gradient Descent Optimization_ algorithm, we calculate derrivatives to calculate `yHat` rate of change with respect to last `z`, in our case it is `z3`. 
+Back-propagation part of ANN is a bit more complicated than forward propagation part. 
+In _Gradient Descent Optimization_ algorithm, we calculate derivatives to calculate `yHat` rate of change with respect to last `z`, in our case it is `z3`. 
 
 ### High-level steps of the Gradient Descent algorithm
 
@@ -371,7 +371,7 @@ delta = (yHat - y) multiply f'(z)
 result is a 16 x 1 matrix
 
 where:
-    - "f`" is a derrivative to activation function on the current layer.   
+    - "f`" is a derivative to activation function on the current layer.   
     - "z" is current layer activation.
     - "multiply" is Hadamard product, a.k.a. element-wise multiplication. 
       Note: it is not the same as dot product.
@@ -379,22 +379,22 @@ where:
 
 1. Iterate list of weights matrices from end to start, i.e. backwards.
    Let's take "i" as layer index
-2. Calculate partial derrivative as:
+2. Calculate partial derivative as:
 ```bash
- partialDerrivativeN = xi.T * delta
+ partialDerivativeN = xi.T * delta
 
  where:     
      - "T" is a matrix transpose operation,
-     - "*" is dot product operarion.    
+     - "*" is dot product operation.    
  ``` 
 3. Update weights of `i` layer via:
 
  ```bash
- wi = wi - learningRate * partialDerrivative_i 
+ wi = wi - learningRate * partialDerivative_i 
 
 where:
    - "learningRate" is a scalar number. 
-   - "partialDerrivative_i" is a matrix, so "*" is dot product here as well.
+   - "partialDerivative_i" is a matrix, so "*" is dot product here as well.
  ```
 
 4. Update bias of `i` layer via:
@@ -421,9 +421,9 @@ decrement `i` via `i` = `i` -1 and then repeat steps from 2 to 5.
 
 _otherwise:_ 
 
-we finished backpropogation for a specific batch or a single data sample (in case of stochastic gradien descent).
+we finished back-propagation for a specific batch or a single data sample (in case of stochastic gradient descent).
 
-### Backpropagation tracing 
+### Back-propagation tracing 
 
 #### w3 - between 2nd hidden and output layers 
 
@@ -446,7 +446,7 @@ sizes: 6x16, Tensor2D[Float]:
  [0.0,0.0,3.2367752,0.0,2.513441,9.055562,10.566048,0.26056617,1.7771944,3.133051,0.015981253,0.0,0.0,0.0,0.0,4.64655]]
 ```
 
-partialDerrivative3 = x.T * (delta multiply f`(z)):
+partialDerivative3 = x.T * (delta multiply f`(z)):
 
 ```bash
 sizes: 6x1, Tensor2D[Float]:
@@ -485,10 +485,10 @@ current delta:
 delta (16x6) = (previous delta * previous w) multiply f`(z)
 ```
 
-current derrivative:
+current derivative:
 
 ```bash
-partialDerrivative2 (6 x 6) = x.T (6 x 16) * delta (16 x 6)
+partialDerivative2 (6 x 6) = x.T (6 x 16) * delta (16 x 6)
 ```
 
 updated Weight:
@@ -511,10 +511,10 @@ current delta:
 delta (16x6) = (previous delta * previous w) multiply f`(z)
 ```
 
-current derrivative:
+current derivative:
 
 ```bash
-partialDerrivative1 (12 x 6) = x.T (12 x 16) * delta (16 x 6)
+partialDerivative1 (12 x 6) = x.T (12 x 16) * delta (16 x 6)
 ```
 
 updated Weight:
@@ -531,6 +531,7 @@ b1 (6 x 1) = b1 (6 x 1) - learningRate * sum(delta)
 
 # Wrapping up
 
-We have finished with theoretical part and ready to continue with the second article [ANN in Scala: implementation](todo).
+We have finished with theoretical part and ready to continue with the second article [ANN in Scala: implementation](../ann-in-scala-2).
 In case you have not gotten how the ANN is actually working in theory, then I encourage you to search for other articles and 
 videos. It is important to understand this part before looking at actual implementation in code.
+
