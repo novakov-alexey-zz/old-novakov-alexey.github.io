@@ -34,7 +34,7 @@ Before starting our journey into the world of linear algebra we need good suppor
 multiplication, addition, subtraction, transponding operations. Without these operations, we will clutter the
 main algorithm so that another person, who will be reading our code, may lost. It is very easy to be blown
 away by pile of code which is trying to mimic math. Scala is perfect language to implement math expression as
-it supports custom operands by using symbols as definition names(variables, methods, etc.), i.e. we can implement "*" or any other math operations as part of our custom type `Tensor`.
+it supports custom operands by using symbols as definitions (variables, methods, etc.), i.e. we can implement "*" or any other math operations as part of our custom type `Tensor`.
 
 Below we define `Tensor` trait for a generic type `T`. Later, we will set boundaries for T. It must have `given` 
 instances of ClassTag and Numeric types for array creation and general numerical computations.
@@ -598,6 +598,8 @@ test accuracy = 0.8625
 Almost the same implementation in Python takes much longer to train the model. 
 Although, we are using a bit more advanced optimizer such as `Adam`.
 
+Here is the code snippet that starts model training:
+
 ```python
 ann.compile(optimizer = 'adam', \
   loss = 'binary_crossentropy', metrics = ['accuracy'])
@@ -613,9 +615,9 @@ print(f"training time = {end} sec")
 training time = 24.495086
 ```
 
-Almost 5 times longer in Python. I knew that Python is slow language.
+It is almost 5 times longer. I knew that Python is slow language.
 
-Entire code can be checked here: [tensorflow-ann-python](https://github.com/novakov-alexey/tensorflow-ann-python/blob/main/artificial_neural_network.py)
+See full code here: [tensorflow-ann-python](https://github.com/novakov-alexey/tensorflow-ann-python/blob/main/artificial_neural_network.py)
 
 # Summary
 
@@ -634,7 +636,7 @@ You do not need to deal with that much I/O, networking or distributed systems pr
 Main part even does not parallelise, so no concurrency and cognitive overhead related with it. 
 Of course, to make an ML library today for real life, you would require [support of GPU](https://en.wikipedia.org/wiki/General-purpose_computing_on_graphics_processing_units) for faster, parallel computation.
 
-Implemented code demonstrates two points: 
+__Implemented code demonstrates two points:__
 
 1. ANN is an algorithm that you can implement yourself in any programming language. No magic is involved.
 1. Scala is a perfect language to implement libraries for data science and machine learning.
